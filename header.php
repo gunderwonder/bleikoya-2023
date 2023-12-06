@@ -59,12 +59,12 @@
 		<ul class="b-menu">
 			<li class="b-menu__item">
 				<a href="/" class="b-menu__link <?php if (is_front_page()) : ?>b-menu__link--active<?php endif; ?>">
-					Om Bleikøya
+					Om øya
 				</a>
 			</li>
 			<?php global $post; ?>
 			<li class="b-menu__item"><a class="b-menu__link" href="/">Oppslag</a></li>
-			<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'info') : ?>b-menu__link--active<?php endif; ?>" href="/info/">Praktisk info</a></li>
+			<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'info') : ?>b-menu__link--active<?php endif; ?>" href="/info/">Info</a></li>
 			<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'kalender') : ?>b-menu__link--active<?php endif; ?>" href="/kalender/">Kalender</a></li>
 			<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'kontakt') : ?>b-menu__link--active<?php endif; ?>" href="/kontakt/">Kontakt</a></li>
 
