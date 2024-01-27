@@ -8,8 +8,16 @@ ini_set('display_errors', '1');
 
 define('UNCATEGORIZED_TAG_ID', 1);
 
+add_filter('get_the_categories', function ($categories) {
+	foreach ($categories as $cat_key => $category) {
+		if ($category->term_id == UNCATEGORIZED_TAG_ID) {
+			unset($categories[$cat_key]);
+		}
 
+	}
 
+	return $categories;
+});
 
 function remove_image_size_attr($html) {
 	$html = preg_replace('/(width|height)="\d*"\s/', '', $html);
@@ -17,55 +25,23 @@ function remove_image_size_attr($html) {
 }
 add_filter('the_content', 'remove_image_size_attr', 10);
 
+function add_category_menu() {
+	add_menu_page(
+		'Kategorier',
+		'Kategorier',
+		'manage_categories',
+		'edit-categories',
+		'dashicons-category',
+		'edit-tags.php?taxonomy=category',
+		5
+	);
+}
 
+add_filter('private_title_format', function ($format) {
+	return '%s';
+});
 
-// function create_link_posttype() {
-// 	register_post_type('external-link',
-// 		array(
-// 			'labels' => array(
-// 		        'name' => 'Lenker',
-// 		        'Link'
-// 			),
-// 			'public' => false,
-// 			'has_archive' => false,
-// 			'show_in_menu' => true,
-// 			'show_ui' => true,
-// 			'taxonomies' => array('post_tag'),
-// 			'supports' => array('thumbnail', 'title')
-// 		)
-// 	);
-// }
-
-// function create_artist_tagtype() {
-
-// 	register_taxonomy(
-// 		'artist',
-// 		array('post'),
-// 		array(
-//     		'hierarchical' => false,
-// 			'public' => true,
-//     		'labels' => array(
-// 				'name' => _x('Artister', 'taxonomy general name' ),
-//     			'singular_name' => _x('Artist', 'taxonomy singular name' ),
-//     			'search_items' =>  __('Søk blant artister'),
-//     			'all_items' => __('Alle artister'),
-//     			'edit_item' => __('Rediger artist'),
-//     			'update_item' => __('Oppdater artist'),
-//     			'add_new_item' => __('Legg til ny artist'),
-//     			'new_item_name' => __('Nytt artistnavn'),
-//     			'menu_name' => __('Artister'),
-// 			),
-// 			'show_ui' => true,
-// 		    'show_admin_column' => true,
-// 			'show_in_rest' => true,
-// 		    'query_var' => true,
-// 		    'rewrite' => array('slug' => 'artist'),
-// 		)
-// 	);
-// }
-
-#add_action('init', 'create_link_posttype');
-#add_action('init', 'create_artist_tagtype');
+add_action('admin_menu', 'add_category_menu', 0);
 
 function sc_get_template_part($slug, $name = null, array $bindings = array()) {
 
@@ -88,15 +64,13 @@ function sc_get_field($field, $post = null) {
 	return get_post_meta($post->ID, $field, true);
 }
 
-function tr_allow_private_posts_for_subscriber_role() {
+function b_allow_private_posts_for_subscriber_role() {
 	$role = get_role('subscriber');
 	$role->add_cap('read_private_posts');
+	$role->add_cap('read_private_pages');
 }
 
-add_action('init', 'tr_allow_private_posts_for_subscriber_role');
-
-
-
+//add_action('init', 'b_allow_private_posts_for_subscriber_role');
 
 function sc_get_post_fields($post = null) {
 
@@ -113,24 +87,6 @@ function sc_get_post_fields($post = null) {
 		// 'colophone' => apply_filters('the_content', sc_get_field('post-colophone', $post))
 	);
 }
-
-function sc_get_feed($feed_url, $item_limit = 5) {
-
-	$rss = fetch_feed($feed_url);
-
-	if (is_wp_error($rss))
-		return $array();
-
-	$item_count = 0;
-	$item_count = $rss->get_item_quantity($item_limit);
-
-    // Build an array of all the items, starting with element 0 (first element).
-    $rss_items = $rss->get_items(0, $item_count);
-
-	return $rss_items;
-
-}
-
 
 function sc_get_json($url) {
 	$json = wp_cache_get($url);
@@ -162,11 +118,6 @@ function sc_get_posts_by_taxonomy($taxonomy, $id, $posts_per_page = -1) {
 	);
 }
 
-// function inspect_scripts()
-// {
-
-// }
-// add_action('wp_print_scripts', 'inspect_scripts');
 
 function inspect_styles() {
 	global $wp_styles;
@@ -193,11 +144,8 @@ function inspect_styles() {
 		wp_deregister_script('tribe-events-views-v2-manager');
 		wp_deregister_script('tribe-events-views-v2-breakpoints');
 	}
-
-
 }
 add_action('wp_footer', 'inspect_styles');
-
 
 function sc_is_xmlhttprequest() {
 	return isset($_GET['ajax']) ||

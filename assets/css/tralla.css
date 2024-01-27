@@ -30,7 +30,7 @@ body {
 }
 
 h2 {
-	font-family: Futura;
+	font-family: Futura, 'Nunito Sans', sans-serif;
 	font-weight: bold;
 	text-transform: uppercase;
 	font-size: 1rem;
@@ -42,7 +42,7 @@ h2:not(:first-child) {
 }
 
 h1 {
-	font-family: Futura;
+	font-family: Futura, 'Nunito Sans', sans-serif;
 	font-weight: normal;
 	font-size: 2rem;
 	color: var(--b-header-color);
@@ -73,21 +73,50 @@ h1 {
 	margin-top: 3rem;
 	border-top: 1px solid var(--b-border-color);
 	border-bottom: 1px solid var(--b-border-color);
+}
 
+.b-frontpage-hero {
+	max-width: 70rem;
+	margin: 0	auto
 }
 
 .b-frontpage-hero img {
 	width: 100%;
 }
 
-.b-bleikoya-map object {
-
-}
 
 a {
 	color: var(--b-primary-color);
 	text-decoration: none;
 	border-bottom: 1px solid var(--b-primary-color);
+}
+
+.b-subject-heading {
+	line-height: 1.6rem;
+}
+
+.b-subject-index__entry {
+	position: relative;
+	min-height: 2rem;
+	margin-bottom: 3rem;
+}
+
+.b-subject-index .b-subject-heading {
+	display: inline-block;
+	text-align: right;
+	margin-top: 0;
+	color: var(--b-blue-color);
+
+}
+
+@media screen and (min-width: 1080px) {
+	.b-subject-index__entry .b-subject-heading {
+		position: absolute;
+		left: -14rem;
+		width: 12rem;
+		top: 1px;
+	}
+
 }
 
 .b-subject-link {
@@ -96,20 +125,32 @@ a {
 	color: white;
 	padding: 10px 20px 10px 20px;
 	border-radius: 20px;
-	font-family: Futura;
+	font-family: Futura, 'Nunito Sans', sans-serif;
 	font-weight: bold;
 	font-size: 14px;
 	border-bottom-width: 0;
+}
+
+.b-subject-list__item {
+	/* margin-bottom: 2rem; */
+}
+
+.b-subject-list__item-post {
+	margin-bottom: 1rem;
+}
+
+.b-subject-list__item-posts-heading {
+	font-family: 'Libre Franklin';
+	font-weight: bold;
+	text-transform: uppercase;
+	font-size: .8rem;
+	color: var(--b-header-color);
 }
 
 .b-inline-list {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
-	/* text-align: center; */
-
-
-
 }
 
 .b-inline-list li {
@@ -118,25 +159,32 @@ a {
 	margin-right: 1rem;
 }
 
+aside .b-subject-list {
+	max-width: 900px;
+	margin: 0 auto;
+	margin-top: 2rem;
+}
+
 .b-subject-list {
 	list-style-type: none;
 	margin: 0 4rem 0 4rem;
-	padding: 0;
-	/* columns: 2;
-		-webkit-columns: 2;
-		-moz-columns: 2; */
-
+	padding: 0 0 0 2rem;
 }
 
 .b-subject-list__first-letter {
-	position: absolute;
-	left: -2rem;
+	display: block;
+	margin-bottom: 1rem;
 }
 
-@media screen and (min-width: 780px) {
+@media screen and (min-width: 1080px) {
 	.b-subject-list__item {
 		width: 50%;
 		float: left;
+	}
+
+	.b-subject-list__first-letter {
+		position: absolute;
+		left: -2rem;
 	}
 
 }
@@ -188,7 +236,7 @@ a {
 .b-header-link__extra {
 	font-weight: normal;
 	display: inline-block;
-	font-family: Futura;
+	font-family: Futura, 'Nunito Sans', sans-serif;
 	color: black;
 	margin-top: 1rem;
 	text-transform: uppercase;
@@ -238,7 +286,7 @@ a {
 }
 
 .b-menu__link {
-	font-family: Futura;
+	font-family: Futura, 'Nunito Sans', sans-serif;
 	text-transform: uppercase;
 	font-weight: normal;
 	border-bottom: none;
@@ -264,6 +312,7 @@ a {
 	}
 
 }
+
 
 .b-menu-scroll-button {
 	position: absolute;

@@ -29,11 +29,11 @@
 		?>
 
 		<ul class="b-subject-list clearfix">
-			<?php foreach ($nested_categories as $letter => $categories) : ?>
+			<?php foreach ($nested_categories as $letter => $letter_categories) : ?>
 				<li class="b-subject-list__item">
 					<span class="b-subject-list__first-letter"><?php echo $letter; ?></span>
 					<ul class=" b-inline-list">
-						<?php foreach ($categories as $category) : ?>
+						<?php foreach ($letter_categories as $category) : ?>
 							<li>
 								<a class="b-subject-link" href="<?php echo get_category_link($category->term_id); ?>">
 									<?php echo $category->name; ?>
@@ -53,16 +53,44 @@
 
 
 <div class="b-center">
-	<main>
+	<main class="b-subject-index">
+		<?php usort($categories, function ($a, $b) {
+			return strcmp($a->name, $b->name);
+		}); ?>
 
 
+		<?php foreach ($categories as $category) : ?>
 
-		<?php if (have_posts()) : ?>
-			<?php while (have_posts()) : ?>
-				<?php the_post(); ?>
-				<?php sc_get_template_part('parts/page/content-page', get_post_type(), sc_get_post_fields()); ?>
-			<?php endwhile; ?>
-		<?php endif; ?>
+			<div class="b-subject-index__entry">
+				<h2 class="b-subject-heading" id="category-<?php echo $category->term_id ?>">
+					<?php echo $category->name ?>
+				</h2>
+				<div class="b-body-text">
+					<?php echo sc_get_field('category-documentation', $category) ?>
+				</div>
+
+				<?php $posts = get_posts(array('category' => $category->term_id)); ?>
+
+				<?php if (count($posts) > 0) : ?>
+					<h3 class="b-subject-list__item-posts-heading">Relaterte oppslag</h3>
+					<ul class="b-subject-list__item-posts">
+						<?php global $post; ?>
+						<?php foreach ($posts as $post) : ?>
+							<?php setup_postdata($post); ?>
+							<li class="b-subject-list__item-post">
+
+								<a href="<?php the_permalink() ?>" class="b-subject-list__item-post-link">
+									<?php the_title(); ?>
+								</a>
+							</li>
+
+						<?php endforeach; ?>
+					</ul>
+					<?php wp_reset_postdata(); ?>
+				<?php endif; ?>
+			</div>
+
+		<?php endforeach; ?>
 	</main>
 </div>
 

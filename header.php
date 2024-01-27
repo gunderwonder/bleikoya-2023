@@ -34,8 +34,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-
-
+	<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,700&display=swap" rel="stylesheet">
 
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/normalize.css">
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/tralla.css">
@@ -63,8 +62,10 @@
 				</a>
 			</li>
 			<?php global $post; ?>
-			<li class="b-menu__item"><a class="b-menu__link" href="/">Oppslag</a></li>
-			<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'info') : ?>b-menu__link--active<?php endif; ?>" href="/info/">Info</a></li>
+			<?php if (is_user_logged_in()) : ?>
+				<li class="b-menu__item"><a class="b-menu__link" href="/">Oppslag</a></li>
+				<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'info' || is_category()) : ?>b-menu__link--active<?php endif; ?>" href="/info/">Info</a></li>
+			<?php endif; ?>
 			<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'kalender') : ?>b-menu__link--active<?php endif; ?>" href="/kalender/">Kalender</a></li>
 			<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'kontakt') : ?>b-menu__link--active<?php endif; ?>" href="/kontakt/">Kontakt</a></li>
 

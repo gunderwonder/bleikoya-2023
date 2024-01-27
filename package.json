@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nrk/core-scroll": "^4.4.0"
+    "@nrk/core-scroll": "^4.4.0",
+    "animated-scroll-to": "^2.3.0"
   }
 }
