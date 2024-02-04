@@ -17,7 +17,6 @@
 		<h1><?php the_title() ?></h1>
 	<?php endif; ?>
 
-
 	<div class="b-body-text">
 		<?php the_content() ?>
 	</div>

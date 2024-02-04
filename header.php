@@ -45,10 +45,6 @@
 	<?php wp_head(); ?>
 </head>
 
-
-
-</head>
-
 <body <?php body_class(); ?>>
 	<?php wp_body_open(); ?>
 
@@ -58,17 +54,20 @@
 		<ul class="b-menu">
 			<li class="b-menu__item">
 				<a href="/" class="b-menu__link <?php if (is_front_page()) : ?>b-menu__link--active<?php endif; ?>">
-					Om øya
+					<?php if (is_user_logged_in()) : ?>
+						<?php echo "Forside" ?>
+					<?php else : ?>
+						<?php echo " Om øya" ?>
+					<?php endif; ?>
 				</a>
 			</li>
 			<?php global $post; ?>
 			<?php if (is_user_logged_in()) : ?>
-				<li class="b-menu__item"><a class="b-menu__link" href="/">Oppslag</a></li>
+				<li class="b-menu__item"><a class="b-menu__link <?php if (is_home() || is_single()) : ?>b-menu__link--active<?php endif; ?>" href="/oppslag">Oppslag</a></li>
 				<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'info' || is_category()) : ?>b-menu__link--active<?php endif; ?>" href="/info/">Info</a></li>
 			<?php endif; ?>
 			<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'kalender') : ?>b-menu__link--active<?php endif; ?>" href="/kalender/">Kalender</a></li>
 			<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'kontakt') : ?>b-menu__link--active<?php endif; ?>" href="/kontakt/">Kontakt</a></li>
-
 		</ul>
 
 		<button class="b-menu-scroll-button"></button>
@@ -83,23 +82,16 @@
 					<?php echo $loginout_link; ?>
 				</span>
 			<?php endif; ?>
-
 		</button>
 	</nav>
 
 
 	<div class="b-header">
-
-
 		<a class="b-header-link" href="/">
 			<?php if (is_front_page()) : ?>
 				<!-- <img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/b-logo-2.webp" style="margin-bottom: 2rem;" /> -->
 			<?php endif; ?>
 			<img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/b-logo.png" />
 			<span class="b-header-link__extra">Bleikøya Velforening · 1923 - 2023</span>
-
-
 		</a>
-
-
 	</div>

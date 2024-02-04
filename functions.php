@@ -13,7 +13,6 @@ add_filter('get_the_categories', function ($categories) {
 		if ($category->term_id == UNCATEGORIZED_TAG_ID) {
 			unset($categories[$cat_key]);
 		}
-
 	}
 
 	return $categories;
@@ -25,23 +24,25 @@ function remove_image_size_attr($html) {
 }
 add_filter('the_content', 'remove_image_size_attr', 10);
 
-function add_category_menu() {
-	add_menu_page(
-		'Kategorier',
-		'Kategorier',
-		'manage_categories',
-		'edit-categories',
-		'dashicons-category',
-		'edit-tags.php?taxonomy=category',
-		5
-	);
-}
+// function add_category_menu() {
+// 	add_menu_page(
+// 		'Kategorier',
+// 		'Kategorier',
+// 		'manage_categories',
+// 		'edit-categories',
+// 		'dashicons-category',
+// 		'edit-tags.php?taxonomy=category',
+// 		5
+// 	);
+// }
+
+// add_action('admin_menu', 'add_category_menu', 0);
 
 add_filter('private_title_format', function ($format) {
 	return '%s';
 });
 
-add_action('admin_menu', 'add_category_menu', 0);
+
 
 function sc_get_template_part($slug, $name = null, array $bindings = array()) {
 
