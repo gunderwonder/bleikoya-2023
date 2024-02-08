@@ -10,11 +10,11 @@
 
 ?>
 
-<form class="nrkmusikk-search-form" action="search" method="get" action="/" role="search">
-	<label for="nrkmusikk-search"></label>
-	<input class="nrkmusikk-search-field"
-		name="s" id="nrkmusikk-search"
-		type="text" placeholder="Søk blant artister, låter og sjangre..."
+<form class="b-search-form" action="search" method="get" action="/" role="search">
+	<label for="b-search"></label>
+	<input class="b-search-field"
+		name="s" id="b-search"
+		type="text" placeholder="Søk i oppslag, info og arrangementer..."
 		value="<?php echo get_search_query() ?>"
 		autocomplete="off"
 		aria-autocomplete="list"

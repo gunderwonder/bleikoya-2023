@@ -12,4 +12,15 @@
 	</main>
 </div>
 
+<section class="b-center-wide" style="display: flow-root;">
+	<h2>Siste oppslag</h2>
+	<?php $posts = get_posts(array('posts_per_page' => 5, 'order' => 'DESC', 'orderby' => 'date')); ?>
+	<?php foreach ($posts as $post) : ?>
+		<?php setup_postdata($post) ?>
+		<?php sc_get_template_part('parts/post/plug', 'post'); ?>
+	<?php endforeach ?>
+	<?php wp_reset_postdata() ?>
+	<a href=" /oppslag/" class="b-float-right b-button b-button--green">Se alle oppslag →</a>
+</section>
+
 <?php get_footer() ?>

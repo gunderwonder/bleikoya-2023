@@ -1,7 +1,7 @@
 <?php get_header(); ?>
 
 <?php if (is_user_logged_in()) : ?>
-	<aside class="b-center-wide">
+	<section class="b-center-wide" style="display: flow-root;">
 		<h2>Siste oppslag</h2>
 		<?php $posts = get_posts(array('posts_per_page' => 5, 'order' => 'DESC', 'orderby' => 'date')); ?>
 		<?php foreach ($posts as $post) : ?>
@@ -9,20 +9,21 @@
 			<?php sc_get_template_part('parts/post/plug', 'post'); ?>
 		<?php endforeach ?>
 		<?php wp_reset_postdata() ?>
-	</aside>
+		<a href=" /oppslag/" class="b-float-right b-button b-button--green">Se alle oppslag →</a>
+	</section>
 
-	<aside class="b-center-wide">
+	<section class="b-center">
+		<?php $events = tribe_get_events(array('start_date' => 'now', 'posts_per_page' => 5, 'featured' => true)) ?>
+		<?php sc_get_template_part('parts/calendar/event-list', null, array('events' => $events)); ?>
+	</section>
+
+	<section class="b-center-wide" style="display: flow-root;">
 		<h2>Praktisk informasjon</h2>
 		<?php sc_get_template_part('parts/category/category-index', null, array(
 			'categories' => get_categories(array('hide_empty' => false))
 		)); ?>
-	</aside>
-
-	<aside class="b-center-wide">
-		<?php $events = tribe_get_events() ?>
-		<?php // var_dump($events); ?>
-	</aside>
-
+		<a href=" /info/" class="b-float-right b-button b-button--blue">Se praktisk info →</a>
+	</section>
 
 <?php else : ?>
 	<div class="b-frontpage-hero">

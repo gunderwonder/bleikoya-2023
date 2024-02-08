@@ -1,5 +1,8 @@
 <?php
 
+include 'include/ChromePhp.php';
+ChromePhp::log(array('foo'=> 'bae'));
+
 add_theme_support('post-formats');
 add_theme_support('post-thumbnails');
 
@@ -156,10 +159,12 @@ function sc_is_xmlhttprequest() {
 
 function sc_get_human_readable_type($type) {
 	$types = array(
-		'post' => 'Låt',
-		'post_tag' => 'Sjanger',
-		'category' => 'Samling',
-		'artist' => 'Artist'
+		'post' => 'Oppslag',
+		'page' => 'Side',
+		'post_tag' => 'Tagg',
+		'category' => 'Tema',
+		'tribe_events_cat' => 'Kalenderkategori',
+		'tribe_events' => 'Kalenderhendelse'
 	);
 
 	if (isset($types[$type]))
@@ -169,10 +174,10 @@ function sc_get_human_readable_type($type) {
 }
 
 function redirect_search() {
-    if (!empty($_GET['s'])) {
-        wp_redirect(home_url('/search/').urlencode(get_query_var('s')));
-        exit();
-    }
+	if (!empty($_GET['s'])) {
+		wp_redirect(home_url('/search/').urlencode(get_query_var('s')));
+		exit();
+	}
 }
 add_action('template_redirect', 'redirect_search');
 
@@ -182,11 +187,12 @@ function sc_search_autocomplete($query) {
 	global $wp_query, $wpdb;
 
 	$search = '%' . $wpdb->esc_like($query) . '%';
-	$terms = $wpdb->get_results($wpdb->prepare("SELECT t.term_id, t.name, tt.taxonomy
-		FROM $wpdb->terms t
-		INNER JOIN $wpdb->term_taxonomy tt ON t.term_id=tt.term_id
-		WHERE t.name LIKE %s
-		ORDER BY name ASC", $search));
+	$terms = $wpdb->get_results($wpdb->prepare(
+		"SELECT t.term_id, t.name, tt.taxonomy
+			FROM $wpdb->terms t
+			INNER JOIN $wpdb->term_taxonomy tt ON t.term_id=tt.term_id
+			WHERE t.name LIKE %s
+			ORDER BY name ASC", $search));
 
 	if ($terms) {
 		foreach ($terms as $term) {
@@ -210,8 +216,8 @@ function sc_search_autocomplete($query) {
 		$posts = $wp_query->posts;
 
 		foreach ($posts as $p) {
-			if ($p->post_type === 'page')
-				continue;
+			// if ($p->post_type === 'page')
+			// 	continue;
 
 			$results[] = array(
 				'title' => $p->post_title,

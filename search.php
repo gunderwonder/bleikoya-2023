@@ -5,7 +5,7 @@
 
 	<?php get_header(); ?>
 
-	<main class="nrkmusikk-content">
+	<main class=".b-content">
 
 	<?php if (have_posts()): ?>
 		<?php while (have_posts()): ?>
