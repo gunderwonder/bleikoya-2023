@@ -342,7 +342,7 @@ a {
 
 .b-subject-link--small {
 	font-size: 11px;
-	padding: 7px 15px 7px 15px;
+	padding: 7px 15px 7px 15px !important;
 }
 
 .b-subject-list__item {
@@ -967,11 +967,38 @@ aside .b-subject-list {
     flex: auto !important;
 }
 
+.tribe-events-calendar-list {
+	position: relative;
+	padding-left: 2rem !important;
+	border-left: 1px solid var(--b-border-color) !important;
+}
+
 .tribe-events-calendar-list__event-row {
-  background-color: var(--b-yellow-transparent-color);
+	position: relative;
+
   padding: 1rem !important;
   border-radius: 10px;
   margin-bottom: 2rem;
+}
+
+.tribe-events-calendar-list__event-row--featured {
+	background-color: var(--b-yellow-transparent-color);
+}
+
+.tribe-events-calendar-list__event-row::before {
+	content: "";
+	position: absolute;
+	left: calc(-2.5rem - 1px);
+	width: 1rem;
+	height: 1rem;
+	border-radius: 50%;
+	background-color: var(--b-border-color);
+}
+
+.tribe-events-calendar-list__event-row .b-inline-list {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
 }
 
 .tribe-common--breakpoint-medium.tribe-events .tribe-events-calendar-list__event-row
