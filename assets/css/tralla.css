@@ -969,7 +969,7 @@ aside .b-subject-list {
 
 .tribe-events-calendar-list__event-row {
   background-color: var(--b-yellow-transparent-color);
-  padding: 2rem !important;
+  padding: 1rem !important;
   border-radius: 10px;
   margin-bottom: 2rem;
 }
