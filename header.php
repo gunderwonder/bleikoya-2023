@@ -62,7 +62,7 @@
 					<?php if (is_user_logged_in()) : ?>
 						<?php echo "Forside" ?>
 					<?php else : ?>
-						<?php echo " Om øya" ?>
+						<?php echo "Om øya" ?>
 					<?php endif; ?>
 				</a>
 			</li>
@@ -72,6 +72,9 @@
 				<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'info' || is_category()) : ?>b-menu__link--active<?php endif; ?>" href="/info/">Info</a></li>
 			<?php endif; ?>
 			<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'kalender') : ?>b-menu__link--active<?php endif; ?>" href="/kalender/">Kalender</a></li>
+			<?php if (is_user_logged_in()) : ?>
+				<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'bilder') : ?>b-menu__link--active<?php endif; ?>" href="/bilder/">Bilder</a></li>
+			<?php endif; ?>
 			<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'kontakt') : ?>b-menu__link--active<?php endif; ?>" href="/kontakt/">Kontakt</a></li>
 		</ul>
 

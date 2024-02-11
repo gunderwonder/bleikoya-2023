@@ -1,7 +1,7 @@
-<?php if (sc_is_xmlhttprequest()): ?>
-		<?php header('Content-Type: application/json'); ?>
-		<?php echo json_encode(sc_search_autocomplete(get_search_query())) ?>
-<?php else: ?>
+<?php if (sc_is_xmlhttprequest()):
+	header('Content-Type: application/json');
+	echo json_encode(sc_search_autocomplete(get_search_query()));
+else: ?>
 
 	<?php get_header(); ?>
 
