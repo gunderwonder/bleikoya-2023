@@ -258,4 +258,22 @@ add_action('tribe_template_before_include:events/v2/list/event/venue', function(
 	echo '</ul>';
 });
 
+function hide_images($block_content, $block) {
+	$new_block_content = str_replace(
+		'class="wp-block-file__button wp-element-button"',
+		'class="b-button b-button--download b-float-right"',
+		$block_content
+	);
+
+	$new_block_content = str_replace(
+		'Last ned',
+		'<i data-lucide="download" class="b-icon b-icon--small"></i> Last ned',
+		$new_block_content
+	);
+
+	return $new_block_content;
+}
+
+add_filter('render_block_core/file', 'hide_images', 10, 2);
+
 

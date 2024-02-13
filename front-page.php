@@ -9,7 +9,10 @@
 			<?php sc_get_template_part('parts/post/plug', 'post'); ?>
 		<?php endforeach ?>
 		<?php wp_reset_postdata() ?>
-		<a href=" /oppslag/" class="b-float-right b-button b-button--green">Se alle oppslag →</a>
+		<a href=" /oppslag/" class="b-float-right b-button b-button--green">
+			<i data-lucide="newspaper" class="b-icon"></i>
+			Se alle oppslag →
+		</a>
 	</section>
 
 	<section class="b-center">
@@ -22,7 +25,10 @@
 		<?php sc_get_template_part('parts/category/category-index', null, array(
 			'categories' => get_categories(array('hide_empty' => false))
 		)); ?>
-		<a href=" /info/" class="b-float-right b-button b-button--blue">Se praktisk info →</a>
+		<a href=" /info/" class="b-float-right b-button b-button--blue">
+			<i data-lucide="info" class="b-icon"></i>
+			Se praktisk info →
+		</a>
 	</section>
 
 <?php else : ?>

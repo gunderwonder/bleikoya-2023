@@ -20,6 +20,9 @@
 		<?php wp_reset_postdata() ?>
 	</ul>
 
-	<a href="/kalender/" class="b-float-right b-button b-button--yellow">Se hele kalenderen →</a>
+	<a href="/kalender/" class="b-float-right b-button b-button--yellow">
+		<i data-lucide="calendar" class="b-icon"></i>
+		Se hele kalenderen →
+	</a>
 
 </div>

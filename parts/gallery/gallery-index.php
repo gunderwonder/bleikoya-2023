@@ -1,4 +1,15 @@
-<?php get_header(); ?>
+<nav class="b-image-gallery__index">
+	<?php $terms = get_terms(array('taxonomy' => 'gallery', 'hide_empty' => false)); ?>
+	<ul class="b-inline-list">
+		<?php foreach ($terms as $term) : ?>
+			<li>
+				<a class="b-button b-button--green <?php if ($current_term && $term->term_id === $current_term->term_id) : ?>b-button--active<?php endif; ?>" href="<?php echo get_term_link($term); ?>">
+					<?php echo $term->name; ?>
+				</a>
+			</li>
+		<?php endforeach; ?>
+	</ul>
+</nav>
 
 <main class="b-image-gallery">
 	<div class="b-image-gallery__lightbox">
@@ -44,50 +55,11 @@
 		});
 	</script>
 
-
-	<?php
-	// get attachments
-	$attachments = get_posts(array(
-		'post_type' => 'attachment',
-		'posts_per_page' => 80
-		// 'tax_query' => array(
-		// 	array(
-		// 		'taxonomy' => 'gallery'
-		// 	)
-		// )
-	));
-
-	?>
-
 	<?php foreach ($attachments as $attachment) : ?>
 		<?php echo wp_get_attachment_image($attachment->ID, 'medium', '', array(
 			'loading' => 'lazy',
 		)); ?>
-		<!--// $attachment_meta = wp_get_attachment_metadata($attachment->ID);
-		// $attachment_url = wp_get_attachment_url($attachment->ID);
-		// $attachment_title = $attachment->post_title;
-		// $attachment_caption = $attachment->post_excerpt;
-		// $attachment_description = $attachment->post_content;
-		// $attachment_mime_type = $attachment->post_mime_type;
-		// $attachment_file_size = $attachment_meta['filesize'];
-		// $attachment_file_size = size_format($attachment_file_size);
-		// $attachment_file_type = wp_check_filetype($attachment_url);
-		// $attachment_file_type = $attachment_file_type['ext'];
-		// $attachment_file_type = strtoupper($attachment_file_type);
-		// $attachment_file_url = wp_get_attachment_url($attachment->ID);
-		// $attachment_file_url = esc_url($attachment_file_url);
-		// $attachment_file_url = esc_html($attachment_file_url);
-		// $attachment_file_url = esc_attr($attachment_file_url);
-		// $attachment_file_url = esc_url($attachment_file_url);-->
-
-		<?php //var_dump($attachment);
-		?>
 
 	<?php endforeach; ?>
 
-
 </main>
-
-</div>
-
-<?php get_footer();
