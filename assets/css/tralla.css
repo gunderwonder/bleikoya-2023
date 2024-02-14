@@ -36,7 +36,7 @@ body {
 }
 
 h2 {
-  font-family: Futura, "Nunito Sans", sans-serif;
+  font-family: Futura, "Jost", sans-serif;
   font-weight: bold;
   text-transform: uppercase;
   font-size: 1rem;
@@ -52,7 +52,7 @@ section > h2 {
 }
 
 h1 {
-  font-family: Futura, "Nunito Sans", sans-serif;
+  font-family: Futura, "Jost", sans-serif;
   font-weight: normal;
   font-size: 1.8rem;
 	text-transform: uppercase;
@@ -116,7 +116,7 @@ h1 {
 		padding: 0.5rem 1rem 0.5rem 1rem;
 		border-radius: 20px;
 		border: none;
-		font-family: Futura, "Nunito Sans", sans-serif;
+		font-family: Futura, "Jost", sans-serif;
 		text-transform: uppercase;
 		font-size: 0.8rem;
 		line-height: 1rem;
@@ -354,7 +354,7 @@ a {
     color: white;
     padding: 10px 20px 10px 20px;
     border-radius: 20px;
-    font-family: Futura, "Nunito Sans", sans-serif;
+    font-family: Futura, "Jost", sans-serif;
     font-weight: bold;
     font-size: 14px;
     border-bottom-width: 0;
@@ -473,7 +473,7 @@ aside .b-subject-list {
 .b-header-link__extra {
     font-weight: normal;
     display: inline-block;
-    font-family: Futura, "Nunito Sans", sans-serif;
+    font-family: Futura, "Jost", sans-serif;
     color: black;
     margin-top: 1rem;
     text-transform: uppercase;
@@ -501,7 +501,13 @@ aside .b-subject-list {
 }
 
 @media only screen and (max-width: 700px) {
-    .b-menu {
+	.b-menu {
+		position: fixed;
+		top: 0;
+		bottom: 0;
+	}
+
+    /* .b-menu {
         overflow: auto;
         white-space: nowrap;
         padding-left: 1rem;
@@ -513,7 +519,7 @@ aside .b-subject-list {
 
     .b-menu__item {
         margin-right: 1rem;
-    }
+    } */
 }
 
 .b-menu__item:last-child {
@@ -521,7 +527,7 @@ aside .b-subject-list {
 }
 
 .b-menu__link {
-    font-family: Futura, "Nunito Sans", sans-serif;
+    font-family: Futura, "Jost", sans-serif;
     text-transform: uppercase;
     font-weight: normal;
     border-bottom: none;
@@ -858,7 +864,7 @@ aside .b-subject-list {
   padding: 0.5rem 1rem 0.5rem 1rem !important;
   background-color: var(--b-yellow-transparent-color) !important;
   border-radius: 20px !important;
-	font-family: Futura, "Nunito Sans", sans-serif;
+	font-family: Futura, "Jost", sans-serif;
 	font-size: 0.8rem;
 
 }
@@ -939,7 +945,7 @@ aside .b-subject-list {
 .tribe-events-calendar-list__event-date-tag-weekday,
 .tribe-events-calendar-list__event-date-tag-daynum {
 	text-transform: uppercase;
-	font-family: Futura, "Nunito Sans", sans-serif;
+	font-family: Futura, "Jost", sans-serif;
 	position: absolute;
 	left: 0;
 	right: 0;
@@ -1013,7 +1019,7 @@ aside .b-subject-list {
 	padding: 0.5rem 1rem 0.5rem 1rem !important;
 	border-radius: 20px;
 	border: none;
-	font-family: Futura, "Nunito Sans", sans-serif;
+	font-family: Futura, "Jost", sans-serif;
 	text-transform: uppercase;
 	font-size: 0.8rem;
 	transition: background-color 0.5s ease-in-out;
