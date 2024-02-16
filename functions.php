@@ -1,7 +1,5 @@
 <?php
 
-include 'include/ChromePhp.php';
-ChromePhp::log(array('foo'=> 'bae'));
 
 add_theme_support('post-formats');
 add_theme_support('post-thumbnails');
@@ -276,4 +274,8 @@ function hide_images($block_content, $block) {
 
 add_filter('render_block_core/file', 'hide_images', 10, 2);
 
+add_action('after_setup_theme', function () {
+	if (!current_user_can('administrator') && !is_admin())
+		show_admin_bar(false);
 
+});
