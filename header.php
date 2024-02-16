@@ -1,19 +1,3 @@
-<?php
-
-/**
- * The header for our theme
- *
- * This is the template that displays all of the <head> section and everything up until <div id="content">
- *
- * @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
- *
- * @package WordPress
- * @subpackage nrkmusikk
- * @since 1.0
- * @version 1.0
- */
-
-?>
 <!doctype html>
 <html class="no-js" lang="no-nb">
 
@@ -28,7 +12,6 @@
 	<meta property="og:url" content="">
 	<meta property="og:image" content="">
 	<meta name="theme-color" content="#b93e3c">
-
 
 	<!-- <link rel="apple-touch-icon" href="icon.png"> -->
 	<!-- Place favicon.ico in the root directory -->
@@ -80,19 +63,23 @@
 			<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'kontakt') : ?>b-menu__link--active<?php endif; ?>" href="/kontakt/">Kontakt</a></li>
 		</ul>
 
-		<button class="b-menu-scroll-button"></button>
+		<!-- <button class="b-menu-scroll-button"></button> -->
 
-		<button class="b-profile-button" type="button">
+		<div class="b-login">
+
 			<?php global $current_user; ?>
 			<?php if (wp_get_current_user() && is_user_logged_in()) : ?>
-				<img class="b-profile-button__image" src="<?php echo get_avatar_url($current_user); ?>" />
-			<?php else : ?>
-				<?php $loginout_link = wp_loginout('/', false); ?>
-				<span class="b-profile-button__login-link">
-					<?php echo $loginout_link; ?>
-				</span>
-			<?php endif; ?>
-		</button>
+					<button class="b-profile-button" type="button">
+						<img class="b-profile-button__image" src="<?php echo get_avatar_url($current_user); ?>" />
+					</button>
+				<?php else : ?>
+					<?php $loginout_link = wp_loginout('/', false); ?>
+					<span class="b-profile-button__login-link">
+						<?php echo $loginout_link; ?>
+					</span>
+				<?php endif; ?>
+				</button>
+		</div>
 	</nav>
 
 
