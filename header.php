@@ -1,6 +1,5 @@
 <!doctype html>
 <html class="no-js" lang="no-nb">
-
 <head>
 	<meta charset="utf-8">
 	<title>Bleikøya</title>

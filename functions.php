@@ -24,25 +24,9 @@ function remove_image_size_attr($html) {
 }
 add_filter('the_content', 'remove_image_size_attr', 10);
 
-// function add_category_menu() {
-// 	add_menu_page(
-// 		'Kategorier',
-// 		'Kategorier',
-// 		'manage_categories',
-// 		'edit-categories',
-// 		'dashicons-category',
-// 		'edit-tags.php?taxonomy=category',
-// 		5
-// 	);
-// }
-
-// add_action('admin_menu', 'add_category_menu', 0);
-
 add_filter('private_title_format', function ($format) {
 	return '%s';
 });
-
-
 
 function sc_get_template_part($slug, $name = null, array $bindings = array()) {
 
@@ -65,13 +49,11 @@ function sc_get_field($field, $post = null) {
 	return get_post_meta($post->ID, $field, true);
 }
 
-function b_allow_private_posts_for_subscriber_role() {
+add_action('init', function() {
 	$role = get_role('subscriber');
 	$role->add_cap('read_private_posts');
 	$role->add_cap('read_private_pages');
-}
-
-//add_action('init', 'b_allow_private_posts_for_subscriber_role');
+});
 
 function sc_get_post_fields($post = null) {
 
