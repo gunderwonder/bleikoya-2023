@@ -49,11 +49,11 @@ function sc_get_field($field, $post = null) {
 	return get_post_meta($post->ID, $field, true);
 }
 
-add_action('init', function() {
-	$role = get_role('subscriber');
-	$role->add_cap('read_private_posts');
-	$role->add_cap('read_private_pages');
-});
+// add_action('init', function() {
+// 	$role = get_role('subscriber');
+// 	$role->add_cap('read_private_posts');
+// 	$role->add_cap('read_private_pages');
+// });
 
 function sc_get_post_fields($post = null) {
 

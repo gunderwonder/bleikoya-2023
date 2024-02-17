@@ -1,9 +1,9 @@
 <?php get_header(); ?>
 
 <?php if (is_user_logged_in()) : ?>
-	<section class="b-center-wide" style="display: flow-root;">
+	<section class="b-center-wide">
 		<h2>Siste oppslag</h2>
-		<?php $posts = get_posts(array('posts_per_page' => 3, 'order' => 'DESC', 'orderby' => 'date')); ?>
+		<?php $posts = get_posts(array('posts_per_page' => 3, 'order' => 'DESC', 'orderby' => 'date', 'post_status' => array('publish', 'private'))); ?>
 		<?php foreach ($posts as $post) : ?>
 			<?php setup_postdata($post) ?>
 			<?php sc_get_template_part('parts/post/plug', 'post'); ?>
@@ -20,7 +20,7 @@
 		<?php sc_get_template_part('parts/calendar/event-list', null, array('events' => $events)); ?>
 	</section>
 
-	<section class="b-center-wide" style="display: flow-root;">
+	<section class="b-center-wide">
 		<h2>Praktisk informasjon</h2>
 		<?php sc_get_template_part('parts/category/category-index', null, array(
 			'categories' => get_categories(array('hide_empty' => false))

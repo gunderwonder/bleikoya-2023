@@ -63,12 +63,14 @@ h1 {
 
 /* #region Layout */
 .b-center {
+	display: flow-root;
 	max-width: 40rem;
 	margin: auto;
 	padding: 1rem;
 }
 
 .b-center-wide {
+	display: flow-root;
 	max-width: 60rem;
 	margin: 0 auto;
 	padding: 1rem;
