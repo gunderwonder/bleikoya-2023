@@ -31,10 +31,7 @@
 		</a>
 	</section>
 
-<?php else : ?>
-	<div class="b-frontpage-hero">
-		<img src="/wp-content/uploads/2023/03/Bleikoya-Oslofjorden--1024x540.jpg" />
-	</div>
+<?php else: ?>
 
 	<div class="b-center">
 		<main>

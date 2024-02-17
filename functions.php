@@ -1,6 +1,5 @@
 <?php
 
-
 add_theme_support('post-formats');
 add_theme_support('post-thumbnails');
 
@@ -47,12 +46,12 @@ add_filter('private_title_format', function ($format) {
 
 function sc_get_template_part($slug, $name = null, array $bindings = array()) {
 
-    $__template_file = locate_template("{$slug}.php", false, false);
+	$__template_file = locate_template("{$slug}.php", false, false);
 
-    foreach ($bindings as $binding => $value)
+	foreach ($bindings as $binding => $value)
 		$$binding = $value;
 
-    require($__template_file);
+	require($__template_file);
 }
 
 function sc_get_field($field, $post = null) {
@@ -275,7 +274,5 @@ function hide_images($block_content, $block) {
 add_filter('render_block_core/file', 'hide_images', 10, 2);
 
 add_action('after_setup_theme', function () {
-	if (!current_user_can('administrator') && !is_admin())
-		show_admin_bar(false);
-
+	show_admin_bar(current_user_can('administrator'));
 });

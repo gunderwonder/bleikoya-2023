@@ -441,6 +441,10 @@ aside .b-subject-list {
   padding: 1rem 0 0 0;
 }
 
+.wp-block-image:first-child {
+	padding-top: 0;
+}
+
 .wp-block-image img {
   max-width: 100%;
 }
@@ -449,6 +453,11 @@ aside .b-subject-list {
   .wp-block-image {
       margin-left: -10rem;
       margin-right: -10rem;
+  }
+
+	.wp-block-image.b-frontpage-hero {
+    margin-left: -15rem;
+    margin-right: -15rem;
   }
 }
 
@@ -809,6 +818,7 @@ aside .b-subject-list {
 	.b-image-gallery {
 		-webkit-column-count: 3;
 		-webkit-column-gap: 0px;
+		column-gap: 0px;
 		-moz-column-count: 3;
 		-moz-column-gap: 0px;
 		column-count: 3;
