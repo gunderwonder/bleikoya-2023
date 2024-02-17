@@ -112,6 +112,21 @@ h1 {
 	top: 1px;
 }
 
+a.b-anchor--with-icon {
+
+}
+
+a.b-anchor--with-icon::after {
+	position: relative;
+	position: absolute;
+	display: block;
+	bottom: -1px;
+	content: "";
+	width: calc(2rem - 4px);
+	background-color: white;
+	height: 1px;
+}
+
 .b-button {
 	background-color: var(--b-border-color);
 	color: black;

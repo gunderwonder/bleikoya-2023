@@ -12,7 +12,9 @@
 
 <div class="b-center">
 	<main class="b-subject-index">
-		<?php usort($categories, function ($a, $b) { return strcmp($a->name, $b->name); }); ?>
+		<?php usort($categories, function ($a, $b) {
+			return strcmp($a->name, $b->name);
+		}); ?>
 
 		<?php foreach ($categories as $category) : ?>
 
@@ -24,7 +26,7 @@
 					<?php echo sc_get_field('category-documentation', $category) ?>
 				</div>
 
-				<?php $posts = get_posts(array('category' => $category->term_id)); ?>
+				<?php $posts = get_posts(array('category' => $category->term_id, 'post_status' => array('publish', 'private'))); ?>
 
 				<?php if (count($posts) > 0) : ?>
 					<h3 class="b-subject-list__item-posts-heading">Relaterte oppslag</h3>
@@ -34,7 +36,8 @@
 							<?php setup_postdata($post); ?>
 							<li class="b-subject-list__item-post">
 
-								<a href="<?php the_permalink() ?>" class="b-subject-list__item-post-link">
+								<a href="<?php the_permalink() ?>" class="b-subject-list__item-post-link b-anchor--with-icon">
+									<i data-lucide="newspaper" class="b-icon b-icon--small"></i>
 									<?php the_title(); ?>
 								</a>
 							</li>
