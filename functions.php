@@ -258,3 +258,48 @@ add_filter('render_block_core/file', 'hide_images', 10, 2);
 add_action('after_setup_theme', function () {
 	show_admin_bar(current_user_can('administrator'));
 });
+
+
+add_action('wp_dashboard_setup', function() {
+	wp_add_dashboard_widget(
+		'custom_category_links_widget',
+		'Kategorier',
+		function () {
+			$categories = get_categories(array('hide_empty' => false));
+
+			if ($categories) {
+				echo '<ul>';
+				foreach ($categories as $category) {
+					echo '<li><a href="' . get_edit_term_link($category->term_id) . '">' . $category->name . '</a></li>';
+				}
+				echo '</ul>';
+			} else {
+				echo 'Ingen kategorier.';
+			}
+		}
+	);
+});
+
+add_action('wp_dashboard_setup', function () {
+	wp_add_dashboard_widget(
+		'custom_post_links_widget',
+		'Oppslag',
+		function () {
+			$posts = get_posts(
+				array('posts_per_page' => 40,
+					'post_status' => array('publish', 'private')
+				)
+			);
+			if ($posts) {
+				echo '<ul>';
+				foreach ($posts as $post) {
+					echo '<li><a href="' . get_edit_post_link($post->post_id) . '">' . $post->post_title . '</a></li>';
+				}
+				echo '</ul>';
+			} else {
+				echo 'Ingen oppslag.';
+			}
+		}
+	);
+});
+
