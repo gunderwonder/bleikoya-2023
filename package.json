@@ -10,6 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "@nrk/core-scroll": "^4.4.0",
-    "animated-scroll-to": "^2.3.0"
+    "animated-scroll-to": "^2.3.0",
+    "hammerjs": "^2.0.8",
+    "svg-pan-zoom": "github:bumbu/svg-pan-zoom"
   }
 }

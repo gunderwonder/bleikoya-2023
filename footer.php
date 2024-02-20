@@ -1,6 +1,8 @@
-<div class="b-bleikoya-map">
-	<object data="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/bleikoya-kart.svg" type="image/svg+xml"></object>
-</div>
+<?php if ($post->post_name !== 'kart') : ?>
+	<div class="b-bleikoya-map">
+		<object data="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/bleikoya-kart.svg" type="image/svg+xml"></object>
+	</div>
+<?php endif; ?>
 
 <div class="b-footer">
 	<div class="b-body-text">
