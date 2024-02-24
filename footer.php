@@ -1,4 +1,4 @@
-<?php if ($post->post_name !== 'kart') : ?>
+<?php if ($post && $post->post_name !== 'kart') : ?>
 	<div class="b-bleikoya-map">
 		<object data="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/bleikoya-kart.svg" type="image/svg+xml"></object>
 	</div>
