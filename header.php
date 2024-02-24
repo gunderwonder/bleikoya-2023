@@ -1,5 +1,6 @@
 <!doctype html>
 <html class="no-js" lang="no-nb">
+
 <head>
 	<meta charset="utf-8">
 	<title>Bleikøya</title>
@@ -11,6 +12,11 @@
 	<meta property="og:url" content="">
 	<meta property="og:image" content="">
 	<meta name="theme-color" content="#b93e3c">
+
+	<link rel="apple-touch-icon" sizes="180x180" href="<?php echo ASSETS_DIR ?>/favicon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="<?php echo ASSETS_DIR ?>/favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="<?php echo ASSETS_DIR ?>/favicon-16x16.png">
+	<link rel="manifest" href="<?php echo ASSETS_DIR ?>/site.webmanifest">
 
 	<!-- <link rel="apple-touch-icon" href="icon.png"> -->
 	<!-- Place favicon.ico in the root directory -->
@@ -24,10 +30,8 @@
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/tralla.css">
 
 	<script src="https://static.nrk.no/core-components/major/7/core-suggest/core-suggest.min.js"></script>
-	<script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/js/tralla.js"></script>
-	<!-- <script src="<?php echo get_stylesheet_directory_uri(); ?>/assets/vendor/core-scroll.js"></script> -->
-
-	<meta name="theme-color" content="#fafafa">
+	<script src="<?php echo ASSETS_DIR ?>/js/tralla.js"></script>
+	<!-- <script src="<?php echo ASSETS_DIR ?>/vendor/core-scroll.js"></script> -->
 
 	<?php wp_head(); ?>
 </head>
@@ -68,16 +72,16 @@
 
 			<?php global $current_user; ?>
 			<?php if (wp_get_current_user() && is_user_logged_in()) : ?>
-					<button class="b-profile-button" type="button">
-						<img class="b-profile-button__image" src="<?php echo get_avatar_url($current_user); ?>" />
-					</button>
-				<?php else : ?>
-					<?php $loginout_link = wp_loginout('/', false); ?>
-					<span class="b-profile-button__login-link">
-						<?php echo $loginout_link; ?>
-					</span>
-				<?php endif; ?>
+				<button class="b-profile-button" type="button">
+					<img class="b-profile-button__image" src="<?php echo get_avatar_url($current_user); ?>" />
 				</button>
+			<?php else : ?>
+				<?php $loginout_link = wp_loginout('/', false); ?>
+				<span class="b-profile-button__login-link">
+					<?php echo $loginout_link; ?>
+				</span>
+			<?php endif; ?>
+			</button>
 		</div>
 	</nav>
 
@@ -87,7 +91,7 @@
 			<?php if (is_front_page()) : ?>
 				<!-- <img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/b-logo-2.webp" style="margin-bottom: 2rem;" /> -->
 			<?php endif; ?>
-			<img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/b-logo.png" />
+			<img src="<?php echo ASSETS_DIR ?>/img/b-logo.png" />
 			<span class="b-header-link__extra">Bleikøya Velforening · 1923 - <?php echo date('Y'); ?></span>
 		</a>
 	</div>
