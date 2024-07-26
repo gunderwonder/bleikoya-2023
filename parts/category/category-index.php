@@ -17,7 +17,7 @@ foreach ($categories as $category) {
 			<ul class=" b-inline-list">
 				<?php foreach ($letter_categories as $category) : ?>
 					<li>
-						<a class="b-subject-link" href="<?php echo get_category_link($category->term_id); ?>">
+						<a class="b-subject-link" data-alternate-href="/info#category-<?php echo $category->term_id ?>" href="<?php echo get_category_link($category->term_id); ?>">
 							<?php echo $category->name; ?>
 						</a>
 					</li>

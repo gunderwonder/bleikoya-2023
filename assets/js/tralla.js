@@ -38,16 +38,24 @@
 	document.addEventListener('DOMContentLoaded', function () {
 
 		document.body.addEventListener('click', function (event) {
-			if (event.target.matches('.b-readmore-button')) {
-				var button = event.target;
+			if (event.target.matches('[data-alternate-href]')) {
 
-				button.parentElement.classList.remove('nrkmusikk-post--collapsed');
-				button.parentElement.removeChild(button);
-			} else if (event.target.matches('.b-reaction__button--primary')) {
-				// var button = event.target;
-				// var buttonGroup = button.nextElementSibling;
-				// console.log(buttonGroup)
-				// buttonGroup.classList.toggle('nrkmusikk-reaction__options--open');
+				let link = event.target;
+
+				if (location.pathname === '/info/') {
+					let url = URL.parse(link.getAttribute('data-alternate-href'), 'http://dummy');
+					if (url && url.hash) {
+
+						let element = document.getElementById(url.hash.substring(1))
+						if (!element)
+							return;
+						event.preventDefault();
+						window.scrollTo({ top: element.getBoundingClientRect().top, behavior: 'smooth'});
+					}
+				} else {
+					link.href = link.getAttribute('data-alternate-href');
+				}
+
 			}
 		}, false);
 
@@ -80,7 +88,7 @@
 		const input = suggest.input;
 		const value = input.value.trim()
 
-		if (input.id !== 'nrkmusikk-search')
+		if (input.id !== 'b-search')
 			return
 
 		suggest.innerHTML = value ? `<ul class=".b-search-items"><li class=".b-search-items__item"><button>Søker etter ${value}...<span>&nbsp;</span></button></li></ul>` : ''

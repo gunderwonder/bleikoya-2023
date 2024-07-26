@@ -64,7 +64,7 @@
 				<?php $queried_object = get_queried_object() ?>
 				<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'galleri' || (isset($queried_object->taxonomy) && $queried_object->taxonomy === 'gallery')) : ?>b-menu__link--active<?php endif; ?>" href="/galleri/">Bilder</a></li>
 			<?php endif; ?>
-			<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'kontakt') : ?>b-menu__link--active<?php endif; ?>" href="/kontakt/">Kontakt</a></li>
+			<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'kontakt') : ?>b-menu__link--active<?php endif; ?>" href="/kontakt/">Kontakt</a></li>
 		</ul>
 
 		<!-- <button class="b-menu-scroll-button"></button> -->

@@ -19,6 +19,18 @@ add_filter('get_the_categories', function ($categories) {
 	return $categories;
 });
 
+add_action('wp', 'redirect_private_page_to_login');
+function redirect_private_page_to_login() {
+	$queried_object = get_queried_object();
+	if (isset($queried_object->post_status) &&
+		'private' === $queried_object->post_status &&
+		!is_user_logged_in()) {
+
+			wp_safe_redirect(wp_login_url(get_permalink($queried_object->ID)));
+		exit;
+	}
+}
+
 function remove_image_size_attr($html) {
 	$html = preg_replace('/(width|height)="\d*"\s/', '', $html);
 	return $html;
