@@ -31,7 +31,7 @@ add_action('wp', function () {
 });
 
 add_filter('wpcf7_form_elements', function ($html) {
-	$html = str_replace('--Please choose an option--',  'Velg et alternativ', $html);
+	$html = str_replace('—Please choose an option—',  'Velg et alternativ', $html);
 
 	return $html;
 });
