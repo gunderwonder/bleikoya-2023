@@ -19,8 +19,7 @@ add_filter('get_the_categories', function ($categories) {
 	return $categories;
 });
 
-add_action('wp', 'redirect_private_page_to_login');
-function redirect_private_page_to_login() {
+add_action('wp', function () {
 	$queried_object = get_queried_object();
 	if (isset($queried_object->post_status) &&
 		'private' === $queried_object->post_status &&
@@ -29,7 +28,14 @@ function redirect_private_page_to_login() {
 			wp_safe_redirect(wp_login_url(get_permalink($queried_object->ID)));
 		exit;
 	}
-}
+});
+
+add_filter('wpcf7_form_elements', function ($html) {
+	$html = str_replace('--Please choose an option--',  'Velg et alternativ', $html);
+
+	return $html;
+});
+
 
 function remove_image_size_attr($html) {
 	$html = preg_replace('/(width|height)="\d*"\s/', '', $html);

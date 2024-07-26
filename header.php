@@ -57,12 +57,12 @@
 
 			<?php if (is_user_logged_in()) : ?>
 				<li class="b-menu__item"><a class="b-menu__link <?php if (is_home() || is_single()) : ?>b-menu__link--active<?php endif; ?>" href="/oppslag">Oppslag</a></li>
-				<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'info' || is_category()) : ?>b-menu__link--active<?php endif; ?>" href="/info/">Info</a></li>
+				<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'info' || is_category()) : ?>b-menu__link--active<?php endif; ?>" href="/info/">Info</a></li>
 			<?php endif; ?>
 			<li class="b-menu__item"><a class="b-menu__link <?php if (tribe_is_event()) : ?>b-menu__link--active<?php endif; ?>" href="/kalender/">Kalender</a></li>
 			<?php if (is_user_logged_in()) : ?>
 				<?php $queried_object = get_queried_object() ?>
-				<li class="b-menu__item"><a class="b-menu__link <?php if ($post->post_name === 'galleri' || (isset($queried_object->taxonomy) && $queried_object->taxonomy === 'gallery')) : ?>b-menu__link--active<?php endif; ?>" href="/galleri/">Bilder</a></li>
+				<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'galleri' || (isset($queried_object->taxonomy) && $queried_object->taxonomy === 'gallery')) : ?>b-menu__link--active<?php endif; ?>" href="/galleri/">Bilder</a></li>
 			<?php endif; ?>
 			<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'kontakt') : ?>b-menu__link--active<?php endif; ?>" href="/kontakt/">Kontakt</a></li>
 		</ul>
