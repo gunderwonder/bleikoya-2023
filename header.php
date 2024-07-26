@@ -3,11 +3,17 @@
 
 <head>
 	<meta charset="utf-8">
-	<title>Bleikøya</title>
-	<meta name="description" content="">
+	<title><?php bloginfo('name'); ?><?php wp_title(); ?></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<meta property="og:title" content="Bleikøya Vel">
+	<meta name="description" content="<?php if (is_single()) {
+														single_post_title('', true);
+													} else {
+														bloginfo('name');
+														echo " - ";
+														bloginfo('description');
+													}
+													?>" />
 	<meta property="og:type" content="">
 	<meta property="og:url" content="">
 	<meta property="og:image" content="">
@@ -18,20 +24,15 @@
 	<link rel="icon" type="image/png" sizes="16x16" href="<?php echo ASSETS_DIR ?>/favicon-16x16.png">
 	<link rel="manifest" href="<?php echo ASSETS_DIR ?>/site.webmanifest">
 
-	<!-- <link rel="apple-touch-icon" href="icon.png"> -->
-	<!-- Place favicon.ico in the root directory -->
-
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/normalize.css">
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/tralla.css">
 
 	<script src="https://static.nrk.no/core-components/major/7/core-suggest/core-suggest.min.js"></script>
 	<script src="<?php echo ASSETS_DIR ?>/js/tralla.js"></script>
-	<!-- <script src="<?php echo ASSETS_DIR ?>/vendor/core-scroll.js"></script> -->
 
 	<?php wp_head(); ?>
 </head>
@@ -88,9 +89,6 @@
 
 	<div class="b-header">
 		<a class="b-header-link" href="/">
-			<?php if (is_front_page()) : ?>
-				<!-- <img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/b-logo-2.webp" style="margin-bottom: 2rem;" /> -->
-			<?php endif; ?>
 			<img src="<?php echo ASSETS_DIR ?>/img/b-logo.png" />
 			<span class="b-header-link__extra">Bleikøya Velforening · 1923 - <?php echo date('Y'); ?></span>
 		</a>

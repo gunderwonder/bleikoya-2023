@@ -3,6 +3,7 @@
 add_theme_support('post-formats');
 add_theme_support('post-thumbnails');
 
+define('ASSETS_DIR', get_stylesheet_directory_uri() . '/assets');
 error_reporting(E_ALL &~ E_USER_DEPRECATED);
 ini_set('display_errors', '1');
 

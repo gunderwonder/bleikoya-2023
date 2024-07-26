@@ -4,23 +4,22 @@
 	</div>
 <?php endif; ?>
 
-<div class="b-footer">
-	<div class="b-body-text">
-		<img width="150" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/b-logo-white.png" />
-		<p>
-			<strong>Bleikøya Vel</strong><br />
-			Ideell forening som ivaretar trivsel og praktiske forhold på Bleikøya.<br />
-			<a href="/kontakt">Kontakt oss</a><br />
-			Org.nr: 984 750 668
-		</p>
+		<div class="b-footer">
+			<div class="b-body-text">
+				<img width="150" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/b-logo-white.png" />
+				<p>
+					<strong>Bleikøya Vel</strong><br />
+					Ideell forening som ivaretar trivsel og praktiske forhold på Bleikøya.<br />
+					<a href="/kontakt">Kontakt oss</a><br />
+					Org.nr: 984 750 668
+				</p>
+		</div>
 
-	</div>
-
-	<?php wp_footer(); ?>
-	<script src="https://unpkg.com/lucide@latest"></script>
-	<script>
-		lucide.createIcons();
-	</script>
+		<?php wp_footer(); ?>
+		<script src="https://unpkg.com/lucide@latest"></script>
+		<script>
+			lucide.createIcons();
+		</script>
 	</body>
 
-	</html>
+</html>

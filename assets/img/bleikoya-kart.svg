@@ -291,12 +291,12 @@
 	.st249{clip-path:url(#SVGID_289_);fill:#3D8533;}
 	.st250{clip-path:url(#SVGID_291_);fill:#3D8533;}
 	.st251{display:inline;fill:#FFFFFF;}
-	.st252{font-family:'Futura-Medium';}
+	.st252{font-family:'Futura-Medium', 'Jost';}
 	.st253{font-size:18px;}
 	.st254{opacity:0.42;fill:url(#_x31_0_lpi_10_x25_);}
 	.st255{fill:#35A3D3;}
 	.st256{font-size:30px;}
-	.st257{font-family:'Futura-MediumItalic';}
+	.st257{font-family:'Futura-MediumItalic', 'Jost';}
 	.st258{font-size:40px;}
 	.st259{font-size:30.6949px;}
 	.st260{font-size:22px;}
@@ -12365,9 +12365,9 @@
 </g>
 <g
    id="Tekst">
-	
-	
-	
+
+
+
 	<text
    transform="matrix(1 0 0 1 134.0869 1511.7185)"
    class="st252 st256"
