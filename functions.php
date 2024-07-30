@@ -30,11 +30,18 @@ add_action('wp', function () {
 	}
 });
 
-add_filter('wpcf7_form_elements', function ($html) {
-	$html = str_replace('—Please choose an option—',  'Velg et alternativ', $html);
+// add_filter('wpcf7_form_elements', function ($html) {
+// 	$html = str_replace('—Please choose an option—',  'Velg et alternativ', $html);
 
-	return $html;
+// 	return $html;
+// });
+
+
+add_filter('login_message', function () {
+	$message = '<p class="message">Til medlemmer av Bleikøya Velforening. Logg inn med H&lt;hyttenummer&gt; (f.eks. H07) og passordet ditt.</p><br />';
+	return $message;
 });
+
 
 
 function remove_image_size_attr($html) {
