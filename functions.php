@@ -38,7 +38,7 @@ add_action('wp', function () {
 
 
 add_filter('login_message', function () {
-	$message = '<p class="message">Til medlemmer av Bleikøya Velforening. Logg inn med H&lt;hyttenummer&gt; (f.eks. H07) og passordet ditt.</p><br />';
+	$message = '<p class="message">Til medlemmer av Bleikøya Velforening. Logg inn med H&lt;hyttenummer&gt; (f.eks. H7 for hytte 7) og passordet ditt.</p><br />';
 	return $message;
 });
 

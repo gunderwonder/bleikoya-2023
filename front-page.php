@@ -7,7 +7,8 @@
 
 
 	<section class="b-center">
-		<?php $events = tribe_get_events(array('start_date' => 'now', 'end_date' => date('Y-12-31 23:59:59'), 'posts_per_page' => 5, 'featured' => true)) ?>
+		<?php $today = date('Y-m-d 00:00:00'); $end_date = date('Y-m-d 23:59:59', strtotime('+1 year')); ?>
+		<?php $events = tribe_get_events(array('start_date' => 'now', 'end_date' => $end_date, 'posts_per_page' => 5, 'featured' => true)) ?>
 		<?php sc_get_template_part('parts/calendar/event-list', null, array('events' => $events)); ?>
 	</section>
 
