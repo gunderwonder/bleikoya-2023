@@ -38,7 +38,7 @@ add_action('wp', function () {
 
 
 add_filter('login_message', function () {
-	$message = '<p class="message">Til medlemmer av Bleikøya Velforening. Logg inn med H&lt;hyttenummer&gt; (f.eks. H7 for hytte 7) og passordet ditt.</p><br />';
+	$message = '<p class="message">Til medlemmer av Bleikøya Velforening. Logg inn med h&lt;hyttenummer&gt; (f.eks. h7 for hytte 7) og passordet ditt.</p><br />';
 	return $message;
 });
 
@@ -329,3 +329,23 @@ add_action('wp_dashboard_setup', function () {
 	);
 });
 
+add_action('admin_menu', function () {
+
+		$hook = add_menu_page(
+			'Kategorier',
+			'Kategorier',
+			'manage_categories',
+			'edit-category',
+			'redirect_to_category_edit_page',
+			'dashicons-category',
+			5
+		);
+
+		add_action('load-' . $hook, function() {
+
+				$edit_link = admin_url('edit-tags.php?taxonomy=category');
+				wp_redirect($edit_link);
+				exit;
+		});
+	}
+);
