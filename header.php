@@ -70,20 +70,42 @@
 		<!-- <button class="b-menu-scroll-button"></button> -->
 
 		<div class="b-login">
-
+			<?php $loginout_link = wp_loginout('/', false); ?>
+			<?php $logout_url = wp_logout_url('/') ?>
+			<?php $user_admin_url = user_admin_url(); ?>
 			<?php global $current_user; ?>
 			<?php if (wp_get_current_user() && is_user_logged_in()) : ?>
 				<button class="b-profile-button" type="button">
 					<img class="b-profile-button__image" src="<?php echo get_avatar_url($current_user); ?>" />
+
+					<menu class="b-profile-button__menu">
+						<ul>
+							<li class="b-profile-button__menu-item">
+								<a href="<?php echo $user_admin_url; ?>">
+									<i data-lucide="user"></i> Profil
+								</a>
+
+							</li>
+							<li class="b-profile-button__menu-item">
+								<a href="<?php echo $logout_url; ?>">
+									<i data-lucide="log-out"></i> Logg ut
+								</a>
+
+							</li>
+						</ul>
+					</menu>
 				</button>
+
 			<?php else : ?>
-				<?php $loginout_link = wp_loginout('/', false); ?>
+
 				<span class="b-profile-button__login-link">
 					<?php echo $loginout_link; ?>
 				</span>
 			<?php endif; ?>
 			</button>
 		</div>
+
+
 	</nav>
 
 

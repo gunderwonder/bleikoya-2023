@@ -624,6 +624,67 @@ aside .b-subject-list {
 	top: calc(50% - 1rem);
 }
 
+
+
+.b-profile-button__menu {
+	display: none;
+	position: absolute;
+	right: -0.5rem;
+	background: white;
+	top: calc(18.8984px + 1rem);
+	box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+	z-index: 1;
+	padding: 0 1.2rem 1.2rem 1.2rem;
+	min-width: 9rem;
+	text-align: left;
+}
+
+.b-profile-button:hover {
+	cursor: pointer;
+}
+
+.b-profile-button:focus-within .b-profile-button__menu,
+.b-profile-button:focus .b-profile-button__menu {
+	display: block !important;
+}
+
+.b-profile-button__menu::before {
+	content: "";
+	display: block;
+	top: -10px;
+	left: 0;
+	right: 0;
+	height: 10px;
+	background-color: white;
+	position: absolute;
+}
+
+.b-profile-button__menu-item {
+	margin: 0 0 0.5rem 0;
+	padding: 0;
+}
+
+.b-profile-button__menu-item:last-child {
+	margin-bottom: 0;
+}
+
+.b-profile-button__menu-item a {
+	border-bottom: none;
+	font-family: Futura, "Jost", sans-serif;
+	text-transform: uppercase;
+	font-size: 0.9rem;
+}
+
+.b-profile-button__menu-item .lucide {
+	height: 14px;
+}
+
+.b-profile-button__menu ul {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
 @media only screen and (max-width: 700px) {
 	.b-profile-button {
 		top: calc(50% - 1rem);
