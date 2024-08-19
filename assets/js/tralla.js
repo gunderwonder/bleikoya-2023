@@ -62,7 +62,7 @@
 
 	}, false);
 
-	document.addEventListener('click', (event) => {
+	document.addEventListener('click', (e) => {
 		if (e.target.matches('button, button *'))
 			e.target.closest('button').focus();
 	});
