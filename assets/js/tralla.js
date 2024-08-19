@@ -65,9 +65,7 @@
 	document.addEventListener('click', (event) => {
 		if (e.target.matches('button, button *'))
 			e.target.closest('button').focus();
-	}
-
-
+	});
 
 	document.addEventListener('suggest.ajax', (event) => {
 
