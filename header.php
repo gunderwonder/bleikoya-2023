@@ -72,16 +72,19 @@
 		<div class="b-login">
 			<?php $loginout_link = wp_loginout('/', false); ?>
 			<?php $logout_url = wp_logout_url('/') ?>
+
 			<?php $user_admin_url = user_admin_url(); ?>
 			<?php global $current_user; ?>
 			<?php if (wp_get_current_user() && is_user_logged_in()) : ?>
+				<?php $current_user_id = get_current_user_id(); ?>
+				<?php $profile_url = get_edit_profile_url($current_user_id); ?>
 				<button class="b-profile-button" type="button">
 					<img class="b-profile-button__image" src="<?php echo get_avatar_url($current_user); ?>" />
 
 					<menu class="b-profile-button__menu">
 						<ul>
 							<li class="b-profile-button__menu-item">
-								<a href="<?php echo $user_admin_url; ?>">
+								<a href="<?php echo $profile_url; ?>">
 									<i data-lucide="user"></i> Profil
 								</a>
 
