@@ -63,8 +63,10 @@
 	}, false);
 
 	document.addEventListener('click', (e) => {
-		if (e.target.matches('button, button *'))
+		if (e.target.matches('button, button *')) {
 			e.target.closest('button').focus();
+
+		}
 	});
 
 	document.addEventListener('suggest.ajax', (event) => {

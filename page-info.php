@@ -23,7 +23,9 @@
 					<?php echo $category->name ?>
 				</h2>
 				<div class="b-body-text">
-					<?php echo sc_get_field('category-documentation', $category) ?>
+					<?php $documentation = sc_get_field('category-documentation', $category) ?>
+					<?php $documentation = apply_filters('the_content', $documentation) ; ?>
+					<?php echo $documentation; ?>
 				</div>
 
 				<?php $posts = get_posts(array('category' => $category->term_id, 'post_status' => array('publish', 'private'))); ?>

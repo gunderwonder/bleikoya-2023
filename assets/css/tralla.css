@@ -627,13 +627,12 @@ aside .b-subject-list {
 
 
 .b-profile-button__menu {
-	display: none;
+	visibility: hidden;
 	position: absolute;
 	right: -0.5rem;
 	background: white;
 	top: calc(18.8984px + 1rem);
 	box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-	z-index: 1;
 	padding: 0 1.2rem 1.2rem 1.2rem;
 	min-width: 9rem;
 	text-align: left;
@@ -645,7 +644,7 @@ aside .b-subject-list {
 
 .b-profile-button:focus-within .b-profile-button__menu,
 .b-profile-button:focus .b-profile-button__menu {
-	display: block !important;
+	visibility: visible;
 }
 
 .b-profile-button__menu::before {
@@ -660,6 +659,7 @@ aside .b-subject-list {
 }
 
 .b-profile-button__menu-item {
+	position: relative;
 	margin: 0 0 0.5rem 0;
 	padding: 0;
 }
@@ -673,6 +673,9 @@ aside .b-subject-list {
 	font-family: Futura, "Jost", sans-serif;
 	text-transform: uppercase;
 	font-size: 0.9rem;
+	position: relative;
+	z-index: 100;
+
 }
 
 .b-profile-button__menu-item .lucide {

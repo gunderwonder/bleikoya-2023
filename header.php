@@ -29,10 +29,10 @@
 	<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/normalize.css">
-	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/tralla.css">
+	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/tralla.css?">
 
 	<script src="https://static.nrk.no/core-components/major/7/core-suggest/core-suggest.min.js"></script>
-	<script src="<?php echo ASSETS_DIR ?>/js/tralla.js"></script>
+	<script src="<?php echo ASSETS_DIR ?>/js/tralla.js?foo=1"></script>
 
 	<?php wp_head(); ?>
 </head>
@@ -84,13 +84,13 @@
 					<menu class="b-profile-button__menu">
 						<ul>
 							<li class="b-profile-button__menu-item">
-								<a href="<?php echo $profile_url; ?>">
+								<a href="<?php echo $profile_url; ?>" tabindex="1">
 									<i data-lucide="user"></i> Profil
 								</a>
 
 							</li>
 							<li class="b-profile-button__menu-item">
-								<a href="<?php echo $logout_url; ?>">
+								<a href="<?php echo $logout_url; ?>" tabindex="2">
 									<i data-lucide="log-out"></i> Logg ut
 								</a>
 
