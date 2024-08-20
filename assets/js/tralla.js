@@ -87,7 +87,7 @@
 					</a>
 				</li>`
 			})
-			.join('') : '<li class="b-search-items__item"><button>Ingen treff. Sorry!<span>&nbsp;</span></button></li>'}</ul>`
+			.join('') : '<ul class="b-search-items"><li class="b-search-items__item"><button>Ingen treff. Sorry!<span>&nbsp;</span></button></li>'}</ul>`
 	});
 
 	document.addEventListener('suggest.filter', (event) => {
@@ -98,7 +98,7 @@
 		if (input.id !== 'b-search')
 			return
 
-		suggest.innerHTML = value ? `<ul class=".b-search-items"><li class=".b-search-items__item"><button>Søker etter ${value}...<span>&nbsp;</span></button></li></ul>` : ''
+		suggest.innerHTML = value ? `<ul class="b-search-items"><li class="b-search-items__item"><button>Søker etter ${value}...<span>&nbsp;</span></button></li></ul>` : ''
 	})
 
 	document.addEventListener('suggest.select', (event) => {
