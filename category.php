@@ -6,6 +6,9 @@
 		<?php $category = get_queried_object(); ?>
 
 		<?php $documentation = sc_get_field('category-documentation', $category) ?>
+		<?php $documentation = apply_filters('the_content', $documentation) ; ?>
+
+
 		<div class="b-body-text">
 			<?php echo $documentation; ?>
 		</div>
