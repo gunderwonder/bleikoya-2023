@@ -25,4 +25,10 @@
 		Se hele kalenderen →
 	</a>
 
+	<a href="/leie-av-velhuset/" class="b-float-right b-button b-button--green">
+		<i data-lucide="calendar" class="b-icon"></i>
+		Leie av Velhuset
+	</a>
+
+
 </div>

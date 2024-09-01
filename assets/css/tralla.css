@@ -156,6 +156,10 @@ a.b-anchor--with-icon::after {
 	display: inline-block;
 }
 
+.b-button + .b-button {
+	margin-right: 1rem;
+}
+
 .b-button--active, .b-button:hover {
 	background-color: var(--b-primary-color);
 	color: white;
