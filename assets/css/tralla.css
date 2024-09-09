@@ -270,23 +270,29 @@ a.b-anchor--with-icon::after {
 	font-size: 1.2rem;
 }
 
-.b-body-text {
+.b-body-text p {
 	line-height: 1.7em;
 	color: var(--b-header-color);
 	display: flow-root;
 }
 
-.b-body-text ul {
+.b-body-text p ul, .wp-block-list {
+	line-height: 1.7em;
+	color: var(--b-header-color);
 	list-style-type: "-";
 	margin: 0 0 0 2rem;
 }
 
-.b-body-text li {
+.b-body-text p li, .wp-block-list li {
 	padding: 0 0 0 1rem;
 }
 
 .b-body-text p:last-child {
 	margin-bottom: 0;
+}
+
+.wp-block-lazyblock-b-calendar {
+	margin: 2rem 0 2rem 0;
 }
 
 .b-article {
