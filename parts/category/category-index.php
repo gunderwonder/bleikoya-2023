@@ -2,10 +2,14 @@
 $nested_categories = array();
 
 foreach ($categories as $category) {
+	if ($category->term_id === 1)
+		continue;
+
 	$first_letter = strtoupper(substr($category->name, 0, 1));
 	if (!array_key_exists($first_letter, $nested_categories)) {
 		$nested_categories[$first_letter] = array();
 	}
+
 	array_push($nested_categories[$first_letter], $category);
 }
 ?>
