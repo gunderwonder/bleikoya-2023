@@ -222,13 +222,21 @@ function sc_search_autocomplete($query) {
 		$posts = $wp_query->posts;
 
 		foreach ($posts as $p) {
-			// if ($p->post_type === 'page')
-			// 	continue;
+			$type = sc_get_human_readable_type($p->post_type);
+
+			if ($p->post_type === 'tribe_events') {
+				$event = tribe_get_event($p);
+				$event_date = tribe_get_start_date($p, false, 'd.m.Y ');
+				if (!$event || $event_date < date('Y-m-d H:i:s'))
+					continue;
+
+				$type .= ', ' . $event_date;
+			}
 
 			$results[] = array(
 				'title' => $p->post_title,
 				'permalink' => get_permalink($p),
-				'type' => sc_get_human_readable_type($p->post_type),
+				'type' => $type,
 			);
 		}
 	}
