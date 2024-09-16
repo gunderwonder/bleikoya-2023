@@ -91,4 +91,12 @@ $cabins = array(
 	'103',
 	'104',
 	'105'
-);
+); ?>
+<div class="b-cabin-gallery">
+		<?php foreach ($cabins as $cabin): ?>
+			<div class="b-cabin-gallery-item">
+				<img src="http://localhost:8888/wp-content/uploads/2024/08/h<?php echo $cabin ?>.png" >
+			</div>
+		<?php endforeach; ?>
+	</div>
+</div>

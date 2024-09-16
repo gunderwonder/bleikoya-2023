@@ -511,8 +511,21 @@ aside .b-subject-list {
 .b-header-link {
 	display: inline-block;
 	border-bottom: none;
-	margin-bottom: 2rem;
+	margin-bottom: 3rem;
 	width: 19rem;
+}
+
+.b-header-link::after {
+	content: "";
+	position: absolute;
+	display: block;
+	content: "";
+	background-color: var(--b-primary-color);
+	height: 2px;
+	width: 12rem;
+	margin-top: 2rem;
+	left: 50%;
+	transform: translateX(-50%);
 }
 
 .b-header-link__extra {
@@ -744,13 +757,35 @@ aside .b-subject-list {
 /* #endregion */
 
 /* #region Footer */
+.b-cabin-gallery {
+	display: grid;
+	grid-template-columns: repeat(8, 1fr) repeat(8, 1fr) repeat(7, 1fr);
+	gap: 0px;
+	background-color: var(--b-red-color);
+	/* box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.4); */
+}
+
+.b-cabin-gallery-item {
+	position: relative;
+	padding-bottom: 100%;
+}
+
+.b-cabin-gallery-item img {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
 .b-footer {
 	background-color: var(--b-blue-color);
 	min-height: 25rem;
 	padding: 3rem;
 }
 
-.b-footer .b-body-text {
+.b-footer .b-body-text p {
 	color: white;
 }
 
@@ -760,7 +795,7 @@ aside .b-subject-list {
 }
 
 .b-bleikoya-map {
-	margin-top: 3rem;
+	margin-top: 2rem;
 	border-top: 1px solid var(--b-border-color);
 	border-bottom: 1px solid var(--b-border-color);
 }
@@ -777,7 +812,7 @@ aside .b-subject-list {
 	-ms-flex-align: center;
 	align-items: center;
 	position: relative;
-	margin: 0 1rem 2rem 1rem;
+	margin: 1rem 1rem 2rem 1rem;
 }
 
 .b-search-field {
@@ -834,7 +869,7 @@ aside .b-subject-list {
 @media screen and (min-width: 719px) {
 	.b-search-form {
 		width: 500px;
-		margin: 0 auto 2rem auto;
+		margin: 1rem auto 2rem auto;
 	}
 }
 
