@@ -67,6 +67,13 @@
 			e.target.closest('button').focus();
 
 		}
+
+		if (e.target.matches('[data-href]:not(a), [data-href] *')) {
+			let href = e.target.getAttribute('data-href');
+			console.log(href, e.target);
+
+			window.location = href;
+		}
 	});
 
 	document.addEventListener('suggest.ajax', (event) => {

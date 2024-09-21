@@ -20,6 +20,10 @@
 	--b-border-color: rgb(230, 230, 233);
 }
 
+[data-href] {
+	cursor: pointer;
+}
+
 html {
 	margin: 0 !important;
 }

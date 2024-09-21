@@ -1,6 +1,6 @@
 <?php global $post ?>
 
-<article class="b-article-plug b-box b-box--green <?php if (has_post_thumbnail()): ?>b-article-plug--has-image<?php endif; ?>">
+<article data-href="<?php the_permalink() ?>" class="b-article-plug b-box b-box--green <?php if (has_post_thumbnail()): ?>b-article-plug--has-image<?php endif; ?>">
 	<?php if (has_post_thumbnail()): ?>
 		<a class="b-article-plug__thumbnail" href="<?php the_permalink() ?>">
 			<?php the_post_thumbnail('thumbnail'); ?>
