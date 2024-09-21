@@ -128,6 +128,25 @@ function sc_get_posts_by_taxonomy($taxonomy, $id, $posts_per_page = -1) {
 	);
 }
 
+function b_get_attachments_by_gallery_slug($gallery_slug) {
+
+	$term = get_term_by('slug', $gallery_slug, 'gallery');
+
+	if (!$term)
+		return array();
+
+	return get_posts(array(
+		'post_type' => 'attachment',
+		'tax_query' => array(
+			array(
+				'taxonomy' => 'gallery',
+				'field' => 'term_id',
+				'terms' => $term->term_id
+			)
+		)
+	));
+}
+
 
 function inspect_styles() {
 	global $wp_styles;
