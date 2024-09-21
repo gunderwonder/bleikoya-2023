@@ -141,7 +141,8 @@ function b_get_attachments_by_gallery_slug($gallery_slug) {
 			array(
 				'taxonomy' => 'gallery',
 				'field' => 'term_id',
-				'terms' => $term->term_id
+				'terms' => $term->term_id,
+				'posts_per_page' => -1
 			)
 		)
 	));
