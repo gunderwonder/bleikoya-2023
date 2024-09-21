@@ -137,12 +137,13 @@ function b_get_attachments_by_gallery_slug($gallery_slug) {
 
 	return get_posts(array(
 		'post_type' => 'attachment',
+		'posts_per_page' => -1,
 		'tax_query' => array(
 			array(
 				'taxonomy' => 'gallery',
 				'field' => 'term_id',
-				'terms' => $term->term_id,
-				'posts_per_page' => -1
+				'terms' => $term->term_id
+
 			)
 		)
 	));
