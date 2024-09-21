@@ -2,7 +2,7 @@
 
 <article class="b-article">
 	<a class="b-article-permalink" href="<?php the_permalink() ?>">
-		<?php the_date() ?>
+		<?php echo get_the_date() ?>
 	</a>
 	<h1><?php the_title() ?></h1>
 

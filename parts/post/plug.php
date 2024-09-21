@@ -1,3 +1,5 @@
+<?php global $post ?>
+
 <article class="b-article-plug b-box b-box--green <?php if (has_post_thumbnail()): ?>b-article-plug--has-image<?php endif; ?>">
 	<?php if (has_post_thumbnail()): ?>
 		<a class="b-article-plug__thumbnail" href="<?php the_permalink() ?>">
@@ -6,7 +8,7 @@
 	<?php endif; ?>
 
 	<a class="b-article-permalink" href="<?php the_permalink() ?>">
-		<?php the_date() ?>
+		<?php echo get_the_date() ?>
 	</a>
 	<?php $categories = get_the_category() ?>
 	<ul class="b-inline-list b-float-right">
