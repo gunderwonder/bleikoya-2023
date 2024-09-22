@@ -223,6 +223,16 @@ a.b-anchor--with-icon::after {
 	background-color: var(--b-border-color);
 }
 
+@media screen and (max-width: 431px) {
+	.b-event-list .b-button:last-child {
+		margin-top: 1rem;
+		margin-right: 0;
+		margin-bottom: 2rem;
+	}
+
+}
+
+
 .b-article-plug {
 	position: relative;
 }
