@@ -1036,6 +1036,38 @@ aside .b-subject-list {
 	cursor: pointer;
 }
 
+/* region Navlinks */
+.nav-links {
+	width: 70%;
+	margin: 0 auto;
+}
+
+.page-numbers {
+	background-color: var(--b-border-color);
+	color: black;
+	padding: 0.5rem 1rem 0.5rem 1rem !important;
+	border-radius: 20px;
+	border: none;
+	font-family: Futura, "Jost", sans-serif;
+	font-weight: 500;
+	text-transform: uppercase;
+	font-size: 0.8rem;
+	line-height: 1rem;
+	transition: background-color 0.5s ease, color 0.5s ease;
+	display: inline-block;
+}
+
+a.page-numbers {
+	background-color: var(--b-red-transparent-color);
+}
+
+a.page-numbers:hover {
+	background-color: var(--b-primary-color);
+	color: white;
+	/* cursor: pointer; */
+}
+
+
 /* region Global overrides */
 .grecaptcha-badge {
 	visibility: hidden;
