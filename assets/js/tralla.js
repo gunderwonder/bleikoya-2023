@@ -69,8 +69,7 @@
 		}
 
 		if (e.target.matches('[data-href]:not(a), [data-href] *')) {
-			let href = e.target.getAttribute('data-href');
-			console.log(href, e.target);
+			let href = e.target.closest('[data-href]').getAttribute('data-href');
 
 			window.location = href;
 		}
