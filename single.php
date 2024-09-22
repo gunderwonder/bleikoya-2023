@@ -14,7 +14,8 @@
 
 <section class="b-center-wide" style="display: flow-root;">
 	<h2>Siste oppslag</h2>
-	<?php $posts = get_posts(array('posts_per_page' => 5, 'order' => 'DESC', 'orderby' => 'date')); ?>
+	<?php $posts = get_posts(array('posts_per_page' => 5, 'order' => 'DESC', 'orderby' => 'date', 'post_status' => 'private',)); ?>
+
 	<?php foreach ($posts as $post) : ?>
 		<?php setup_postdata($post) ?>
 		<?php sc_get_template_part('parts/post/plug', 'post'); ?>
