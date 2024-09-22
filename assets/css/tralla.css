@@ -28,10 +28,14 @@ html {
 	margin: 0 !important;
 }
 
-ul {
+ul, ol {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
+}
+
+ol {
+	list-style-type: lower-latin;
 }
 
 body {
@@ -290,14 +294,18 @@ a.b-anchor--with-icon::after {
 	display: flow-root;
 }
 
-.b-body-text p ul, .wp-block-list {
+.b-body-text p ul, .b-body-text > ul, .b-body-text > ol, .wp-block-list {
 	line-height: 1.7em;
 	color: var(--b-header-color);
 	list-style-type: "-";
 	margin: 0 0 0 2rem;
 }
 
-.b-body-text p li, .wp-block-list li {
+.b-body-text > ol {
+	list-style-type:decimal;
+}
+
+.b-body-text p li, .b-body-text > ul > li, .b-body-text > ol > li, .wp-block-list li {
 	padding: 0 0 0 1rem;
 }
 
