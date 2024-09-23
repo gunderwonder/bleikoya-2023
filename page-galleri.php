@@ -8,9 +8,17 @@
 			array(
 				'taxonomy' => 'gallery',
             'operator' => 'EXISTS'
+			),
+			array(
+				'taxonomy' => 'gallery',
+				'field'    => 'slug',
+				'terms'    => '91-hytter',
+            'operator' => 'NOT IN'
 			)
+
 		)
 	));
+
 	?>
 
 	<?php sc_get_template_part('parts/gallery/gallery-index', NULL, array(
