@@ -56,7 +56,7 @@
 			<?php global $post; ?>
 
 			<?php if (is_user_logged_in()) : ?>
-				<li class="b-menu__item"><a class="b-menu__link <?php if (is_home() || is_single()) : ?>b-menu__link--active<?php endif; ?>" href="/oppslag">Oppslag</a></li>
+				<li class="b-menu__item"><a class="b-menu__link <?php if (is_home() || is_single() || is_archive()) : ?>b-menu__link--active<?php endif; ?>" href="/oppslag">Oppslag</a></li>
 				<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'info' || is_category()) : ?>b-menu__link--active<?php endif; ?>" href="/info/">Info</a></li>
 			<?php endif; ?>
 			<li class="b-menu__item"><a class="b-menu__link <?php if (tribe_is_event()) : ?>b-menu__link--active<?php endif; ?>" href="/kalender/">Kalender</a></li>

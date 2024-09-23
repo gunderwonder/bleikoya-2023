@@ -1149,6 +1149,7 @@ a.page-numbers:hover {
 
 .tribe-events .tribe-events-calendar-list__event-title-link {
 	color: var(--b-primary-color) !important;
+	font-weight: bold;
 }
 
 .tribe-events-widget-events-list__event-row {
