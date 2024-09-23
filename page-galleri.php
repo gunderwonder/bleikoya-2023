@@ -13,7 +13,7 @@
 				'taxonomy' => 'gallery',
 				'field'    => 'slug',
 				'terms'    => '91-hytter',
-            'operator' => 'NOT IN'
+            	'operator' => 'NOT IN'
 			)
 
 		)
