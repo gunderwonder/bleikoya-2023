@@ -1148,6 +1148,24 @@ a.page-numbers:hover {
 	font-size: 1rem !important;
 }
 
+@media screen and (max-width: 600px) {
+	.tribe-events-calendar-list__event-title {
+		font-size: 0.9rem !important;
+	}
+
+	.tribe-events-calendar-list__event-details {
+		padding-left: 0.8rem !important;
+	}
+
+	.tribe-events-widget-events-list__event-datetime,
+	.tribe-events-calendar-list__event-datetime {
+		font-size: 0.9rem !important;
+		display: inline-block;
+		max-width: 10rem;
+	}
+
+}
+
 .tribe-events .tribe-events-calendar-list__event-title-link {
 	color: var(--b-primary-color) !important;
 	font-weight: bold;
@@ -1274,7 +1292,19 @@ a.page-numbers:hover {
 	border-radius: 20px;
 }
 
-.tribe-events-c-nav__list-item a {
+.tribe-events-meta-group {
+	line-height: 1.5rem;
+}
+
+.tribe-events-event-categories-label {
+	display: none;
+}
+
+.tribe-events-c-nav__list-item a,
+.tribe-events-nav-previous a,
+.tribe-events-nav-next a,
+.tribe-events-back a,
+.tribe-events-event-categories a {
 	background-color: var(--b-border-color);
 	color: black;
 	padding: 0.5rem 1rem 0.5rem 1rem !important;
@@ -1288,6 +1318,13 @@ a.page-numbers:hover {
 	transition: background-color 0.5s ease, color 0.5s ease;
 	display: inline-block;
 }
+
+.tribe-events-event-categories a {
+	background-color: var(--b-blue-color);
+	color: white;
+	margin-top: 1rem;
+}
+
 
 .tribe-events-c-nav__next-label {
 	font-family: Futura, "Jost", sans-serif !important;
