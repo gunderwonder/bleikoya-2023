@@ -1074,6 +1074,7 @@ a.page-numbers:hover {
 }
 
 /* #region Events Calendar overrides */
+
 .tribe-events-header__events-bar {
 	display: none !important;
 }
@@ -1169,6 +1170,10 @@ a.page-numbers:hover {
 @media screen and (max-width: 600px) {
 	.tribe-events-calendar-list__event-date-tag {
 		display: none;
+	}
+
+	.tribe-events-header {
+		margin: 1rem 0 1rem 0 !important;
 	}
 
 }
@@ -1269,8 +1274,25 @@ a.page-numbers:hover {
 	border-radius: 20px;
 }
 
-.tribe-events-calendar-list-nav {
-	display: none !important;
+.tribe-events-c-nav__list-item a {
+	background-color: var(--b-border-color);
+	color: black;
+	padding: 0.5rem 1rem 0.5rem 1rem !important;
+	border-radius: 20px;
+	border: none;
+	font-family: Futura, "Jost", sans-serif;
+	font-weight: 500;
+	text-transform: uppercase;
+	font-size: 0.8rem;
+	line-height: 1rem;
+	transition: background-color 0.5s ease, color 0.5s ease;
+	display: inline-block;
+}
+
+.tribe-events-c-nav__next-label {
+	font-family: Futura, "Jost", sans-serif !important;
+	text-transform: uppercase;
+	font-size: 0.8rem;
 }
 
 .tribe-events-header__events-bar,
