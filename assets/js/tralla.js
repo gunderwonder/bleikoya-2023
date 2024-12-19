@@ -6,35 +6,6 @@
 	var footerSelector = '.b-footer';
 	var footerElement = document.querySelector(footerSelector);
 
-	function onScroll() {
-		var mainElement = document.querySelector('main');
-
-		if (isElementInViewport(footerElement)) {
-
-		}
-	}
-
-	function isElementInViewport(element) {
-		var rect = element.getBoundingClientRect();
-		return rect.top < window.pageYOffset + window.innerWidth;
-	}
-
-	function throttle(handler) {
-		var timeout = null;
-		return function () {
-			var parameters = arguments;
-			if (!timeout) {
-				timeout = setTimeout(function () {
-					timeout = null;
-					onScroll.apply(this, parameters);
-				}, 100);
-			}
-		}
-	}
-
-	// window.addEventListener('scroll', throttle(onScroll), false);
-	//document.addEventListener('DOMContentLoaded', loadVideos, false);
-
 	document.addEventListener('DOMContentLoaded', function () {
 
 		document.body.addEventListener('click', function (event) {
