@@ -25,19 +25,6 @@ $column_header = array(
 	"user-alternate-phone-number" => "Alternativt telefonnummer",
 );
 
-function array_flatten($array) {
-	$results = [];
-
-	foreach ($array as $key => $value) {
-		if (is_array($value) && !empty($value))
-			$results = array_merge($results, array_flatten($value));
-		else
-			$results[$key] = $value;
-	}
-
-	return $results;
-}
-
 foreach ($users as $user) {
 	$user_info = [
 		'first_name' => $user->first_name,
@@ -69,7 +56,6 @@ usort($user_data, function($a, $b) {
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
-// Set column headers
 $col = 'A';
 foreach ($column_header as $key => $header) {
 	$sheet->setCellValue($col . '1', $header);
@@ -79,14 +65,13 @@ foreach ($column_header as $key => $header) {
 	$col++;
 }
 
-// Populate data
 $row = 2;
 foreach ($user_data as $user) {
 	$col = 'A';
 	foreach ($column_header as $key => $header) {
 			$cellValue = isset($user[$key]) ? $user[$key] : '';
 			$sheet->setCellValue($col . $row, $cellValue);
-			if ($key == 'user-postal-code') {
+			if ($key == 'user-postal-code' || $key == 'user-phone-number' || $key == 'user-alternate-phone-number') {
 				$sheet->setCellValueExplicit($col . $row, $cellValue, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
 			}
 			$sheet->getStyle($col . $row)->getFont()->setSize(16);
@@ -95,11 +80,9 @@ foreach ($user_data as $user) {
 	$row++;
 }
 
-// Write to Excel file
 $writer = new Xlsx($spreadsheet);
 $filename = 'Medlemsliste Bleikøya Velforening ' . date('d.m.Y') . '.xlsx';
 
-// Redirect output to a client’s web browser (Xlsx)
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 header('Content-Disposition: attachment;filename="' . $filename . '"');
 header('Cache-Control: max-age=0');

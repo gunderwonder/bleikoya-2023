@@ -9,13 +9,18 @@ ini_set('display_errors', '1');
 
 define('UNCATEGORIZED_TAG_ID', 1);
 
+require 'vendor/autoload.php';
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
+
 add_filter('get_the_categories', function ($categories) {
 	foreach ($categories as $cat_key => $category) {
 		if ($category->term_id == UNCATEGORIZED_TAG_ID) {
 			unset($categories[$cat_key]);
 		}
 	}
-
 	return $categories;
 });
 
@@ -24,25 +29,15 @@ add_action('wp', function () {
 	if (isset($queried_object->post_status) &&
 		'private' === $queried_object->post_status &&
 		!is_user_logged_in()) {
-
-			wp_safe_redirect(wp_login_url(get_permalink($queried_object->ID)));
+		wp_safe_redirect(wp_login_url(get_permalink($queried_object->ID)));
 		exit;
 	}
 });
-
-// add_filter('wpcf7_form_elements', function ($html) {
-// 	$html = str_replace('—Please choose an option—',  'Velg et alternativ', $html);
-
-// 	return $html;
-// });
-
 
 add_filter('login_message', function () {
 	$message = '<p class="message">Til medlemmer av Bleikøya Velforening. Logg inn med h&lt;hyttenummer&gt; (f.eks. h7 for hytte 7) og passordet ditt.</p><br />';
 	return $message;
 });
-
-
 
 function remove_image_size_attr($html) {
 	$html = preg_replace('/(width|height)="\d*"\s/', '', $html);
@@ -315,7 +310,6 @@ add_action('after_setup_theme', function () {
 	show_admin_bar(current_user_can('administrator'));
 });
 
-
 add_action('wp_dashboard_setup', function() {
 	wp_add_dashboard_widget(
 		'custom_category_links_widget',
@@ -361,21 +355,161 @@ add_action('wp_dashboard_setup', function () {
 
 add_action('admin_menu', function () {
 
-		$hook = add_menu_page(
-			'Kategorier',
-			'Kategorier',
-			'manage_categories',
-			'edit-category',
-			'redirect_to_category_edit_page',
-			'dashicons-category',
-			5
-		);
+	$hook = add_menu_page(
+		'Kategorier',
+		'Kategorier',
+		'manage_categories',
+		'edit-category',
+		'redirect_to_category_edit_page',
+		'dashicons-category',
+		5
+	);
 
-		add_action('load-' . $hook, function() {
+	add_action('load-' . $hook, function() {
 
-				$edit_link = admin_url('edit-tags.php?taxonomy=category');
-				wp_redirect($edit_link);
-				exit;
-		});
+		$edit_link = admin_url('edit-tags.php?taxonomy=category');
+		wp_redirect($edit_link);
+		exit;
+	});
+});
+
+add_action('admin_menu', function() {
+	add_submenu_page(
+		'users.php',                      // Parent menu slug
+		'Eksporter medlemsliste',         // Page title
+		'Eksporter medlemsliste',         // Menu title
+		'manage_options',                 // Capability required
+		'export-users',                   // Menu slug
+		function() {                      // Callback function
+			wp_redirect(get_stylesheet_directory_uri() . '/admin/export-user-data.php');
+			exit;
+		}
+	);
+});
+
+add_action('rest_api_init', function () {
+	register_rest_route('custom/v1', '/export-user-data', array(
+		'methods' => 'GET',
+		'callback' => 'export_user_data',
+		'permission_callback' => function () {
+			return current_user_can('manage_options');
+		}
+	));
+});
+
+function array_flatten($array) {
+	$results = [];
+
+	foreach ($array as $key => $value) {
+		if (is_array($value) && !empty($value))
+			$results = array_merge($results, array_flatten($value));
+		else
+			$results[$key] = $value;
 	}
-);
+
+	return $results;
+}
+
+function export_user_data() {
+	if (!is_user_logged_in() || !current_user_can('manage_options')) {
+		return new WP_Error('rest_forbidden', esc_html__('You do not have sufficient permissions to access this endpoint.'), array('status' => 403));
+	}
+
+	$users = get_users();
+	$user_data = [];
+
+	$column_header = array(
+		"user-cabin-number" => "Hyttenummer",
+		"first_name" => "Fornavn",
+		"last_name" => "Etternavn",
+		"user_email" => "Epost",
+		"user-address" => "Adresse",
+		"user-postal-code" => "Postnummer",
+		"user-postal-area" => "Poststed",
+		"user-phone-number" => "Telefonnummer",
+		"user-alternate-name" => "Alternativt navn",
+		"user-alternate-email" => "Alternativ epost",
+		"user-alternate-phone-number" => "Alternativt telefonnummer",
+	);
+
+	foreach ($users as $user) {
+		$user_info = [
+			'first_name' => $user->first_name,
+			'last_name' => $user->last_name,
+			'user_email' => $user->user_email
+		];
+		$user_data[] = array_flatten($user_info);
+	}
+
+	$spreadsheet = new Spreadsheet();
+	$sheet = $spreadsheet->getActiveSheet();
+
+	$column = 'A';
+	foreach ($column_header as $header) {
+		$sheet->setCellValue($column . '1', $header);
+		$column++;
+	}
+
+	$row = 2;
+	foreach ($user_data as $data) {
+		$column = 'A';
+		foreach ($data as $value) {
+			$sheet->setCellValue($column . $row, $value);
+			$column++;
+		}
+		$row++;
+	}
+
+	$writer = new Xlsx($spreadsheet);
+	$file_path = wp_upload_dir()['path'] . '/user-data.xlsx';
+	$writer->save($file_path);
+
+	return rest_ensure_response(array('file_url' => wp_upload_dir()['url'] . '/user-data.xlsx'));
+}
+
+function get_all_user_email_addresses() {
+	$users = get_users();
+	$email_addresses = [];
+
+	foreach ($users as $user) {
+		if (function_exists('get_fields')) {
+			$acf_fields = get_fields('user_' . $user->ID);
+
+			if (!$acf_fields || empty($acf_fields['user-cabin-number']))
+				continue;
+
+			$acf_fields = array_flatten($acf_fields);
+
+			$email_addresses[] = $user->first_name . ' ' . $user->last_name . ' <' . $user->user_email . '>';
+
+			if (!empty($acf_fields['user-alternate-email'])) {
+				$alternate_name = isset($acf_fields['user-alternate-name']) ? $acf_fields['user-alternate-name'] : '';
+				$email_addresses[] = $alternate_name . ' <' . $acf_fields['user-alternate-email'] . '>';
+			}
+		}
+	}
+
+	$email_addresses = array_filter($email_addresses);
+	$email_addresses = array_unique($email_addresses);
+
+	return 'mailto:?bcc=' . implode(',', $email_addresses);
+}
+
+add_action('admin_notices', function() {
+	$screen = get_current_screen();
+
+	if ($screen->id === 'users') {
+		$mailto_link = get_all_user_email_addresses();
+		?>
+		<div class="wrap">
+			<button id="export-users-button" class="button button-primary">Last ned medlemsliste</button>
+			<a href="<?php echo esc_attr($mailto_link); ?>" class="button button-primary" style="margin-left: 10px;">Send e-post til alle</a>
+		</div>
+		<script>
+		document.getElementById('export-users-button').addEventListener('click', function() {
+			window.location.href = '<?php echo get_stylesheet_directory_uri(); ?>/admin/export-user-data.php';
+		});
+		</script>
+		<?php
+	}
+});
