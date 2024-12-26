@@ -53,4 +53,3 @@ $mailto_string = 'mailto:?bcc=' . implode(',', $email_addresses);
 header('Content-Type: text/plain');
 echo $mailto_string;
 exit;
-?>
