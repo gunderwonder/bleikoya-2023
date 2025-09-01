@@ -10,6 +10,7 @@ require 'includes/theme-setup.php';
 require 'includes/filters.php';
 require 'includes/search.php';
 require 'includes/templating.php';
+require 'includes/events.php';
 require 'includes/admin/dashboard.php';
 require 'includes/admin/users.php';
 
