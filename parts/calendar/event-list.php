@@ -20,15 +20,7 @@
 		<?php wp_reset_postdata() ?>
 	</ul>
 
-	<a href="/kalender/" class="b-float-right b-button b-button--yellow">
-		<i data-lucide="calendar" class="b-icon"></i>
-		Se hele kalenderen →
-	</a>
 
-	<a href="/leie-av-velhuset/" class="b-float-right b-button b-button--green">
-		<i data-lucide="calendar" class="b-icon"></i>
-		Leie av Velhuset
-	</a>
 
 
 </div>
