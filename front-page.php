@@ -17,7 +17,11 @@
 				Leie av Velhuset
 			</a>
 
-			<a href="/featured-events.ics/" class="b-button b-button--green">
+			<?php
+			$ics_url = home_url('/featured-events.ics');
+			$webcal_url = preg_replace('~^https?~', 'webcal', $ics_url);
+			?>
+			<a href="<?php echo esc_url($webcal_url); ?>" class="b-button b-button--green">
 				<i data-lucide="calendar-arrow-up" class="b-icon"></i>
 				Abonner på kalenderen
 			</a>
