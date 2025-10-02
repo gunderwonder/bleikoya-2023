@@ -75,7 +75,7 @@ add_action('template_redirect', function () {
 		$lines[] = 'PRODID:-//' . $esc($site_name) . '//Featured Events//EN';
 		$lines[] = 'CALSCALE:GREGORIAN';
 		$lines[] = 'METHOD:PUBLISH';
-		$lines[] = 'X-WR-CALNAME:' . $esc($site_name . ' – Featured events');
+		$lines[] = 'X-WR-CALNAME:Bleikøyakalenderen';
 		$lines[] = 'X-WR-TIMEZONE:UTC';
 
 		foreach ($events as $event) {
