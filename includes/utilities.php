@@ -1,6 +1,5 @@
 <?php
 
-
 function sc_is_xmlhttprequest() {
 	return isset($_GET['ajax']) ||
 		!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
