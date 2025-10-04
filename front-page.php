@@ -31,7 +31,7 @@
 				Bleikøya Forum
 			</a>
 
-			<a href="<?php admin_url('profile.php'); ?>" class="b-button b-button--green">
+			<a href="<?php echo admin_url('profile.php'); ?>" class="b-button b-button--green">
 				<i data-lucide="user-pen" class="b-icon"></i>
 				Min side
 			</a>
