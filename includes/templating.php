@@ -21,24 +21,6 @@ function sc_get_field($field, $post = null) {
 	return get_post_meta($post->ID, $field, true);
 }
 
-
-function sc_get_post_fields($post = null) {
-
-	// $poster_id = sc_get_field('video-poster', $post);
-	// $poster_src = NULL;
-
-	// if ($poster_id) {
-	// 	$poster_src = wp_get_attachment_image_url($poster_id, 1000);
-	// }
-
-	return array(
-		// 'video' => sc_parse_video_url(sc_get_field('video-link', $post)),
-		// 'poster' => $poster_src,
-		// 'colophone' => apply_filters('the_content', sc_get_field('post-colophone', $post))
-	);
-}
-
-
 function sc_get_json($url) {
 	$json = wp_cache_get($url);
 
@@ -52,6 +34,7 @@ function sc_get_json($url) {
 
 	return $json;
 }
+
 function sc_get_posts_by_taxonomy($taxonomy, $id, $posts_per_page = -1) {
 	return get_posts(
 		array(
