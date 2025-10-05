@@ -47,10 +47,24 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 - **File naming**: lowercase with hyphens (e.g., `health-check.php`)
 
 ## Dependencies
-- **The Events Calendar**: Required plugin for event functionality
-  - Functions like `tribe_get_events()`, `tribe_get_venue()`, etc.
+
+### WordPress Plugins (Active)
+<!-- To update: wp plugin list --format=table --path=/Users/gunderwonder/Prosjekter/bleikoya.net -->
+- **The Events Calendar** - Event functionality
+  - Functions: `tribe_get_events()`, `tribe_get_venue()`, `tribe_get_event_cat_ids()`, etc.
   - Custom meta fields: `_EventAllDay`, `_EventStartDate`, `_EventEndDate`
-- **WordPress Core**: Standard WP functions and hooks
+- **Advanced Custom Fields** - Custom fields
+- **Contact Form 7** - Contact forms
+- **Error Log Monitor** - Error monitoring
+- **F4 Media Taxonomies** - Media taxonomy support
+- **Lazy Blocks** - Custom Gutenberg blocks
+- **Really Simple Captcha** - Captcha for forms
+- **Safe SVG** - SVG upload support
+- **Simple Local Avatars** - Local avatar uploads
+- **WP Super Cache** - Caching
+
+### WordPress Core
+- Standard WP functions and hooks
 
 ## Testing
 Run health checks locally:

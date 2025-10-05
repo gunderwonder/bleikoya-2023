@@ -6,7 +6,9 @@
 	],
 	"settings": {
 		"search.exclude": {
-			"vendor": true
+			"vendor": true,
+			"**/vendor/**/.github/**": true,
+			"node_modules": true
 		}
 	}
 }

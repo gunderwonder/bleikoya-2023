@@ -2,4 +2,7 @@
   "intelephense.environment.includePaths": [
     "../../plugins"
   ],
+	"intelephense.files.exclude": [
+    "**/vendor/**",
+  ]
 }
