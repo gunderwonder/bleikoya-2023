@@ -23,14 +23,6 @@ add_action('after_switch_theme', function () {
 // Output the ICS when our endpoint is requested
 add_action('template_redirect', function () {
 	if (get_query_var('featured_events_ics')) {
-		// Ensure The Events Calendar functions exist
-		if (!function_exists('tribe_get_events')) {
-			header('HTTP/1.1 503 Service Unavailable');
-			header('Content-Type: text/plain; charset=utf-8');
-			echo 'The Events Calendar plugin is required to generate this feed.';
-			exit;
-		}
-
 		$site_name = get_bloginfo('name');
 		$site_url = home_url('/');
 		$now = current_time('timestamp', true); // UTC timestamp
@@ -45,11 +37,7 @@ add_action('template_redirect', function () {
 			'ends_after' => 'now',
 		];
 
-		// Call plugin function safely
-		$events = function_exists('tribe_get_events') ? call_user_func('tribe_get_events', $args) : [];
-		if (empty($events)) {
-			$events = [];
-		}
+		$events = tribe_get_events($args);
 
 		// Helper: escape text per RFC 5545 (\, \; and \n)
 		$esc = function ($text) {
@@ -82,9 +70,9 @@ add_action('template_redirect', function () {
 			$post_id = $event->ID;
 
 			// Use TEC helpers for robust date handling
-			$all_day = function_exists('tribe_event_is_all_day') ? call_user_func('tribe_event_is_all_day', $post_id) : (bool) get_post_meta($post_id, '_EventAllDay', true);
-			$start_utc = function_exists('tribe_get_start_date') ? call_user_func('tribe_get_start_date', $post_id, true, $all_day ? 'Ymd' : 'Ymd\THis\Z', 'UTC') : gmdate($all_day ? 'Ymd' : 'Ymd\THis\Z', strtotime(get_post_meta($post_id, '_EventStartDate', true) . ' UTC'));
-			$end_utc_raw = function_exists('tribe_get_end_date') ? call_user_func('tribe_get_end_date', $post_id, true, $all_day ? 'Ymd' : 'Ymd\THis\Z', 'UTC') : gmdate($all_day ? 'Ymd' : 'Ymd\THis\Z', strtotime(get_post_meta($post_id, '_EventEndDate', true) . ' UTC'));
+			$all_day = tribe_event_is_all_day($post_id);
+			$start_utc = tribe_get_start_date($post_id, true, $all_day ? 'Ymd' : 'Ymd\THis\Z', 'UTC');
+			$end_utc_raw = tribe_get_end_date($post_id, true, $all_day ? 'Ymd' : 'Ymd\THis\Z', 'UTC');
 
 			// For all-day events, DTEND is exclusive; advance by one day
 			if ($all_day) {
@@ -99,18 +87,16 @@ add_action('template_redirect', function () {
 			$url = get_permalink($post_id);
 			$description = has_excerpt($post_id) ? get_the_excerpt($post_id) : wp_trim_words(wp_strip_all_tags(get_post_field('post_content', $post_id)), 80);
 
-			$venue = function_exists('tribe_get_venue') ? call_user_func('tribe_get_venue', $post_id) : '';
+			$venue = tribe_get_venue($post_id);
 			$address_parts = [];
-			if (function_exists('tribe_get_address')) {
-				$addr = call_user_func('tribe_get_address', $post_id);
-				$city = function_exists('tribe_get_city') ? call_user_func('tribe_get_city', $post_id) : '';
-				$zip = function_exists('tribe_get_zip') ? call_user_func('tribe_get_zip', $post_id) : '';
-				$country = function_exists('tribe_get_country') ? call_user_func('tribe_get_country', $post_id) : '';
-				$state = function_exists('tribe_get_stateprovince') ? call_user_func('tribe_get_stateprovince', $post_id) : '';
-				foreach ([$addr, $zip, $city, $state, $country] as $p) {
-					$p = trim((string) $p);
-					if ($p) $address_parts[] = $p;
-				}
+			$addr = tribe_get_address($post_id);
+			$city = tribe_get_city($post_id);
+			$zip = tribe_get_zip($post_id);
+			$country = tribe_get_country($post_id);
+			$state = tribe_get_stateprovince($post_id);
+			foreach ([$addr, $zip, $city, $state, $country] as $p) {
+				$p = trim((string) $p);
+				if ($p) $address_parts[] = $p;
 			}
 			$location = trim(($venue ? $venue . ', ' : '') . implode(', ', $address_parts), ' ,');
 
@@ -151,8 +137,7 @@ add_action('template_redirect', function () {
 add_action('tribe_template_before_include:events/v2/list/event/venue', function() {
 	global $post;
 
-	if (!function_exists('tribe_get_event_cat_ids')) return;
-	$category_ids = call_user_func('tribe_get_event_cat_ids', $post->ID);
+	$category_ids = tribe_get_event_cat_ids($post->ID);
 
 	// get categories from $category_ids
 	$categories = get_terms(array(

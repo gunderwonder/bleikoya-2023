@@ -8,11 +8,12 @@ class HealthCheck {
 		$this->base_url = rtrim($base_url, '/');
 	}
 
-	private function request($path, $method = 'GET', $headers = []) {
+	private function request($path, $method = 'GET', $headers = [], $follow_redirects = true) {
 		$ch = curl_init($this->base_url . $path);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HEADER, true);
 		curl_setopt($ch, CURLOPT_NOBODY, $method === 'HEAD');
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $follow_redirects);
 
 		if (!empty($headers)) {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -93,6 +94,34 @@ class HealthCheck {
 		return $pass && $is_json;
 	}
 
+	private function assertIcalResponse($name, $path, $expected_code = 200) {
+		$response = $this->request($path);
+
+		$pass = $response['status'] === $expected_code;
+
+		// Check if Content-Type is correct
+		$content_type = $response['headers']['Content-Type'] ?? '';
+		$is_ical = strpos($content_type, 'text/calendar') !== false;
+
+		// Check if body starts with BEGIN:VCALENDAR
+		$has_vcalendar = strpos($response['body'], 'BEGIN:VCALENDAR') === 0;
+
+		$checks = [];
+		if (!$is_ical) $checks[] = 'Invalid Content-Type';
+		if (!$has_vcalendar) $checks[] = 'Missing VCALENDAR';
+
+		$this->results[] = [
+			'name' => $name,
+			'path' => $path,
+			'expected' => $expected_code,
+			'actual' => $response['status'],
+			'pass' => $pass && $is_ical && $has_vcalendar,
+			'type' => 'http',
+			'additional' => empty($checks) ? 'Valid iCal response' : implode(', ', $checks)
+		];
+		return $pass && $is_ical && $has_vcalendar;
+	}
+
 	public function runTests() {
 		// Basic assertions
 		$this->assert('PHP version check', PHP_VERSION_ID >= 70400, 'PHP version should be 7.4 or higher');
@@ -106,6 +135,7 @@ class HealthCheck {
 		$this->assertHttpStatus('User export API', '/wp-json/custom/v1/export-user-data', 401);
 		$this->assertHttpStatus('404 handling', '/this-page-does-not-exist/', 404);
 		$this->assertJsonResponse('Search XHR endpoint', '/search/test');
+		$this->assertIcalResponse('Featured Events iCal feed', '/featured-events.ics');
 
 		return $this->results;
 	}
