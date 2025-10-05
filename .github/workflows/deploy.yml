@@ -1,0 +1,21 @@
+name: Deploy to bleikoya.net
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ssh.bleikoya.net
+          username: bleikoya.net
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /www/wp-content/themes/bleikoya-2023
+            git pull
