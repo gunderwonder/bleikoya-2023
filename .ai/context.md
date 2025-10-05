@@ -31,6 +31,9 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 │   └── utilities.php     # Utility functions
 ├── test/                  # Integration tests
 │   └── health-check.php  # HTTP endpoint health checks
+├── vendor/                # Composer dependencies (currently committed)
+├── composer.json          # Composer dependencies
+├── TODO.md               # Project TODO list
 ├── functions.php          # Theme initialization
 └── style.css             # Theme metadata
 
