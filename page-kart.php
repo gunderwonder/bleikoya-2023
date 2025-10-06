@@ -50,6 +50,96 @@
 		font-family: Arial, sans-serif;
 	}
 
+	.poi-manager {
+		background: white;
+		padding: 10px;
+		border-radius: 5px;
+		box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+		font-family: Arial, sans-serif;
+		font-size: 12px;
+		display: none;
+		max-width: 300px;
+		max-height: 500px;
+		overflow-y: auto;
+	}
+
+	.poi-manager.visible {
+		display: block;
+	}
+
+	.poi-manager h4 {
+		margin: 0 0 10px 0;
+		font-size: 14px;
+	}
+
+	.poi-manager section {
+		margin-bottom: 15px;
+		padding-bottom: 15px;
+		border-bottom: 1px solid #ddd;
+	}
+
+	.poi-manager section:last-child {
+		border-bottom: none;
+	}
+
+	.poi-manager button {
+		width: 100%;
+		padding: 6px;
+		margin: 3px 0;
+		cursor: pointer;
+		border: 1px solid #ccc;
+		background: white;
+		border-radius: 3px;
+	}
+
+	.poi-manager button:hover {
+		background: #f0f0f0;
+	}
+
+	.poi-manager button.active {
+		background: #4CAF50;
+		color: white;
+		border-color: #4CAF50;
+	}
+
+	.poi-manager input[type="text"] {
+		width: 100%;
+		padding: 5px;
+		margin: 5px 0;
+		box-sizing: border-box;
+	}
+
+	.poi-manager select {
+		width: 100%;
+		padding: 5px;
+		margin: 5px 0;
+	}
+
+	.poi-manager .poi-list {
+		max-height: 150px;
+		overflow-y: auto;
+		border: 1px solid #ddd;
+		padding: 5px;
+		margin-top: 5px;
+	}
+
+	.poi-manager .poi-item {
+		padding: 5px;
+		margin: 2px 0;
+		background: #f9f9f9;
+		border-radius: 3px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.poi-manager .poi-item button {
+		width: auto;
+		padding: 2px 8px;
+		margin: 0 0 0 5px;
+		font-size: 11px;
+	}
+
 	.calibration-control h4 {
 		margin: 0 0 10px 0;
 		font-size: 14px;
@@ -101,7 +191,19 @@
 	}
 </style>
 
-<div class="b-bleikoya-map">
+<section class="b-center">
+	<h2>Andre kart</h2>
+
+	<div class="b-quicklinks">
+		<a href="http://od2.pbe.oslo.kommune.no/kart/?&mode=kp_pk1-2_arealformaal,kp_pk1-2_hensynssoner,kp_pk1-2_juridisk,kp_pk1-2_ikke_juridisk,kp_pk2_2,kp_tema_juridisk_naturmiljo,kp_tema_ikke_juridisk_kulturminnevern,regv2,no_historisk_flyfoto,situasjon,text1&north=6640363.039694474&east=597415.3124256631" class="b-button b-button--yellow">
+			<i data-lucide="map" class="b-icon"></i>
+			Reguleringskart
+		</a>
+	</div>
+
+</section>
+
+<div class=" b-bleikoya-map">
 	<div id="map-wrapper">
 		<div id="map"></div>
 	</div>
@@ -170,6 +272,11 @@
 			attribution: '&copy; <a href="http://www.kartverket.no/">Kartverket</a>'
 		}).addTo(map);
 
+		// var satellite = L.tileLayer('https://opencache.statkart.no/gatekeeper/gk/gk.open_nib_utm33_wmts_v2?layer=Nibcache_UTM33_EUREF89&style=default&tilematrixset=default028mm&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix={z}&TileCol={x}&TileRow={y}', {
+		// 	attribution: '&copy; <a href="http://www.kartverket.no/">Kartverket</a>',
+		// 	maxZoom: 19
+		// });
+
 		// Add the SVG as an image overlay (not added to map by default)
 		var svgOverlay = L.imageOverlay('<?php echo get_stylesheet_directory_uri(); ?>/assets/img/bleikoya-kart.svg', getBounds(), {
 			opacity: 0.7
@@ -199,7 +306,8 @@
 
 		// Layer control
 		var baseLayers = {
-			"Topografisk kart fra Kartverket": topographic,
+			"Topografisk kart": topographic,
+			// "Satellittbilde": satellite,
 			"Bleikøya kart": svgOverlay,
 		};
 
@@ -207,6 +315,20 @@
 			"Bleikøyakart": L.layerGroup([svgOverlay]),
 			"Hyttenummer": cabinLayer
 		};
+
+		// POI Lag - Generert kode
+
+		// Lag: Brygger
+		// var brygger = L.layerGroup([
+		// 	L.rectangle([
+		// 		[59.888246930814034, 10.739511251449587],
+		// 		[59.888308829855944, 10.739538073539734]
+		// 	], {
+		// 		color: '#ff7800'
+		// 	}).bindPopup("Jonbrygga"),
+		// 	L.marker([59.88889551939684, 10.74043929576874]).bindPopup("Hytte 4")
+		// ]);
+		// overlays["Brygger"] = brygger;
 
 		L.control.layers(baseLayers, overlays).addTo(map);
 
@@ -294,6 +416,77 @@
 			position: 'topleft'
 		});
 		calibrationToggle.addTo(map);
+
+		// POI Manager Control
+		var POIManagerControl = L.Control.extend({
+			onAdd: function(map) {
+				var container = L.DomUtil.create('div', 'leaflet-bar poi-manager');
+
+				container.innerHTML = `
+					<h4>📍 POI Manager</h4>
+
+					<section>
+						<label>Velg lag:</label>
+						<select id="poi-layer-select">
+							<option value="">-- Velg lag --</option>
+						</select>
+						<input type="text" id="new-layer-name" placeholder="Nytt lag navn...">
+						<button id="add-layer-btn">+ Nytt lag</button>
+					</section>
+
+					<section>
+						<label>Tegne-verktøy:</label>
+						<button id="draw-marker-btn" title="Klikk på kartet for å plassere punkt">📍 Legg til punkt</button>
+						<button id="draw-rectangle-btn" title="Dra for å tegne firkant">▢ Legg til firkant</button>
+						<button id="draw-polygon-btn" title="Klikk flere punkter">▱ Legg til polygon</button>
+						<button id="cancel-draw-btn" style="display:none; background:#ff5252; color:white;">✕ Avbryt</button>
+					</section>
+
+					<section>
+						<label>POI-er i lag:</label>
+						<div class="poi-list" id="poi-list">
+							<em>Velg et lag først</em>
+						</div>
+					</section>
+
+					<section>
+						<button id="export-poi-btn">📋 Eksporter JavaScript</button>
+					</section>
+				`;
+
+				L.DomEvent.disableClickPropagation(container);
+				L.DomEvent.disableScrollPropagation(container);
+
+				return container;
+			}
+		});
+
+		var poiManagerControl = new POIManagerControl({
+			position: 'topright'
+		});
+		poiManagerControl.addTo(map);
+
+		// Toggle button for POI Manager
+		var POIToggle = L.Control.extend({
+			onAdd: function(map) {
+				var container = L.DomUtil.create('div', 'leaflet-bar calibration-toggle');
+				container.innerHTML = '📍 POI Manager';
+				container.title = 'Vis/skjul POI Manager';
+
+				L.DomEvent.on(container, 'click', function() {
+					var poiControl = document.querySelector('.poi-manager');
+					poiControl.classList.toggle('visible');
+				});
+
+				L.DomEvent.disableClickPropagation(container);
+				return container;
+			}
+		});
+
+		var poiToggle = new POIToggle({
+			position: 'topleft'
+		});
+		poiToggle.addTo(map);
 
 		// Calibration event handlers
 		function updateDisplay() {
@@ -441,6 +634,309 @@
 
 		updateDisplay();
 
+		// ===== POI MANAGER FUNCTIONALITY =====
+		var poiData = {
+			layers: {},
+			currentLayer: null
+		};
+
+		var drawingMode = null;
+		var tempMarkers = [];
+
+		// Layer management
+		function updateLayerSelect() {
+			var select = document.getElementById('poi-layer-select');
+			select.innerHTML = '<option value="">-- Velg lag --</option>';
+			Object.keys(poiData.layers).forEach(function(layerName) {
+				var option = document.createElement('option');
+				option.value = layerName;
+				option.textContent = layerName;
+				if (layerName === poiData.currentLayer) {
+					option.selected = true;
+				}
+				select.appendChild(option);
+			});
+		}
+
+		function updatePOIList() {
+			var listDiv = document.getElementById('poi-list');
+			if (!poiData.currentLayer || !poiData.layers[poiData.currentLayer]) {
+				listDiv.innerHTML = '<em>Velg et lag først</em>';
+				return;
+			}
+
+			var pois = poiData.layers[poiData.currentLayer].pois;
+			if (pois.length === 0) {
+				listDiv.innerHTML = '<em>Ingen POI-er ennå</em>';
+				return;
+			}
+
+			listDiv.innerHTML = '';
+			pois.forEach(function(poi, index) {
+				var item = document.createElement('div');
+				item.className = 'poi-item';
+				item.innerHTML = `
+					<span>${poi.name} (${poi.type})</span>
+					<button onclick="window.bleikoyaMap.deletePOI(${index})">🗑</button>
+				`;
+				listDiv.appendChild(item);
+			});
+		}
+
+		// Add new layer
+		document.getElementById('add-layer-btn').addEventListener('click', function() {
+			var name = document.getElementById('new-layer-name').value.trim();
+			if (!name) {
+				alert('Skriv inn navn på laget');
+				return;
+			}
+			if (poiData.layers[name]) {
+				alert('Et lag med dette navnet eksisterer allerede');
+				return;
+			}
+
+			poiData.layers[name] = {
+				pois: [],
+				leafletLayer: L.layerGroup()
+			};
+			poiData.layers[name].leafletLayer.addTo(map);
+
+			document.getElementById('new-layer-name').value = '';
+			updateLayerSelect();
+			poiData.currentLayer = name;
+			document.getElementById('poi-layer-select').value = name;
+			updatePOIList();
+		});
+
+		// Layer select change
+		document.getElementById('poi-layer-select').addEventListener('change', function(e) {
+			poiData.currentLayer = e.target.value || null;
+			updatePOIList();
+		});
+
+		// Drawing tools
+		function cancelDrawing() {
+			drawingMode = null;
+			tempMarkers.forEach(function(m) {
+				map.removeLayer(m);
+			});
+			tempMarkers = [];
+			document.getElementById('cancel-draw-btn').style.display = 'none';
+			document.querySelectorAll('#draw-marker-btn, #draw-rectangle-btn, #draw-polygon-btn').forEach(function(btn) {
+				btn.classList.remove('active');
+			});
+			map.off('click');
+		}
+
+		document.getElementById('cancel-draw-btn').addEventListener('click', cancelDrawing);
+
+		// Marker drawing
+		document.getElementById('draw-marker-btn').addEventListener('click', function() {
+			if (!poiData.currentLayer) {
+				alert('Velg et lag først');
+				return;
+			}
+			cancelDrawing();
+			drawingMode = 'marker';
+			this.classList.add('active');
+			document.getElementById('cancel-draw-btn').style.display = 'block';
+
+			map.on('click', function(e) {
+				if (drawingMode !== 'marker') return;
+
+				var name = prompt('Navn på punktet:');
+				if (!name) return;
+
+				var marker = L.marker(e.latlng, {
+					draggable: true
+				}).addTo(map);
+				marker.bindPopup(name);
+
+				poiData.layers[poiData.currentLayer].pois.push({
+					type: 'marker',
+					name: name,
+					latlng: e.latlng,
+					leafletObj: marker
+				});
+				poiData.layers[poiData.currentLayer].leafletLayer.addLayer(marker);
+
+				updatePOIList();
+				cancelDrawing();
+			});
+		});
+
+		// Rectangle drawing
+		document.getElementById('draw-rectangle-btn').addEventListener('click', function() {
+			if (!poiData.currentLayer) {
+				alert('Velg et lag først');
+				return;
+			}
+			cancelDrawing();
+			drawingMode = 'rectangle';
+			this.classList.add('active');
+			document.getElementById('cancel-draw-btn').style.display = 'block';
+
+			var startPoint = null;
+			var rect = null;
+
+			map.on('click', function(e) {
+				if (drawingMode !== 'rectangle') return;
+
+				if (!startPoint) {
+					startPoint = e.latlng;
+					rect = L.rectangle([startPoint, startPoint], {
+						color: '#ff7800',
+						weight: 2
+					}).addTo(map);
+				} else {
+					var name = prompt('Navn på firkanten:');
+					if (!name) {
+						map.removeLayer(rect);
+						startPoint = null;
+						rect = null;
+						return;
+					}
+
+					var bounds = [startPoint, e.latlng];
+					rect.setBounds(bounds);
+					rect.bindPopup(name);
+
+					poiData.layers[poiData.currentLayer].pois.push({
+						type: 'rectangle',
+						name: name,
+						bounds: bounds,
+						leafletObj: rect
+					});
+					poiData.layers[poiData.currentLayer].leafletLayer.addLayer(rect);
+
+					updatePOIList();
+					cancelDrawing();
+					startPoint = null;
+					rect = null;
+				}
+			});
+
+			map.on('mousemove', function(e) {
+				if (drawingMode === 'rectangle' && startPoint && rect) {
+					rect.setBounds([startPoint, e.latlng]);
+				}
+			});
+		});
+
+		// Polygon drawing
+		document.getElementById('draw-polygon-btn').addEventListener('click', function() {
+			if (!poiData.currentLayer) {
+				alert('Velg et lag først');
+				return;
+			}
+			cancelDrawing();
+			drawingMode = 'polygon';
+			this.classList.add('active');
+			document.getElementById('cancel-draw-btn').style.display = 'block';
+
+			var points = [];
+			var polyline = null;
+
+			map.on('click', function(e) {
+				if (drawingMode !== 'polygon') return;
+
+				points.push(e.latlng);
+				var marker = L.circleMarker(e.latlng, {
+					radius: 4,
+					color: 'red'
+				}).addTo(map);
+				tempMarkers.push(marker);
+
+				if (polyline) {
+					map.removeLayer(polyline);
+				}
+				polyline = L.polyline(points, {
+					color: '#ff7800',
+					weight: 2
+				}).addTo(map);
+			});
+
+			map.on('dblclick', function(e) {
+				if (drawingMode !== 'polygon' || points.length < 3) return;
+
+				var name = prompt('Navn på polygonet:');
+				if (!name) {
+					tempMarkers.forEach(function(m) {
+						map.removeLayer(m);
+					});
+					if (polyline) map.removeLayer(polyline);
+					points = [];
+					tempMarkers = [];
+					return;
+				}
+
+				var polygon = L.polygon(points, {
+					color: '#ff7800',
+					weight: 2
+				}).addTo(map);
+				polygon.bindPopup(name);
+
+				if (polyline) map.removeLayer(polyline);
+
+				poiData.layers[poiData.currentLayer].pois.push({
+					type: 'polygon',
+					name: name,
+					latlngs: points,
+					leafletObj: polygon
+				});
+				poiData.layers[poiData.currentLayer].leafletLayer.addLayer(polygon);
+
+				updatePOIList();
+				cancelDrawing();
+				points = [];
+			});
+		});
+
+		// Delete POI
+		function deletePOI(index) {
+			if (!poiData.currentLayer) return;
+			var poi = poiData.layers[poiData.currentLayer].pois[index];
+			if (poi && poi.leafletObj) {
+				map.removeLayer(poi.leafletObj);
+			}
+			poiData.layers[poiData.currentLayer].pois.splice(index, 1);
+			updatePOIList();
+		}
+
+		// Export to JavaScript
+		document.getElementById('export-poi-btn').addEventListener('click', function() {
+			var code = '// POI Lag - Generert kode\n\n';
+
+			Object.keys(poiData.layers).forEach(function(layerName) {
+				var layer = poiData.layers[layerName];
+				var varName = layerName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+
+				code += `// Lag: ${layerName}\n`;
+				code += `var ${varName} = L.layerGroup([\n`;
+
+				layer.pois.forEach(function(poi, idx) {
+					if (poi.type === 'marker') {
+						code += `  L.marker([${poi.latlng.lat}, ${poi.latlng.lng}]).bindPopup("${poi.name}")`;
+					} else if (poi.type === 'rectangle') {
+						code += `  L.rectangle([[${poi.bounds[0].lat}, ${poi.bounds[0].lng}], [${poi.bounds[1].lat}, ${poi.bounds[1].lng}]], {color: '#ff7800'}).bindPopup("${poi.name}")`;
+					} else if (poi.type === 'polygon') {
+						var coords = poi.latlngs.map(function(ll) {
+							return `[${ll.lat}, ${ll.lng}]`;
+						}).join(', ');
+						code += `  L.polygon([${coords}], {color: '#ff7800'}).bindPopup("${poi.name}")`;
+					}
+					code += (idx < layer.pois.length - 1) ? ',\n' : '\n';
+				});
+
+				code += `]);\n`;
+				code += `overlays["${layerName}"] = ${varName};\n\n`;
+			});
+
+			navigator.clipboard.writeText(code).then(function() {
+				alert('JavaScript-kode kopiert til clipboard!');
+			});
+		});
+
 		// Expose to window for testing
 		window.bleikoyaMap = {
 			map: map,
@@ -466,7 +962,10 @@
 					imgElement.style.transformOrigin = 'center center';
 				}
 				updateDisplay();
-			}
+			},
+			// POI functions
+			deletePOI: deletePOI,
+			poiData: poiData
 		};
 
 		// Helper: Log click coordinates
