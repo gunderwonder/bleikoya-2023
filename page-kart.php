@@ -234,7 +234,8 @@
 		// Initialize map with geographic projection (standard Leaflet)
 		var map = L.map('map', {
 			minZoom: 13,
-			maxZoom: 18,
+			maxZoom: 22,
+			zoom: 18,
 			zoomControl: true
 		});
 
@@ -272,10 +273,24 @@
 			attribution: '&copy; <a href="http://www.kartverket.no/">Kartverket</a>'
 		}).addTo(map);
 
-		// var satellite = L.tileLayer('https://opencache.statkart.no/gatekeeper/gk/gk.open_nib_utm33_wmts_v2?layer=Nibcache_UTM33_EUREF89&style=default&tilematrixset=default028mm&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix={z}&TileCol={x}&TileRow={y}', {
+		// var kartverketSatellite = L.tileLayer('https://opencache.statkart.no/gatekeeper/gk/gk.open_nib_utm33_wmts_v2?layer=Nibcache_UTM33_EUREF89&style=default&tilematrixset=default028mm&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix={z}&TileCol={x}&TileRow={y}', {
 		// 	attribution: '&copy; <a href="http://www.kartverket.no/">Kartverket</a>',
 		// 	maxZoom: 19
 		// });
+
+		// Mapbox Satellite (requires API key)
+		// Get a free token at https://account.mapbox.com/access-tokens/
+		var mapboxToken = 'pk.eyJ1IjoiZ3VuZGVyd29uZGVyIiwiYSI6ImNtZ2ZqdHVwMTA5NnAyanNibjcweGcweHcifQ.-Rm6k9TH1hBF_nazP9uiew'; // Replace with your token
+		var mapboxSatellite = null;
+		if (mapboxToken && mapboxToken !== 'YOUR_MAPBOX_TOKEN_HERE') {
+			console.log('Mapbox token configured, adding satellite layer');
+			mapboxSatellite = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/{z}/{x}/{y}?access_token=' + mapboxToken, {
+				attribution: '&copy; <a href="https://www.mapbox.com/">Mapbox</a>',
+				tileSize: 512,
+				zoomOffset: -1,
+				maxZoom: 22
+			});
+		}
 
 		// Add the SVG as an image overlay (not added to map by default)
 		var svgOverlay = L.imageOverlay('<?php echo get_stylesheet_directory_uri(); ?>/assets/img/bleikoya-kart.svg', getBounds(), {
@@ -307,9 +322,13 @@
 		// Layer control
 		var baseLayers = {
 			"Topografisk kart": topographic,
-			// "Satellittbilde": satellite,
-			"Bleikøya kart": svgOverlay,
+			"Bleikøyakart": svgOverlay,
 		};
+
+		// Add Mapbox satellite if token is configured
+		if (mapboxSatellite) {
+			baseLayers["Satellitt"] = mapboxSatellite;
+		}
 
 		var overlays = {
 			"Bleikøyakart": L.layerGroup([svgOverlay]),

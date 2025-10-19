@@ -1,5 +1,7 @@
 # Gjøremål
 
+- [ ] Lenke til kartsiden fra forsida
+
 ## Teknisk gjeld
 
 - [ ] Vurder å flytte `vendor/` til `.gitignore` og kjøre `composer install` ved deployment
