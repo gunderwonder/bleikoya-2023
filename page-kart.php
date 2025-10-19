@@ -1,6 +1,8 @@
 <?php get_header(); ?>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-toolbar@0.4.0/dist/leaflet.toolbar.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-distortableimage@0.21.9/dist/leaflet.distortableimage.css" />
 <style>
 	.b-bleikoya-map {
 		width: 100%;
@@ -210,6 +212,8 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-toolbar@0.4.0/dist/leaflet.toolbar.js"></script>
+<script src="https://unpkg.com/leaflet-distortableimage@0.21.9/dist/leaflet.distortableimage.js"></script>
 <script>
 	document.addEventListener('DOMContentLoaded', function() {
 		// SVG dimensions from viewBox
@@ -297,9 +301,16 @@
 			opacity: 0.7
 		});
 
-		// Add the BYM PNG map as an image overlay (not added to map by default)
-		var bymOverlay = L.imageOverlay('<?php echo get_stylesheet_directory_uri(); ?>/assets/img/bleikoya-bym-kart.png', getBounds(), {
-			opacity: 0.7
+		// Add the BYM PNG map as a distortable image overlay (not added to map by default)
+		var bymOverlay = L.distortableImageOverlay('<?php echo get_stylesheet_directory_uri(); ?>/assets/img/bleikoya-bym-kart.png', {
+			opacity: 0.7,
+			corners: [
+				L.latLng(currentBounds.north, currentBounds.west),  // top-left
+				L.latLng(currentBounds.north, currentBounds.east),  // top-right
+				L.latLng(currentBounds.south, currentBounds.west),  // bottom-left
+				L.latLng(currentBounds.south, currentBounds.east)   // bottom-right
+			],
+			mode: 'distort'
 		});
 
 		// Convert SVG coordinates to lat/lng
@@ -513,6 +524,40 @@
 		});
 		poiToggle.addTo(map);
 
+		// BYM Edit Mode Toggle
+		var BYMEditToggle = L.Control.extend({
+			onAdd: function(map) {
+				var container = L.DomUtil.create('div', 'leaflet-bar calibration-toggle');
+				container.innerHTML = '✏️ Rediger BYM';
+				container.title = 'Aktiver/deaktiver redigering av BYM-kart';
+				container.id = 'bym-edit-toggle';
+
+				L.DomEvent.on(container, 'click', function() {
+					if (bymOverlay._map) {
+						if (bymOverlay.editing && bymOverlay.editing._enabled) {
+							bymOverlay.editing.disable();
+							container.style.background = 'white';
+							container.style.color = 'black';
+						} else {
+							bymOverlay.editing.enable();
+							container.style.background = '#4CAF50';
+							container.style.color = 'white';
+						}
+					} else {
+						alert('Aktiver "BYM-kart" overlay først');
+					}
+				});
+
+				L.DomEvent.disableClickPropagation(container);
+				return container;
+			}
+		});
+
+		var bymEditToggle = new BYMEditToggle({
+			position: 'topleft'
+		});
+		bymEditToggle.addTo(map);
+
 		// Calibration event handlers
 		function updateDisplay() {
 			var text = `south: ${currentBounds.south},\nwest: ${currentBounds.west},\nnorth: ${currentBounds.north},\neast: ${currentBounds.east}`;
@@ -527,7 +572,6 @@
 		document.getElementById('cal-opacity').addEventListener('input', function(e) {
 			var opacity = e.target.value / 100;
 			svgOverlay.setOpacity(opacity);
-			bymOverlay.setOpacity(opacity);
 			document.getElementById('opacity-val').textContent = e.target.value + '%';
 		});
 
@@ -535,16 +579,11 @@
 			currentRotation = parseFloat(e.target.value);
 			document.getElementById('rotation-val').textContent = currentRotation.toFixed(1) + '°';
 
-			// Apply CSS transform to the image elements
+			// Apply CSS transform to the image element
 			var svgElement = svgOverlay.getElement();
 			if (svgElement) {
 				svgElement.style.transform = 'rotate(' + currentRotation + 'deg)';
 				svgElement.style.transformOrigin = 'center center';
-			}
-			var bymElement = bymOverlay.getElement();
-			if (bymElement) {
-				bymElement.style.transform = 'rotate(' + currentRotation + 'deg)';
-				bymElement.style.transformOrigin = 'center center';
 			}
 		});
 
@@ -557,10 +596,6 @@
 			if (svgElement) {
 				svgElement.style.transform = 'none';
 			}
-			var bymElement = bymOverlay.getElement();
-			if (bymElement) {
-				bymElement.style.transform = 'none';
-			}
 		});
 
 		document.getElementById('cal-update').addEventListener('click', function() {
@@ -570,7 +605,6 @@
 			currentBounds.west = parseFloat(document.getElementById('cal-west').value);
 
 			svgOverlay.setBounds(getBounds());
-			bymOverlay.setBounds(getBounds());
 			updateDisplay();
 
 			// Update cabin marker
@@ -595,7 +629,6 @@
 		// Helper to update everything after bounds change
 		function updateAll() {
 			svgOverlay.setBounds(getBounds());
-			bymOverlay.setBounds(getBounds());
 			updateDisplay();
 			// Update cabin marker position
 			var newCabin74 = svgToLatLng(1532.5, 1115.5);
@@ -988,7 +1021,6 @@
 				currentBounds.north = n;
 				currentBounds.east = e;
 				svgOverlay.setBounds(getBounds());
-				bymOverlay.setBounds(getBounds());
 			},
 			setRotation: function(deg) {
 				currentRotation = deg;
@@ -998,11 +1030,6 @@
 				if (svgElement) {
 					svgElement.style.transform = 'rotate(' + deg + 'deg)';
 					svgElement.style.transformOrigin = 'center center';
-				}
-				var bymElement = bymOverlay.getElement();
-				if (bymElement) {
-					bymElement.style.transform = 'rotate(' + deg + 'deg)';
-					bymElement.style.transformOrigin = 'center center';
 				}
 				updateDisplay();
 			},
