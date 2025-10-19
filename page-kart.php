@@ -297,6 +297,11 @@
 			opacity: 0.7
 		});
 
+		// Add the BYM PNG map as an image overlay (not added to map by default)
+		var bymOverlay = L.imageOverlay('<?php echo get_stylesheet_directory_uri(); ?>/assets/img/bleikoya-bym-kart.png', getBounds(), {
+			opacity: 0.7
+		});
+
 		// Convert SVG coordinates to lat/lng
 		function svgToLatLng(svgX, svgY) {
 			// Normalize coordinates (0-1)
@@ -322,7 +327,7 @@
 		// Layer control
 		var baseLayers = {
 			"Topografisk kart": topographic,
-			"Bleikøyakart": svgOverlay,
+			"Bleikøyakart (SVG)": svgOverlay,
 		};
 
 		// Add Mapbox satellite if token is configured
@@ -332,6 +337,7 @@
 
 		var overlays = {
 			"Bleikøyakart": L.layerGroup([svgOverlay]),
+			"BYM-kart": L.layerGroup([bymOverlay]),
 			"Hyttenummer": cabinLayer
 		};
 
@@ -521,6 +527,7 @@
 		document.getElementById('cal-opacity').addEventListener('input', function(e) {
 			var opacity = e.target.value / 100;
 			svgOverlay.setOpacity(opacity);
+			bymOverlay.setOpacity(opacity);
 			document.getElementById('opacity-val').textContent = e.target.value + '%';
 		});
 
@@ -528,11 +535,16 @@
 			currentRotation = parseFloat(e.target.value);
 			document.getElementById('rotation-val').textContent = currentRotation.toFixed(1) + '°';
 
-			// Apply CSS transform to the image element
-			var imgElement = svgOverlay.getElement();
-			if (imgElement) {
-				imgElement.style.transform = 'rotate(' + currentRotation + 'deg)';
-				imgElement.style.transformOrigin = 'center center';
+			// Apply CSS transform to the image elements
+			var svgElement = svgOverlay.getElement();
+			if (svgElement) {
+				svgElement.style.transform = 'rotate(' + currentRotation + 'deg)';
+				svgElement.style.transformOrigin = 'center center';
+			}
+			var bymElement = bymOverlay.getElement();
+			if (bymElement) {
+				bymElement.style.transform = 'rotate(' + currentRotation + 'deg)';
+				bymElement.style.transformOrigin = 'center center';
 			}
 		});
 
@@ -541,9 +553,13 @@
 			document.getElementById('cal-rotation').value = 0;
 			document.getElementById('rotation-val').textContent = '0°';
 
-			var imgElement = svgOverlay.getElement();
-			if (imgElement) {
-				imgElement.style.transform = 'none';
+			var svgElement = svgOverlay.getElement();
+			if (svgElement) {
+				svgElement.style.transform = 'none';
+			}
+			var bymElement = bymOverlay.getElement();
+			if (bymElement) {
+				bymElement.style.transform = 'none';
 			}
 		});
 
@@ -554,6 +570,7 @@
 			currentBounds.west = parseFloat(document.getElementById('cal-west').value);
 
 			svgOverlay.setBounds(getBounds());
+			bymOverlay.setBounds(getBounds());
 			updateDisplay();
 
 			// Update cabin marker
@@ -578,6 +595,7 @@
 		// Helper to update everything after bounds change
 		function updateAll() {
 			svgOverlay.setBounds(getBounds());
+			bymOverlay.setBounds(getBounds());
 			updateDisplay();
 			// Update cabin marker position
 			var newCabin74 = svgToLatLng(1532.5, 1115.5);
@@ -970,15 +988,21 @@
 				currentBounds.north = n;
 				currentBounds.east = e;
 				svgOverlay.setBounds(getBounds());
+				bymOverlay.setBounds(getBounds());
 			},
 			setRotation: function(deg) {
 				currentRotation = deg;
 				document.getElementById('cal-rotation').value = deg;
 				document.getElementById('rotation-val').textContent = deg.toFixed(1) + '°';
-				var imgElement = svgOverlay.getElement();
-				if (imgElement) {
-					imgElement.style.transform = 'rotate(' + deg + 'deg)';
-					imgElement.style.transformOrigin = 'center center';
+				var svgElement = svgOverlay.getElement();
+				if (svgElement) {
+					svgElement.style.transform = 'rotate(' + deg + 'deg)';
+					svgElement.style.transformOrigin = 'center center';
+				}
+				var bymElement = bymOverlay.getElement();
+				if (bymElement) {
+					bymElement.style.transform = 'rotate(' + deg + 'deg)';
+					bymElement.style.transformOrigin = 'center center';
 				}
 				updateDisplay();
 			},
