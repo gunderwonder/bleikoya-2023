@@ -1,6 +1,6 @@
 <?php
 require_once('../../../../wp-load.php');
-require '../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;

@@ -14,4 +14,6 @@ require 'includes/events.php';
 require 'includes/admin/dashboard.php';
 require 'includes/admin/users.php';
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+
 
