@@ -20,7 +20,9 @@
 
 			<div class="b-subject-index__entry">
 				<h2 class="b-subject-heading" id="category-<?php echo $category->term_id ?>">
-					<?php echo $category->name ?>
+					<a href="<?php echo get_category_link($category->term_id) ?>">
+						<?php echo $category->name ?>
+					</a>
 				</h2>
 				<div class="b-body-text">
 					<?php $documentation = sc_get_field('category-documentation', $category) ?>

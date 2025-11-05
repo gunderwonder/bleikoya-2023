@@ -391,6 +391,12 @@ a {
 	line-height: 1.6rem;
 }
 
+.b-subject-heading a {
+	color: inherit;
+	text-decoration: none;
+	border: none;
+}
+
 .wpcf7-spinner {
 	top: -2rem;
 	left: -1rem;
@@ -461,9 +467,9 @@ a {
 	margin-right: 1rem;
 }
 
-.b-inline-list li:last-child {
+/* .b-inline-list b-subject-list__item li:last-child {
 	margin-right: 0;
-}
+} */
 
 aside .b-subject-list {
 	margin: 0 auto;

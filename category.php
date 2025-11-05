@@ -1,12 +1,12 @@
 <?php get_header(); ?>
 
 <div class="b-center">
-	<main>
+	<article class="b-article">
 		<h1><?php echo single_cat_title() ?></h1>
 		<?php $category = get_queried_object(); ?>
 
 		<?php $documentation = sc_get_field('category-documentation', $category) ?>
-		<?php $documentation = apply_filters('the_content', $documentation) ; ?>
+		<?php $documentation = apply_filters('the_content', $documentation); ?>
 
 
 		<div class="b-body-text">
@@ -20,9 +20,17 @@
 			<?php endwhile; ?>
 		<?php endif; ?>
 
-		</div>
-
-	</main>
+	</article>
 </div>
+
+<?php if (is_user_logged_in()) : ?>
+	<aside class="b-center-wide">
+		<?php $categories = get_categories(array('hide_empty' => false)); ?>
+
+		<?php sc_get_template_part('parts/category/category-index', null, array(
+			'categories' => $categories
+		)); ?>
+	</aside>
+<?php endif; ?>
 
 <?php get_footer(); ?>
