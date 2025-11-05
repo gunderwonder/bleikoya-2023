@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Read(//Users/gunderwonder/.ssh/**)"
+      "Read(//Users/gunderwonder/.ssh/**)",
+      "WebFetch(domain:github.com)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

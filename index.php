@@ -5,7 +5,7 @@
 		<?php if (have_posts()) : ?>
 			<?php while (have_posts()) : ?>
 				<?php the_post(); ?>
-				<?php sc_get_template_part('parts/post/content', get_post_type(), sc_get_post_fields()); ?>
+				<?php sc_get_template_part('parts/post/content', get_post_type(), array()); ?>
 			<?php endwhile; ?>
 		<?php endif; ?>
 
