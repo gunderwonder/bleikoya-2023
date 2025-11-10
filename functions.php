@@ -1,9 +1,18 @@
 <?php
 
-error_reporting(E_ALL &~ E_USER_DEPRECATED);
-ini_set('display_errors', '1');
-
 require 'vendor/autoload.php';
+
+// Load environment variables from .env file if it exists
+$dotenvPath = __DIR__;
+if (file_exists($dotenvPath . '/.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable($dotenvPath);
+    $dotenv->safeLoad();
+}
+
+// Initialize error logging to Sentry and Grafana Cloud
+$loggingConfig = require 'includes/config/logging.php';
+BleikoyaLogging\Logger::init($loggingConfig);
+
 require 'includes/utilities.php';
 
 require 'includes/theme-setup.php';

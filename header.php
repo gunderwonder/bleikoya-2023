@@ -61,6 +61,7 @@
 			<?php endif; ?>
 			<li class="b-menu__item"><a class="b-menu__link <?php if (tribe_is_event()) : ?>b-menu__link--active<?php endif; ?>" href="/kalender/">Kalender</a></li>
 			<?php if (is_user_logged_in()) : ?>
+				<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'kart') : ?>b-menu__link--active<?php endif; ?>" href="/kart/">Kart</a></li>
 				<?php $queried_object = get_queried_object() ?>
 				<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'galleri' || (isset($queried_object->taxonomy) && $queried_object->taxonomy === 'gallery')) : ?>b-menu__link--active<?php endif; ?>" href="/galleri/">Bilder</a></li>
 			<?php endif; ?>
