@@ -3,7 +3,9 @@
     "allow": [
       "Read(//Users/gunderwonder/.ssh/**)",
       "WebFetch(domain:github.com)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(cd:*)",
+      "Bash(php test-logging-simple.php:*)"
     ],
     "deny": [],
     "ask": []
