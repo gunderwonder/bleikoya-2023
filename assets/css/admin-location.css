@@ -1,0 +1,287 @@
+/**
+ * Admin CSS for Location (kartpunkt) Management
+ */
+
+/* Meta Box Styling */
+.location-meta-box-content {
+	padding: 12px;
+}
+
+.location-meta-field {
+	margin-bottom: 16px;
+}
+
+.location-meta-field label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 6px;
+}
+
+.location-meta-field input[type="text"],
+.location-meta-field textarea,
+.location-meta-field select {
+	width: 100%;
+	max-width: 500px;
+}
+
+.location-meta-field textarea {
+	font-family: monospace;
+	font-size: 12px;
+	min-height: 120px;
+}
+
+.location-meta-field input[type="number"] {
+	width: 80px;
+}
+
+.location-meta-field .description {
+	font-size: 12px;
+	color: #646970;
+	margin-top: 4px;
+}
+
+/* Color picker field */
+.location-color-field {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+/* Connection Search Section */
+.connection-search-section {
+	margin-bottom: 20px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.connection-search-inputs {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+
+#connection-search-input {
+	flex: 1;
+	max-width: 400px;
+}
+
+#connection-type-filter {
+	width: 150px;
+}
+
+#connection-search-results {
+	display: none;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	max-height: 300px;
+	overflow-y: auto;
+	background: #fff;
+}
+
+#connection-search-results.has-results {
+	display: block;
+}
+
+.connection-result-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 12px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.connection-result-item:last-child {
+	border-bottom: none;
+}
+
+.connection-result-item:hover {
+	background: #f6f7f7;
+}
+
+/* Current Connections Section */
+.current-connections-section {
+	margin-top: 20px;
+}
+
+#current-connections-list {
+	margin-top: 10px;
+}
+
+.connection-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px 12px;
+	margin-bottom: 8px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+}
+
+.connection-item:hover {
+	background: #f0f0f1;
+}
+
+.connection-title {
+	flex: 1;
+	margin-left: 8px;
+}
+
+/* Type Badges */
+.connection-type-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	background: #2271b1;
+	color: #fff;
+	border-radius: 3px;
+}
+
+.connection-type-badge[data-type="user"],
+.connection-type-badge:contains("user") {
+	background: #50575e;
+}
+
+.connection-type-badge[data-type="page"],
+.connection-type-badge:contains("page") {
+	background: #00a32a;
+}
+
+.connection-type-badge[data-type="tribe_events"],
+.connection-type-badge:contains("tribe_events") {
+	background: #d63638;
+}
+
+/* Connected Locations Meta Box (Reverse) */
+.connected-locations-list {
+	margin-top: 10px;
+}
+
+.connected-location-item {
+	display: flex;
+	align-items: center;
+	padding: 8px;
+	margin-bottom: 6px;
+	background: #f6f7f7;
+	border-left: 3px solid #2271b1;
+}
+
+.connected-location-item .dashicons {
+	margin-right: 8px;
+	color: #2271b1;
+}
+
+.connected-location-item a {
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.connected-location-item a:hover {
+	text-decoration: underline;
+}
+
+.connected-location-badges {
+	margin-left: auto;
+	display: flex;
+	gap: 6px;
+}
+
+.gruppe-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	font-size: 11px;
+	background: #f0f0f1;
+	color: #50575e;
+	border-radius: 3px;
+}
+
+/* User Profile Connected Locations */
+.user-connected-locations-section h2 {
+	font-size: 1.3em;
+	margin-bottom: 10px;
+}
+
+/* POI Manager (on map page) styling improvements */
+#poi-manager {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 15px;
+	max-width: 400px;
+}
+
+#poi-manager h3 {
+	margin-top: 0;
+	margin-bottom: 12px;
+	font-size: 16px;
+	border-bottom: 1px solid #ddd;
+	padding-bottom: 8px;
+}
+
+#poi-manager .poi-section {
+	margin-bottom: 16px;
+}
+
+#poi-manager input[type="text"],
+#poi-manager select {
+	width: 100%;
+	padding: 6px 8px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+}
+
+#poi-manager button {
+	padding: 6px 12px;
+	background: #0073aa;
+	color: #fff;
+	border: none;
+	border-radius: 3px;
+	cursor: pointer;
+}
+
+#poi-manager button:hover {
+	background: #005a87;
+}
+
+#poi-manager button.active {
+	background: #d63638;
+}
+
+.poi-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px;
+	margin-bottom: 6px;
+	background: #f6f7f7;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+}
+
+.poi-item button {
+	padding: 4px 8px;
+	font-size: 12px;
+	margin-left: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 782px) {
+	.connection-search-inputs {
+		flex-direction: column;
+	}
+
+	#connection-search-input,
+	#connection-type-filter {
+		max-width: 100%;
+		width: 100%;
+	}
+
+	.connection-item,
+	.connection-result-item {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+	}
+}

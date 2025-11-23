@@ -23,6 +23,16 @@ require 'includes/events.php';
 require 'includes/admin/dashboard.php';
 require 'includes/admin/users.php';
 
+// Location (kartpunkt) custom post type and related functionality
+require 'includes/post-types/location.php';
+require 'includes/api/location-connections.php';
+require 'includes/api/location-coordinates.php';
+require 'includes/api/location-rest-endpoints.php';
+require 'includes/admin/location-meta-boxes.php';
+require 'includes/admin/connected-locations-meta-box.php';
+require 'includes/admin/location-ajax.php';
+require 'includes/shortcodes/location-map.php';
+
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 
