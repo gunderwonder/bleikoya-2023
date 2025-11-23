@@ -142,6 +142,68 @@
 		font-size: 11px;
 	}
 
+	.image-editor {
+		background: white;
+		padding: 10px;
+		border-radius: 5px;
+		box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+		font-family: Arial, sans-serif;
+		font-size: 12px;
+		display: none;
+		min-width: 200px;
+	}
+
+	.image-editor.visible {
+		display: block;
+	}
+
+	.image-editor h4 {
+		margin: 0 0 10px 0;
+		font-size: 14px;
+	}
+
+	.image-editor select {
+		width: 100%;
+		padding: 5px;
+		margin: 5px 0;
+	}
+
+	.image-editor button {
+		width: 100%;
+		padding: 6px;
+		margin: 3px 0;
+		cursor: pointer;
+		border: 1px solid #ccc;
+		background: white;
+		border-radius: 3px;
+	}
+
+	.image-editor button:hover {
+		background: #f0f0f0;
+	}
+
+	.image-editor button.active {
+		background: #4CAF50;
+		color: white;
+		border-color: #4CAF50;
+	}
+
+	.image-editor .export-output {
+		font-family: monospace;
+		font-size: 10px;
+		background: #f0f0f0;
+		padding: 5px;
+		margin-top: 10px;
+		max-height: 150px;
+		overflow-y: auto;
+		display: none;
+		word-break: break-all;
+	}
+
+	.image-editor .export-output.visible {
+		display: block;
+	}
+
 	.calibration-control h4 {
 		margin: 0 0 10px 0;
 		font-size: 14px;
@@ -301,17 +363,85 @@
 			opacity: 0.7
 		});
 
-		// Add the BYM PNG map as a distortable image overlay (not added to map by default)
-		var bymOverlay = L.distortableImageOverlay('<?php echo get_stylesheet_directory_uri(); ?>/assets/img/bleikoya-bym-kart.png', {
-			opacity: 0.7,
-			corners: [
-				L.latLng(currentBounds.north, currentBounds.west),  // top-left
-				L.latLng(currentBounds.north, currentBounds.east),  // top-right
-				L.latLng(currentBounds.south, currentBounds.west),  // bottom-left
-				L.latLng(currentBounds.south, currentBounds.east)   // bottom-right
-			],
-			mode: 'distort'
-		});
+		// Registry for distortable images with configurations
+		// This stores the config, not the overlay instance
+		var distortableImageConfigs = {
+			bym: {
+				name: 'BYM-kart',
+				url: '<?php echo get_stylesheet_directory_uri(); ?>/assets/img/bleikoya-bym-kart.png',
+				opacity: 0.7,
+				corners: [
+					L.latLng(59.89304881015519, 10.7321834564209), // top-left
+					L.latLng(59.892833539355635, 10.750529766082764), // top-right
+					L.latLng(59.88660622776372, 10.731765031814577), // bottom-left
+					L.latLng(59.88636400105369, 10.750293731689455) // bottom-right
+				]
+			}
+			// Example: Add another image
+			// reguleringsplan: {
+			// 	name: 'Reguleringsplan',
+			// 	url: '<?php echo get_stylesheet_directory_uri(); ?>/assets/img/reguleringsplan.png',
+			// 	opacity: 0.7,
+			// 	corners: [
+			// 		L.latLng(59.8931, 10.7314), // top-left
+			// 		L.latLng(59.8931, 10.7494), // top-right
+			// 		L.latLng(59.8854, 10.7314), // bottom-left
+			// 		L.latLng(59.8854, 10.7494)  // bottom-right
+			// 	]
+			// }
+		};
+
+		// Active overlay instances
+		var distortableImages = {};
+
+		// Factory function to create distortable overlay
+		function createDistortableOverlay(configKey) {
+			var config = distortableImageConfigs[configKey];
+			if (!config) return null;
+
+			var overlay = L.distortableImageOverlay(config.url, {
+				opacity: config.opacity,
+				corners: config.corners,
+				editable: false,
+				suppressToolbar: true,
+				mode: 'lock'
+			});
+
+			console.log('Created new overlay for:', config.name);
+			return overlay;
+		}
+
+		// Create custom layer group wrapper for distortable images
+		function createDistortableLayerGroup(configKey) {
+			var group = L.layerGroup();
+			var overlay = null;
+
+			group.on('add', function() {
+				console.log('LayerGroup added for:', distortableImageConfigs[configKey].name);
+				overlay = createDistortableOverlay(configKey);
+				if (overlay) {
+					distortableImages[configKey] = overlay;
+					overlay.addTo(map);
+				}
+			});
+
+			group.on('remove', function() {
+				console.log('LayerGroup removed for:', distortableImageConfigs[configKey].name);
+				if (overlay && overlay._map) {
+					// Disable editing first
+					if (overlay.editing && overlay.editing._enabled) {
+						overlay.editing.disable();
+					}
+					map.removeLayer(overlay);
+				}
+				overlay = null;
+				delete distortableImages[configKey];
+			});
+
+			return group;
+		}
+
+
 
 		// Convert SVG coordinates to lat/lng
 		function svgToLatLng(svgX, svgY) {
@@ -347,8 +477,9 @@
 		}
 
 		var overlays = {
-			"Bleikøyakart": L.layerGroup([svgOverlay]),
-			"BYM-kart": L.layerGroup([bymOverlay]),
+			"BYM-kart": createDistortableLayerGroup('bym'),
+			// "Reguleringsplan": createDistortableLayerGroup('reguleringsplan'), // Add new images here
+			"Bleikøyakart (SVG)": L.layerGroup([svgOverlay]),
 			"Hyttenummer": cabinLayer
 		};
 
@@ -524,28 +655,47 @@
 		});
 		poiToggle.addTo(map);
 
-		// BYM Edit Mode Toggle
-		var BYMEditToggle = L.Control.extend({
+		// Image Editor Control
+		var ImageEditorControl = L.Control.extend({
+			onAdd: function(map) {
+				var container = L.DomUtil.create('div', 'leaflet-bar image-editor');
+
+				container.innerHTML = `
+					<h4>🖼️ Bilderedigering</h4>
+
+					<label>Velg bilde:</label>
+					<select id="image-select">
+						<option value="">-- Velg bilde --</option>
+					</select>
+
+					<button id="toggle-edit-btn" disabled>✏️ Start redigering</button>
+					<button id="export-corners-btn" disabled>📋 Eksporter hjørner</button>
+
+					<div class="export-output" id="export-output"></div>
+				`;
+
+				L.DomEvent.disableClickPropagation(container);
+				L.DomEvent.disableScrollPropagation(container);
+
+				return container;
+			}
+		});
+
+		var imageEditorControl = new ImageEditorControl({
+			position: 'topright'
+		});
+		imageEditorControl.addTo(map);
+
+		// Toggle button for Image Editor
+		var ImageEditorToggle = L.Control.extend({
 			onAdd: function(map) {
 				var container = L.DomUtil.create('div', 'leaflet-bar calibration-toggle');
-				container.innerHTML = '✏️ Rediger BYM';
-				container.title = 'Aktiver/deaktiver redigering av BYM-kart';
-				container.id = 'bym-edit-toggle';
+				container.innerHTML = '🖼️ Bilderedigering';
+				container.title = 'Vis/skjul bilderedigering';
 
 				L.DomEvent.on(container, 'click', function() {
-					if (bymOverlay._map) {
-						if (bymOverlay.editing && bymOverlay.editing._enabled) {
-							bymOverlay.editing.disable();
-							container.style.background = 'white';
-							container.style.color = 'black';
-						} else {
-							bymOverlay.editing.enable();
-							container.style.background = '#4CAF50';
-							container.style.color = 'white';
-						}
-					} else {
-						alert('Aktiver "BYM-kart" overlay først');
-					}
+					var editorControl = document.querySelector('.image-editor');
+					editorControl.classList.toggle('visible');
 				});
 
 				L.DomEvent.disableClickPropagation(container);
@@ -553,10 +703,115 @@
 			}
 		});
 
-		var bymEditToggle = new BYMEditToggle({
+		var imageEditorToggle = new ImageEditorToggle({
 			position: 'topleft'
 		});
-		bymEditToggle.addTo(map);
+		imageEditorToggle.addTo(map);
+
+		// Image Editor functionality
+		var currentEditingImage = null;
+
+		// Populate image selector
+		function updateImageSelect() {
+			var select = document.getElementById('image-select');
+			select.innerHTML = '<option value="">-- Velg bilde --</option>';
+
+			Object.keys(distortableImageConfigs).forEach(function(key) {
+				var option = document.createElement('option');
+				option.value = key;
+				option.textContent = distortableImageConfigs[key].name;
+				select.appendChild(option);
+			});
+		}
+
+		updateImageSelect();
+
+		// Image selection change
+		document.getElementById('image-select').addEventListener('change', function(e) {
+			var imageKey = e.target.value;
+
+			// Disable editing on previous image
+			if (currentEditingImage) {
+				var prevOverlay = distortableImages[currentEditingImage].overlay;
+				if (prevOverlay.editing && prevOverlay.editing._enabled) {
+					prevOverlay.editing.disable();
+				}
+			}
+
+			currentEditingImage = imageKey || null;
+
+			var editBtn = document.getElementById('toggle-edit-btn');
+			var exportBtn = document.getElementById('export-corners-btn');
+
+			if (currentEditingImage) {
+				editBtn.disabled = false;
+				exportBtn.disabled = false;
+				editBtn.textContent = '✏️ Start redigering';
+				editBtn.classList.remove('active');
+				document.getElementById('export-output').classList.remove('visible');
+			} else {
+				editBtn.disabled = true;
+				exportBtn.disabled = true;
+			}
+		});
+
+		// Toggle editing
+		document.getElementById('toggle-edit-btn').addEventListener('click', function() {
+			if (!currentEditingImage) return;
+
+			var imageData = distortableImages[currentEditingImage];
+			var overlay = imageData.overlay;
+
+			if (!overlay._map) {
+				alert('Aktiver "' + imageData.name + '" overlay først i layer control');
+				return;
+			}
+
+			// Ensure editing handler exists
+			if (!overlay.editing) {
+				console.warn('Editing handler not initialized, trying to reinitialize...');
+				overlay.editing = new L.DistortableImage.Edit(overlay);
+			}
+
+			if (overlay.editing._enabled) {
+				overlay.editing.disable();
+				this.textContent = '✏️ Start redigering';
+				this.classList.remove('active');
+			} else {
+				overlay.editing.enable();
+				this.textContent = '⏸️ Stopp redigering';
+				this.classList.add('active');
+			}
+		});
+
+		// Export corners
+		document.getElementById('export-corners-btn').addEventListener('click', function() {
+			if (!currentEditingImage) return;
+
+			var imageData = distortableImages[currentEditingImage];
+			var overlay = imageData.overlay;
+
+			if (!overlay._map) {
+				alert('Aktiver "' + imageData.name + '" overlay først i layer control');
+				return;
+			}
+
+			var corners = overlay.getCorners();
+			var code = `// ${imageData.name} - Hjørnekoordinater
+corners: [
+	L.latLng(${corners[0].lat}, ${corners[0].lng}), // top-left
+	L.latLng(${corners[1].lat}, ${corners[1].lng}), // top-right
+	L.latLng(${corners[2].lat}, ${corners[2].lng}), // bottom-left
+	L.latLng(${corners[3].lat}, ${corners[3].lng})  // bottom-right
+]`;
+
+			document.getElementById('export-output').textContent = code;
+			document.getElementById('export-output').classList.add('visible');
+
+			navigator.clipboard.writeText(code).then(function() {
+				alert('Hjørnekoordinater kopiert til clipboard!');
+			});
+		});
 
 		// Calibration event handlers
 		function updateDisplay() {
@@ -1035,7 +1290,11 @@
 			},
 			// POI functions
 			deletePOI: deletePOI,
-			poiData: poiData
+			poiData: poiData,
+			// Distortable images
+			distortableImageConfigs: distortableImageConfigs,
+			distortableImages: distortableImages,
+			updateImageSelect: updateImageSelect
 		};
 
 		// Helper: Log click coordinates
