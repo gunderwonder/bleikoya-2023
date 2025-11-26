@@ -723,9 +723,10 @@ var wpApiSettings = {
 
 				marker.bindPopup(popupContent);
 
-				// Add click handler to show connections sidebar
+				// Add click handler to show connections sidebar and update URL
 				marker.on('click', function() {
 					showConnectionsSidebar(location.id);
+					updateUrlState({ poi: location.id });
 				});
 			}
 
@@ -757,15 +758,102 @@ var wpApiSettings = {
 			}
 		});
 
+		// ===================
+		// URL State Management
+		// ===================
+		// Supports deep linking to: POI, zoom, center, base layer, overlays
+		// Uses replaceState to avoid polluting browser history
+
+		var urlStateEnabled = true; // Flag to prevent circular updates
+
+		// Parse URL parameters on load
+		function parseUrlState() {
+			var params = new URLSearchParams(window.location.search);
+			return {
+				poi: params.get('poi') ? parseInt(params.get('poi')) : null,
+				lat: params.get('lat') ? parseFloat(params.get('lat')) : null,
+				lng: params.get('lng') ? parseFloat(params.get('lng')) : null,
+				zoom: params.get('zoom') ? parseInt(params.get('zoom')) : null,
+				base: params.get('base') || null,
+				overlays: params.get('overlays') ? params.get('overlays').split(',') : []
+			};
+		}
+
+		// Update URL without adding to history
+		function updateUrlState(updates) {
+			if (!urlStateEnabled) return;
+
+			var params = new URLSearchParams(window.location.search);
+
+			// Update or remove parameters
+			Object.keys(updates).forEach(function(key) {
+				var value = updates[key];
+				if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0)) {
+					params.delete(key);
+				} else if (Array.isArray(value)) {
+					params.set(key, value.join(','));
+				} else {
+					params.set(key, value);
+				}
+			});
+
+			var newUrl = window.location.pathname;
+			var paramString = params.toString();
+			if (paramString) {
+				newUrl += '?' + paramString;
+			}
+
+			history.replaceState(null, '', newUrl);
+		}
+
+		// Get current map state for URL
+		function getMapStateForUrl() {
+			var center = map.getCenter();
+			var zoom = map.getZoom();
+
+			// Find active base layer
+			var activeBase = null;
+			Object.keys(baseLayerKeys).forEach(function(key) {
+				if (map.hasLayer(baseLayerKeys[key])) {
+					activeBase = key;
+				}
+			});
+
+			// Find active overlays
+			var activeOverlays = [];
+			Object.keys(overlayKeys).forEach(function(key) {
+				if (map.hasLayer(overlayKeys[key])) {
+					activeOverlays.push(key);
+				}
+			});
+
+			return {
+				lat: center.lat.toFixed(5),
+				lng: center.lng.toFixed(5),
+				zoom: zoom,
+				base: activeBase,
+				overlays: activeOverlays
+			};
+		}
+
+		// Layer key mappings (populated after layers are created)
+		var baseLayerKeys = {};
+		var overlayKeys = {};
+
 		// Layer control
 		var baseLayers = {
 			"Topografisk kart": topographic,
 			"Bleikøyakart": svgOverlay,
 		};
 
+		// Populate base layer keys
+		baseLayerKeys['topo'] = topographic;
+		baseLayerKeys['svg'] = svgOverlay;
+
 		// Add Mapbox satellite if token is configured
 		if (mapboxSatellite) {
 			baseLayers["Satellitt"] = mapboxSatellite;
+			baseLayerKeys['satellite'] = mapboxSatellite;
 		}
 
 		// Reference to current layer control
@@ -779,16 +867,18 @@ var wpApiSettings = {
 			}
 
 			// Build overlays
-			var overlays = {
-				"Naturkart fra Bymiljøetaten": createDistortableLayerGroup('bym'),
-				// "Reguleringsplan": createDistortableLayerGroup('reguleringsplan'), // Add new images here
-				//"Bleikøyakart (SVG)": L.layerGroup([svgOverlay])
-			};
+			var overlays = {};
+
+			// Add distortable image overlays
+			var bymLayer = createDistortableLayerGroup('bym');
+			overlays["Naturkart fra Bymiljøetaten"] = bymLayer;
+			overlayKeys['bym'] = bymLayer;
 
 			// Add location layers from database
 			Object.keys(locationLayers).forEach(function(gruppeSlug) {
 				var gruppe = locationsData[gruppeSlug];
 				overlays[gruppe.name] = locationLayers[gruppeSlug];
+				overlayKeys[gruppeSlug] = locationLayers[gruppeSlug];
 			});
 
 			// Create and add new layer control
@@ -798,6 +888,153 @@ var wpApiSettings = {
 
 		// Initial layer control
 		rebuildLayerControl();
+
+		// ===================
+		// URL State: Event Listeners
+		// ===================
+
+		// Update URL when map moves/zooms (debounced)
+		var urlUpdateTimeout;
+		map.on('moveend zoomend', function() {
+			clearTimeout(urlUpdateTimeout);
+			urlUpdateTimeout = setTimeout(function() {
+				var state = getMapStateForUrl();
+				updateUrlState({
+					lat: state.lat,
+					lng: state.lng,
+					zoom: state.zoom
+				});
+			}, 300);
+		});
+
+		// Update URL when base layer changes
+		map.on('baselayerchange', function(e) {
+			var baseKey = null;
+			Object.keys(baseLayerKeys).forEach(function(key) {
+				if (baseLayerKeys[key] === e.layer) {
+					baseKey = key;
+				}
+			});
+			updateUrlState({ base: baseKey });
+		});
+
+		// Update URL when overlays change
+		map.on('overlayadd overlayremove', function() {
+			var activeOverlays = [];
+			Object.keys(overlayKeys).forEach(function(key) {
+				if (map.hasLayer(overlayKeys[key])) {
+					activeOverlays.push(key);
+				}
+			});
+			updateUrlState({ overlays: activeOverlays.length > 0 ? activeOverlays : null });
+		});
+
+		// ===================
+		// URL State: Apply on Load
+		// ===================
+		function applyUrlState() {
+			var state = parseUrlState();
+
+			urlStateEnabled = false; // Prevent URL updates while applying state
+
+			// Apply base layer
+			if (state.base && baseLayerKeys[state.base]) {
+				// Remove current base layers
+				Object.values(baseLayerKeys).forEach(function(layer) {
+					if (map.hasLayer(layer)) {
+						map.removeLayer(layer);
+					}
+				});
+				// Add requested base layer
+				baseLayerKeys[state.base].addTo(map);
+			}
+
+			// Apply overlays
+			if (state.overlays.length > 0) {
+				state.overlays.forEach(function(key) {
+					if (overlayKeys[key] && !map.hasLayer(overlayKeys[key])) {
+						overlayKeys[key].addTo(map);
+					}
+				});
+			}
+
+			// Apply view (zoom and center)
+			if (state.lat !== null && state.lng !== null) {
+				var zoom = state.zoom || map.getZoom();
+				map.setView([state.lat, state.lng], zoom);
+			} else if (state.zoom !== null) {
+				map.setZoom(state.zoom);
+			}
+
+			// Apply POI selection (after a short delay to ensure layers are loaded)
+			if (state.poi) {
+				setTimeout(function() {
+					selectPoiById(state.poi);
+				}, 100);
+			}
+
+			urlStateEnabled = true;
+		}
+
+		// Find and select a POI by ID
+		var markersByPoiId = {};
+
+		function selectPoiById(poiId) {
+			// Find the marker for this POI
+			var found = false;
+
+			Object.keys(locationsData).forEach(function(gruppeSlug) {
+				var gruppe = locationsData[gruppeSlug];
+				gruppe.locations.forEach(function(location) {
+					if (location.id === poiId) {
+						found = true;
+
+						// Ensure the layer group is visible
+						if (locationLayers[gruppeSlug] && !map.hasLayer(locationLayers[gruppeSlug])) {
+							locationLayers[gruppeSlug].addTo(map);
+						}
+
+						// Get marker coordinates and pan to it
+						var coords = location.coordinates;
+						if (coords) {
+							var lat, lng;
+							if (coords.lat && coords.lng) {
+								lat = coords.lat;
+								lng = coords.lng;
+							} else if (coords.bounds) {
+								// Rectangle - use center
+								var b = coords.bounds;
+								lat = (parseFloat(b[0].lat || b[0][0]) + parseFloat(b[1].lat || b[1][0])) / 2;
+								lng = (parseFloat(b[0].lng || b[0][1]) + parseFloat(b[1].lng || b[1][1])) / 2;
+							} else if (coords.latlngs) {
+								// Polygon - use centroid
+								var sumLat = 0, sumLng = 0;
+								coords.latlngs.forEach(function(p) {
+									sumLat += parseFloat(p.lat || p[0]);
+									sumLng += parseFloat(p.lng || p[1]);
+								});
+								lat = sumLat / coords.latlngs.length;
+								lng = sumLng / coords.latlngs.length;
+							}
+
+							if (lat && lng) {
+								map.setView([lat, lng], Math.max(map.getZoom(), 18));
+							}
+						}
+
+						// Show sidebar
+						showConnectionsSidebar(poiId);
+					}
+				});
+			});
+
+			if (!found) {
+				console.warn('POI not found:', poiId);
+			}
+		}
+
+		// Apply URL state after everything is initialized
+		applyUrlState();
 
 		// Calibration Control
 		var CalibrationControl = L.Control.extend({
@@ -1795,6 +2032,7 @@ corners: [
 		// Close sidebar button
 		document.getElementById('close-sidebar').addEventListener('click', function() {
 			document.getElementById('connections-sidebar').classList.remove('visible');
+			updateUrlState({ poi: null });
 		});
 
 		// Function to show connections sidebar
