@@ -600,7 +600,10 @@ var wpApiSettings = {
 				console.log('LayerGroup added for:', distortableImageConfigs[configKey].name);
 				overlay = createDistortableOverlay(configKey);
 				if (overlay) {
-					distortableImages[configKey] = overlay;
+					distortableImages[configKey] = {
+						overlay: overlay,
+						name: distortableImageConfigs[configKey].name
+					};
 					overlay.addTo(map);
 				}
 			});
@@ -616,6 +619,7 @@ var wpApiSettings = {
 				}
 				overlay = null;
 				delete distortableImages[configKey];
+				updateImageSelect();
 			});
 
 			return group;
@@ -1036,9 +1040,9 @@ var wpApiSettings = {
 			var imageKey = e.target.value;
 
 			// Disable editing on previous image
-			if (currentEditingImage) {
+			if (currentEditingImage && distortableImages[currentEditingImage]) {
 				var prevOverlay = distortableImages[currentEditingImage].overlay;
-				if (prevOverlay.editing && prevOverlay.editing._enabled) {
+				if (prevOverlay && prevOverlay.editing && prevOverlay.editing._enabled) {
 					prevOverlay.editing.disable();
 				}
 			}
@@ -1065,6 +1069,11 @@ var wpApiSettings = {
 			if (!currentEditingImage) return;
 
 			var imageData = distortableImages[currentEditingImage];
+			if (!imageData || !imageData.overlay) {
+				alert('Overlay er ikke lastet. Aktiver det først i layer control.');
+				return;
+			}
+
 			var overlay = imageData.overlay;
 
 			if (!overlay._map) {
@@ -1079,11 +1088,16 @@ var wpApiSettings = {
 			}
 
 			if (overlay.editing._enabled) {
+				// Disable editing
 				overlay.editing.disable();
 				this.textContent = '✏️ Start redigering';
 				this.classList.remove('active');
 			} else {
+				// Enable editing - set mode via editing handler
 				overlay.editing.enable();
+				if (overlay.editing._mode !== 'distort') {
+					overlay.editing.setMode('distort');
+				}
 				this.textContent = '⏸️ Stopp redigering';
 				this.classList.add('active');
 			}
@@ -1094,6 +1108,11 @@ var wpApiSettings = {
 			if (!currentEditingImage) return;
 
 			var imageData = distortableImages[currentEditingImage];
+			if (!imageData || !imageData.overlay) {
+				alert('Overlay er ikke lastet. Aktiver det først i layer control.');
+				return;
+			}
+
 			var overlay = imageData.overlay;
 
 			if (!overlay._map) {

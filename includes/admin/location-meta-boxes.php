@@ -109,6 +109,7 @@ function render_location_connections_meta_box( $post ) {
 	wp_nonce_field( 'save_location_connections', 'location_connections_nonce' );
 
 	$connections = get_location_connections_full( $post->ID );
+	$connectable_taxonomies = get_connectable_taxonomies();
 	?>
 	<div id="location-connections-manager">
 		<div class="connections-search-section">
@@ -116,10 +117,20 @@ function render_location_connections_meta_box( $post ) {
 			<input type="text" id="connection-search-input" placeholder="Søk..." class="widefat" />
 			<select id="connection-type-filter" class="widefat" style="margin-top: 5px;">
 				<option value="">Alle typer</option>
-				<option value="post">Artikler</option>
-				<option value="page">Sider</option>
-				<option value="tribe_events">Hendelser</option>
-				<option value="user">Brukere</option>
+				<optgroup label="Innhold">
+					<option value="post">Artikler</option>
+					<option value="page">Sider</option>
+					<option value="tribe_events">Hendelser</option>
+				</optgroup>
+				<optgroup label="Brukere">
+					<option value="user">Brukere</option>
+				</optgroup>
+				<optgroup label="Taksonomier">
+					<option value="term">Alle kategorier/tagger</option>
+					<?php foreach ( $connectable_taxonomies as $tax ) : ?>
+						<option value="term:<?php echo esc_attr( $tax->name ); ?>"><?php echo esc_html( $tax->labels->name ); ?></option>
+					<?php endforeach; ?>
+				</optgroup>
 			</select>
 			<div id="connection-search-results" class="connection-results"></div>
 		</div>
@@ -131,12 +142,24 @@ function render_location_connections_meta_box( $post ) {
 					<p class="description">Ingen koblinger ennå.</p>
 				<?php else : ?>
 					<?php foreach ( $connections as $conn ) : ?>
-						<div class="connection-item" data-connection-id="<?php echo esc_attr( $conn['id'] ); ?>">
-							<span class="connection-type-badge"><?php echo esc_html( $conn['type'] ); ?></span>
+						<div class="connection-item" data-connection-id="<?php echo esc_attr( $conn['id'] ); ?>" data-connection-type="<?php echo esc_attr( $conn['type'] ); ?>"<?php if ( $conn['type'] === 'term' ) : ?> data-taxonomy="<?php echo esc_attr( $conn['taxonomy'] ); ?>"<?php endif; ?>>
+							<span class="connection-type-badge <?php echo esc_attr( $conn['type'] ); ?>">
+								<?php
+								if ( $conn['type'] === 'term' ) {
+									$tax_obj = get_taxonomy( $conn['taxonomy'] );
+									echo esc_html( $tax_obj ? $tax_obj->labels->singular_name : $conn['taxonomy'] );
+								} else {
+									echo esc_html( $conn['type'] );
+								}
+								?>
+							</span>
 							<span class="connection-title">
 								<?php echo esc_html( $conn['title'] ); ?>
 								<?php if ( $conn['type'] === 'user' && ! empty( $conn['cabin_number'] ) ) : ?>
 									(Hytte <?php echo esc_html( $conn['cabin_number'] ); ?>)
+								<?php endif; ?>
+								<?php if ( $conn['type'] === 'term' && isset( $conn['count'] ) ) : ?>
+									<span class="term-count">(<?php echo intval( $conn['count'] ); ?> innlegg)</span>
 								<?php endif; ?>
 							</span>
 							<button type="button" class="button button-small remove-connection" data-connection-id="<?php echo esc_attr( $conn['id'] ); ?>">
@@ -190,6 +213,18 @@ function render_location_connections_meta_box( $post ) {
 			border-radius: 3px;
 			font-size: 10px;
 			text-transform: uppercase;
+		}
+		.connection-type-badge.term {
+			background: #e1f5fe;
+			color: #0277bd;
+		}
+		.connection-type-badge.user {
+			background: #f3e5f5;
+			color: #7b1fa2;
+		}
+		.term-count {
+			color: #888;
+			font-size: 11px;
 		}
 		.connection-title {
 			flex: 1;

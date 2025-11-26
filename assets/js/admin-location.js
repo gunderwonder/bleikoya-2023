@@ -42,13 +42,19 @@
 
 	// Search for connectable content
 	function searchConnections(query, type) {
+		// Handle term:taxonomy format
+		let searchType = type;
+		if (type && type.startsWith('term:')) {
+			searchType = 'term';
+		}
+
 		$.ajax({
 			url: locationAdmin.ajaxurl,
 			method: 'GET',
 			data: {
 				action: 'search_connectable_content',
 				query: query,
-				type: type,
+				type: searchType,
 				nonce: locationAdmin.nonce,
 				exclude_location: locationAdmin.post_id
 			},
@@ -80,19 +86,29 @@
 		results.forEach(function(item) {
 			const $result = $('<div class="connection-result-item" />');
 
-			let badge = '<span class="connection-type-badge">' + item.type + '</span>';
+			let badgeClass = 'connection-type-badge';
+			let badgeText = item.type;
 			let title = item.title;
+			let dataAttrs = 'data-id="' + item.id + '" data-type="' + item.type + '"';
 
-			if (item.type === 'user' && item.cabin_number) {
-				title += ' (Hytte ' + item.cabin_number + ')';
+			if (item.type === 'term') {
+				badgeClass += ' term';
+				badgeText = item.taxonomy_label || item.taxonomy;
+				title += ' (' + item.count + ' innlegg)';
+				dataAttrs += ' data-taxonomy="' + item.taxonomy + '"';
+			} else if (item.type === 'user') {
+				badgeClass += ' user';
+				if (item.cabin_number) {
+					title += ' (Hytte ' + item.cabin_number + ')';
+				}
 			}
 
 			$result.html(
 				'<div>' +
-					badge +
+					'<span class="' + badgeClass + '">' + badgeText + '</span>' +
 					'<span style="margin-left: 5px;">' + title + '</span>' +
 				'</div>' +
-				'<button type="button" class="button button-small" data-id="' + item.id + '" data-type="' + item.type + '">Legg til</button>'
+				'<button type="button" class="button button-small" ' + dataAttrs + '>Legg til</button>'
 			);
 
 			$container.append($result);
@@ -102,12 +118,13 @@
 		$('.connection-result-item .button').on('click', function() {
 			const connectionId = $(this).data('id');
 			const connectionType = $(this).data('type');
-			addConnection(connectionId, connectionType, $(this));
+			const taxonomy = $(this).data('taxonomy') || '';
+			addConnection(connectionId, connectionType, taxonomy, $(this));
 		});
 	}
 
 	// Add connection
-	function addConnection(connectionId, connectionType, $button) {
+	function addConnection(connectionId, connectionType, taxonomy, $button) {
 		$button.prop('disabled', true).text('Legger til...');
 
 		$.ajax({
@@ -118,6 +135,7 @@
 				location_id: locationAdmin.post_id,
 				connection_id: connectionId,
 				connection_type: connectionType,
+				taxonomy: taxonomy,
 				nonce: locationAdmin.nonce
 			},
 			success: function(response) {
@@ -153,14 +171,26 @@
 		// Remove "no connections" message if present
 		$list.find('.description').remove();
 
+		let badgeClass = 'connection-type-badge';
+		let badgeText = connection.type;
 		let title = connection.title;
-		if (connection.type === 'user' && connection.cabin_number) {
-			title += ' (Hytte ' + connection.cabin_number + ')';
+		let dataAttrs = 'data-connection-id="' + connection.id + '" data-connection-type="' + connection.type + '"';
+
+		if (connection.type === 'term') {
+			badgeClass += ' term';
+			badgeText = connection.taxonomy_label || connection.taxonomy;
+			title += ' <span class="term-count">(' + connection.count + ' innlegg)</span>';
+			dataAttrs += ' data-taxonomy="' + connection.taxonomy + '"';
+		} else if (connection.type === 'user') {
+			badgeClass += ' user';
+			if (connection.cabin_number) {
+				title += ' (Hytte ' + connection.cabin_number + ')';
+			}
 		}
 
-		const $item = $('<div class="connection-item" data-connection-id="' + connection.id + '" />')
+		const $item = $('<div class="connection-item" ' + dataAttrs + ' />')
 			.html(
-				'<span class="connection-type-badge">' + connection.type + '</span>' +
+				'<span class="' + badgeClass + '">' + badgeText + '</span>' +
 				'<span class="connection-title">' + title + '</span>' +
 				'<button type="button" class="button button-small remove-connection" data-connection-id="' + connection.id + '">' +
 					'Fjern' +
@@ -182,6 +212,8 @@
 		const connectionId = $(this).data('connection-id');
 		const $item = $(this).closest('.connection-item');
 		const $button = $(this);
+		const connectionType = $item.data('connection-type') || '';
+		const taxonomy = $item.data('taxonomy') || '';
 
 		$button.prop('disabled', true).text('Fjerner...');
 
@@ -192,6 +224,8 @@
 				action: 'remove_location_connection',
 				location_id: locationAdmin.post_id,
 				connection_id: connectionId,
+				connection_type: connectionType,
+				taxonomy: taxonomy,
 				nonce: locationAdmin.nonce
 			},
 			success: function(response) {

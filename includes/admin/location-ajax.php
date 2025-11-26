@@ -6,7 +6,7 @@
  */
 
 /**
- * Search for connectable content (posts, pages, users, events)
+ * Search for connectable content (posts, pages, users, events, taxonomy terms)
  */
 function ajax_search_connectable_content() {
 	check_ajax_referer( 'location_admin', 'nonce' );
@@ -45,8 +45,37 @@ function ajax_search_connectable_content() {
 		}
 	}
 
+	// Search taxonomy terms
+	if ( $type === 'term' || empty( $type ) ) {
+		$taxonomies = get_connectable_taxonomies();
+		$taxonomy_names = array_keys( $taxonomies );
+
+		if ( ! empty( $taxonomy_names ) ) {
+			$terms = get_terms( array(
+				'taxonomy'   => $taxonomy_names,
+				'name__like' => $query,
+				'number'     => 20,
+				'hide_empty' => false
+			) );
+
+			if ( ! is_wp_error( $terms ) ) {
+				foreach ( $terms as $term ) {
+					$tax_obj = get_taxonomy( $term->taxonomy );
+					$results[] = array(
+						'id'           => $term->term_id,
+						'title'        => $term->name,
+						'type'         => 'term',
+						'taxonomy'     => $term->taxonomy,
+						'taxonomy_label' => $tax_obj ? $tax_obj->labels->singular_name : $term->taxonomy,
+						'count'        => $term->count
+					);
+				}
+			}
+		}
+	}
+
 	// Search posts
-	if ( $type !== 'user' ) {
+	if ( $type !== 'user' && $type !== 'term' ) {
 		$post_types = array();
 
 		if ( $type ) {
@@ -104,6 +133,7 @@ function ajax_add_location_connection() {
 	$location_id = isset( $_POST['location_id'] ) ? intval( $_POST['location_id'] ) : 0;
 	$connection_id = isset( $_POST['connection_id'] ) ? intval( $_POST['connection_id'] ) : 0;
 	$connection_type = isset( $_POST['connection_type'] ) ? sanitize_text_field( $_POST['connection_type'] ) : 'post';
+	$taxonomy = isset( $_POST['taxonomy'] ) ? sanitize_text_field( $_POST['taxonomy'] ) : '';
 
 	if ( ! $location_id || ! $connection_id ) {
 		wp_send_json_error( 'Invalid parameters' );
@@ -114,21 +144,47 @@ function ajax_add_location_connection() {
 		wp_send_json_error( 'Invalid location' );
 	}
 
-	// Check if connection already exists
-	$existing_connections = get_location_connections( $location_id );
-	if ( in_array( $connection_id, $existing_connections ) ) {
-		wp_send_json_error( 'Connection already exists' );
+	// Check if connection already exists (different check for terms)
+	if ( $connection_type === 'term' ) {
+		$existing_term_connections = get_location_term_connections( $location_id );
+		foreach ( $existing_term_connections as $conn ) {
+			if ( $conn['term_id'] == $connection_id && $conn['taxonomy'] === $taxonomy ) {
+				wp_send_json_error( 'Connection already exists' );
+			}
+		}
+	} else {
+		$existing_connections = get_location_connections( $location_id );
+		if ( in_array( $connection_id, $existing_connections ) ) {
+			wp_send_json_error( 'Connection already exists' );
+		}
+	}
+
+	// Validate taxonomy for term connections
+	if ( $connection_type === 'term' && empty( $taxonomy ) ) {
+		wp_send_json_error( 'Missing taxonomy for term connection' );
 	}
 
 	// Add connection
-	$success = add_location_connection( $location_id, $connection_id, $connection_type );
+	$success = add_location_connection( $location_id, $connection_id, $connection_type, $taxonomy );
 
 	if ( ! $success ) {
-		wp_send_json_error( 'Failed to add connection' );
+		wp_send_json_error( 'Failed to add connection (type: ' . $connection_type . ', taxonomy: ' . $taxonomy . ')' );
 	}
 
 	// Get full connection data for response
-	if ( $connection_type === 'user' ) {
+	if ( $connection_type === 'term' ) {
+		$term = get_term( $connection_id, $taxonomy );
+		$tax_obj = get_taxonomy( $taxonomy );
+
+		$connection_data = array(
+			'id'             => $connection_id,
+			'title'          => $term->name,
+			'type'           => 'term',
+			'taxonomy'       => $taxonomy,
+			'taxonomy_label' => $tax_obj ? $tax_obj->labels->singular_name : $taxonomy,
+			'count'          => $term->count
+		);
+	} elseif ( $connection_type === 'user' ) {
 		$user = get_user_by( 'ID', $connection_id );
 		$cabin_number = get_user_meta( $connection_id, 'user-cabin-number', true );
 
@@ -164,20 +220,25 @@ function ajax_remove_location_connection() {
 
 	$location_id = isset( $_POST['location_id'] ) ? intval( $_POST['location_id'] ) : 0;
 	$connection_id = isset( $_POST['connection_id'] ) ? intval( $_POST['connection_id'] ) : 0;
+	$connection_type = isset( $_POST['connection_type'] ) ? sanitize_text_field( $_POST['connection_type'] ) : '';
+	$taxonomy = isset( $_POST['taxonomy'] ) ? sanitize_text_field( $_POST['taxonomy'] ) : '';
 
 	if ( ! $location_id || ! $connection_id ) {
 		wp_send_json_error( 'Invalid parameters' );
 	}
 
-	// Determine connection type (user or post)
-	$connection_type = 'post';
-	$user = get_user_by( 'ID', $connection_id );
-	if ( $user ) {
-		$connection_type = 'user';
+	// Auto-detect connection type if not provided
+	if ( empty( $connection_type ) ) {
+		$user = get_user_by( 'ID', $connection_id );
+		if ( $user ) {
+			$connection_type = 'user';
+		} else {
+			$connection_type = 'post';
+		}
 	}
 
 	// Remove connection
-	$success = remove_location_connection( $location_id, $connection_id, $connection_type );
+	$success = remove_location_connection( $location_id, $connection_id, $connection_type, $taxonomy );
 
 	if ( ! $success ) {
 		wp_send_json_error( 'Failed to remove connection' );
