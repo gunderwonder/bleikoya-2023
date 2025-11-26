@@ -133,6 +133,9 @@ function rest_get_location( $request ) {
 function rest_create_location( $request ) {
 	$params = $request->get_json_params();
 
+	// Debug logging
+	error_log( 'REST API create_location called with params: ' . print_r( $params, true ) );
+
 	// Validate required fields
 	if ( empty( $params['title'] ) ) {
 		return new WP_Error( 'missing_title', 'Title is required', array( 'status' => 400 ) );
@@ -152,7 +155,42 @@ function rest_create_location( $request ) {
 
 	// Set gruppe taxonomy if provided
 	if ( ! empty( $params['gruppe'] ) ) {
-		wp_set_post_terms( $post_id, $params['gruppe'], 'gruppe' );
+		error_log( 'Setting gruppe term: ' . $params['gruppe'] . ' for post ' . $post_id );
+
+		// Check if term exists (by slug or name)
+		$term = term_exists( $params['gruppe'], 'gruppe' );
+
+		if ( ! $term ) {
+			// Term doesn't exist, create it
+			// Use the slug as name (capitalize first letter for better display)
+			$term_name = ucfirst( $params['gruppe'] );
+			error_log( 'Term does not exist, creating: ' . $term_name );
+			$term = wp_insert_term( $term_name, 'gruppe', array( 'slug' => $params['gruppe'] ) );
+
+			if ( is_wp_error( $term ) ) {
+				error_log( 'Failed to create term: ' . $term->get_error_message() );
+				$term = null;
+			} else {
+				error_log( 'Created new term with ID: ' . $term['term_id'] );
+			}
+		} else {
+			error_log( 'Term exists with ID: ' . $term['term_id'] );
+		}
+
+		// Set the term on the post using term ID (more reliable than slug)
+		if ( $term && isset( $term['term_id'] ) ) {
+			$term_id = intval( $term['term_id'] );
+			error_log( 'Setting term ID ' . $term_id . ' on post ' . $post_id );
+			$result = wp_set_post_terms( $post_id, array( $term_id ), 'gruppe' );
+			error_log( 'wp_set_post_terms result: ' . print_r( $result, true ) );
+			if ( is_wp_error( $result ) ) {
+				error_log( 'Failed to set gruppe term: ' . $result->get_error_message() );
+			}
+		} else {
+			error_log( 'No valid term ID found' );
+		}
+	} else {
+		error_log( 'No gruppe parameter provided or it is empty' );
 	}
 
 	// Set type

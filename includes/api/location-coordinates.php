@@ -59,55 +59,61 @@ function validate_coordinates( $data ) {
 		return false;
 	}
 
-	// Must have a type
-	if ( ! isset( $data['type'] ) ) {
-		return false;
+	// Marker: has lat and lng
+	if ( isset( $data['lat'] ) && isset( $data['lng'] ) ) {
+		return is_numeric( $data['lat'] ) && is_numeric( $data['lng'] );
 	}
 
-	$type = $data['type'];
-
-	// Validate based on type
-	switch ( $type ) {
-		case 'marker':
-			// Markers need lat and lng
-			return isset( $data['lat'] ) && isset( $data['lng'] )
-				&& is_numeric( $data['lat'] ) && is_numeric( $data['lng'] );
-
-		case 'rectangle':
-			// Rectangles need bounds array with two lat/lng pairs
-			if ( ! isset( $data['bounds'] ) || ! is_array( $data['bounds'] ) ) {
-				return false;
-			}
-			if ( count( $data['bounds'] ) !== 2 ) {
-				return false;
-			}
-			// Each bound should have lat/lng
-			foreach ( $data['bounds'] as $bound ) {
+	// Rectangle: has bounds array with two lat/lng pairs
+	if ( isset( $data['bounds'] ) && is_array( $data['bounds'] ) ) {
+		if ( count( $data['bounds'] ) !== 2 ) {
+			return false;
+		}
+		// Each bound can be either [lat, lng] array or {lat, lng} object
+		foreach ( $data['bounds'] as $bound ) {
+			if ( is_array( $bound ) ) {
+				// Array format: [lat, lng]
+				if ( count( $bound ) !== 2 || ! is_numeric( $bound[0] ) || ! is_numeric( $bound[1] ) ) {
+					return false;
+				}
+			} elseif ( is_object( $bound ) || ( is_array( $bound ) && isset( $bound['lat'] ) ) ) {
+				// Object format: {lat, lng}
 				if ( ! isset( $bound['lat'] ) || ! isset( $bound['lng'] ) ) {
 					return false;
 				}
+			} else {
+				return false;
 			}
-			return true;
+		}
+		return true;
+	}
 
-		case 'polygon':
-			// Polygons need latlngs array with at least 3 points
-			if ( ! isset( $data['latlngs'] ) || ! is_array( $data['latlngs'] ) ) {
-				return false;
-			}
-			if ( count( $data['latlngs'] ) < 3 ) {
-				return false;
-			}
-			// Each point should have lat/lng
-			foreach ( $data['latlngs'] as $point ) {
+	// Polygon: has latlngs array with at least 3 points
+	if ( isset( $data['latlngs'] ) && is_array( $data['latlngs'] ) ) {
+		if ( count( $data['latlngs'] ) < 3 ) {
+			return false;
+		}
+		// Each point can be either [lat, lng] array or {lat, lng} object
+		foreach ( $data['latlngs'] as $point ) {
+			if ( is_array( $point ) ) {
+				// Array format: [lat, lng]
+				if ( count( $point ) !== 2 || ! is_numeric( $point[0] ) || ! is_numeric( $point[1] ) ) {
+					return false;
+				}
+			} elseif ( is_object( $point ) || ( is_array( $point ) && isset( $point['lat'] ) ) ) {
+				// Object format: {lat, lng}
 				if ( ! isset( $point['lat'] ) || ! isset( $point['lng'] ) ) {
 					return false;
 				}
+			} else {
+				return false;
 			}
-			return true;
-
-		default:
-			return false;
+		}
+		return true;
 	}
+
+	// If none of the above, invalid
+	return false;
 }
 
 /**
@@ -180,7 +186,19 @@ function update_location_style( $location_id, $style ) {
 		return false;
 	}
 
-	$json = json_encode( $style );
+	// Sanitize style values
+	$sanitized_style = array(
+		'color'   => isset( $style['color'] ) ? sanitize_hex_color( $style['color'] ) : '#ff7800',
+		'opacity' => isset( $style['opacity'] ) ? max( 0, min( 1, floatval( $style['opacity'] ) ) ) : 0.7,
+		'weight'  => isset( $style['weight'] ) ? max( 1, min( 10, intval( $style['weight'] ) ) ) : 2
+	);
+
+	// Fallback if color sanitization fails
+	if ( empty( $sanitized_style['color'] ) ) {
+		$sanitized_style['color'] = '#ff7800';
+	}
+
+	$json = json_encode( $sanitized_style );
 	update_post_meta( $location_id, '_style', $json );
 
 	return true;

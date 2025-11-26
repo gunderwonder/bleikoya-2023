@@ -402,6 +402,9 @@
 </div>
 
 <?php
+// Check if user can edit posts (Editor role or higher)
+$can_edit = current_user_can( 'edit_posts' );
+
 // Load all published locations from database
 $locations = get_posts( array(
 	'post_type'      => 'kartpunkt',
@@ -445,7 +448,8 @@ var locationsData = <?php echo json_encode( $locations_by_group, JSON_PRETTY_PRI
 var wpApiSettings = {
 	root: '<?php echo esc_url_raw( rest_url() ); ?>',
 	nonce: '<?php echo wp_create_nonce( 'wp_rest' ); ?>',
-	currentUser: <?php echo json_encode( wp_get_current_user() ); ?>
+	currentUser: <?php echo json_encode( wp_get_current_user() ); ?>,
+	canEdit: <?php echo $can_edit ? 'true' : 'false'; ?>
 };
 </script>
 
@@ -648,8 +652,26 @@ var wpApiSettings = {
 					case 'marker':
 						if (coords.lat && coords.lng) {
 							marker = L.marker([coords.lat, coords.lng], {
-								draggable: false
+								draggable: wpApiSettings.canEdit // Only allow dragging for editors
 							});
+
+							// Add dragend event to save new position (only for editors)
+							if (wpApiSettings.canEdit) {
+								marker.on('dragend', function(e) {
+									var newLatLng = e.target.getLatLng();
+									if (confirm('Flytte "' + location.title + '" til ny posisjon?')) {
+										updateLocationInDatabase(location.id, {
+											coordinates: {
+												lat: newLatLng.lat,
+												lng: newLatLng.lng
+											}
+										});
+									} else {
+										// Revert to original position
+										e.target.setLatLng([coords.lat, coords.lng]);
+									}
+								});
+							}
 						} else {
 							console.warn('Marker missing lat/lng:', location.title, coords);
 						}
@@ -742,19 +764,36 @@ var wpApiSettings = {
 			baseLayers["Satellitt"] = mapboxSatellite;
 		}
 
-		var overlays = {
-			"Naturkart fra Bymiljøetaten": createDistortableLayerGroup('bym'),
-			// "Reguleringsplan": createDistortableLayerGroup('reguleringsplan'), // Add new images here
-			//"Bleikøyakart (SVG)": L.layerGroup([svgOverlay])
-		};
+		// Reference to current layer control
+		var currentLayerControl = null;
 
-		// Add location layers from database
-		Object.keys(locationLayers).forEach(function(gruppeSlug) {
-			var gruppe = locationsData[gruppeSlug];
-			overlays[gruppe.name] = locationLayers[gruppeSlug];
-		});
+		// Function to rebuild layer control with current location layers
+		function rebuildLayerControl() {
+			// Remove existing layer control
+			if (currentLayerControl) {
+				map.removeControl(currentLayerControl);
+			}
 
-		L.control.layers(baseLayers, overlays).addTo(map);
+			// Build overlays
+			var overlays = {
+				"Naturkart fra Bymiljøetaten": createDistortableLayerGroup('bym'),
+				// "Reguleringsplan": createDistortableLayerGroup('reguleringsplan'), // Add new images here
+				//"Bleikøyakart (SVG)": L.layerGroup([svgOverlay])
+			};
+
+			// Add location layers from database
+			Object.keys(locationLayers).forEach(function(gruppeSlug) {
+				var gruppe = locationsData[gruppeSlug];
+				overlays[gruppe.name] = locationLayers[gruppeSlug];
+			});
+
+			// Create and add new layer control
+			currentLayerControl = L.control.layers(baseLayers, overlays);
+			currentLayerControl.addTo(map);
+		}
+
+		// Initial layer control
+		rebuildLayerControl();
 
 		// Calibration Control
 		var CalibrationControl = L.Control.extend({
@@ -814,32 +853,35 @@ var wpApiSettings = {
 			}
 		});
 
-		var calibrationControl = new CalibrationControl({
-			position: 'topleft'
-		});
-		calibrationControl.addTo(map);
+		// Only add calibration control for editors
+		if (wpApiSettings.canEdit) {
+			var calibrationControl = new CalibrationControl({
+				position: 'topleft'
+			});
+			calibrationControl.addTo(map);
 
-		// Toggle button for calibration control
-		var CalibrationToggle = L.Control.extend({
-			onAdd: function(map) {
-				var container = L.DomUtil.create('div', 'leaflet-bar calibration-toggle');
-				container.innerHTML = '🔧 Kalibrering';
-				container.title = 'Vis/skjul kalibreringsverktøy';
+			// Toggle button for calibration control
+			var CalibrationToggle = L.Control.extend({
+				onAdd: function(map) {
+					var container = L.DomUtil.create('div', 'leaflet-bar calibration-toggle');
+					container.innerHTML = '🔧 Kalibrering';
+					container.title = 'Vis/skjul kalibreringsverktøy';
 
-				L.DomEvent.on(container, 'click', function() {
-					var calControl = document.querySelector('.calibration-control');
-					calControl.classList.toggle('visible');
-				});
+					L.DomEvent.on(container, 'click', function() {
+						var calControl = document.querySelector('.calibration-control');
+						calControl.classList.toggle('visible');
+					});
 
-				L.DomEvent.disableClickPropagation(container);
-				return container;
-			}
-		});
+					L.DomEvent.disableClickPropagation(container);
+					return container;
+				}
+			});
 
-		var calibrationToggle = new CalibrationToggle({
-			position: 'topleft'
-		});
-		calibrationToggle.addTo(map);
+			var calibrationToggle = new CalibrationToggle({
+				position: 'topleft'
+			});
+			calibrationToggle.addTo(map);
+		}
 
 		// POI Manager Control
 		var POIManagerControl = L.Control.extend({
@@ -885,32 +927,35 @@ var wpApiSettings = {
 			}
 		});
 
-		var poiManagerControl = new POIManagerControl({
-			position: 'topright'
-		});
-		poiManagerControl.addTo(map);
+		// Only add POI manager for editors
+		if (wpApiSettings.canEdit) {
+			var poiManagerControl = new POIManagerControl({
+				position: 'topright'
+			});
+			poiManagerControl.addTo(map);
 
-		// Toggle button for POI Manager
-		var POIToggle = L.Control.extend({
-			onAdd: function(map) {
-				var container = L.DomUtil.create('div', 'leaflet-bar calibration-toggle');
-				container.innerHTML = '📍 POI Manager';
-				container.title = 'Vis/skjul POI Manager';
+			// Toggle button for POI Manager
+			var POIToggle = L.Control.extend({
+				onAdd: function(map) {
+					var container = L.DomUtil.create('div', 'leaflet-bar calibration-toggle');
+					container.innerHTML = '📍 POI Manager';
+					container.title = 'Vis/skjul POI Manager';
 
-				L.DomEvent.on(container, 'click', function() {
-					var poiControl = document.querySelector('.poi-manager');
-					poiControl.classList.toggle('visible');
-				});
+					L.DomEvent.on(container, 'click', function() {
+						var poiControl = document.querySelector('.poi-manager');
+						poiControl.classList.toggle('visible');
+					});
 
-				L.DomEvent.disableClickPropagation(container);
-				return container;
-			}
-		});
+					L.DomEvent.disableClickPropagation(container);
+					return container;
+				}
+			});
 
-		var poiToggle = new POIToggle({
-			position: 'topleft'
-		});
-		poiToggle.addTo(map);
+			var poiToggle = new POIToggle({
+				position: 'topleft'
+			});
+			poiToggle.addTo(map);
+		}
 
 		// Image Editor Control
 		var ImageEditorControl = L.Control.extend({
@@ -938,32 +983,35 @@ var wpApiSettings = {
 			}
 		});
 
-		var imageEditorControl = new ImageEditorControl({
-			position: 'topright'
-		});
-		imageEditorControl.addTo(map);
+		// Only add image editor for editors
+		if (wpApiSettings.canEdit) {
+			var imageEditorControl = new ImageEditorControl({
+				position: 'topright'
+			});
+			imageEditorControl.addTo(map);
 
-		// Toggle button for Image Editor
-		var ImageEditorToggle = L.Control.extend({
-			onAdd: function(map) {
-				var container = L.DomUtil.create('div', 'leaflet-bar calibration-toggle');
-				container.innerHTML = '🖼️ Bilderedigering';
-				container.title = 'Vis/skjul bilderedigering';
+			// Toggle button for Image Editor
+			var ImageEditorToggle = L.Control.extend({
+				onAdd: function(map) {
+					var container = L.DomUtil.create('div', 'leaflet-bar calibration-toggle');
+					container.innerHTML = '🖼️ Bilderedigering';
+					container.title = 'Vis/skjul bilderedigering';
 
-				L.DomEvent.on(container, 'click', function() {
-					var editorControl = document.querySelector('.image-editor');
-					editorControl.classList.toggle('visible');
-				});
+					L.DomEvent.on(container, 'click', function() {
+						var editorControl = document.querySelector('.image-editor');
+						editorControl.classList.toggle('visible');
+					});
 
-				L.DomEvent.disableClickPropagation(container);
-				return container;
-			}
-		});
+					L.DomEvent.disableClickPropagation(container);
+					return container;
+				}
+			});
 
-		var imageEditorToggle = new ImageEditorToggle({
-			position: 'topleft'
-		});
-		imageEditorToggle.addTo(map);
+			var imageEditorToggle = new ImageEditorToggle({
+				position: 'topleft'
+			});
+			imageEditorToggle.addTo(map);
+		}
 
 		// Image Editor functionality
 		var currentEditingImage = null;
@@ -1227,18 +1275,20 @@ corners: [
 			var select = document.getElementById('poi-layer-select');
 			select.innerHTML = '<option value="">-- Velg gruppe --</option>';
 
-			// Get unique grupper from loaded locations
-			var gruppeSet = new Set();
+			// Get unique grupper from loaded locations (store both slug and name)
+			var gruppeMap = {};
 			Object.keys(locationsData).forEach(function(gruppeSlug) {
-				gruppeSet.add(locationsData[gruppeSlug].name);
+				gruppeMap[gruppeSlug] = locationsData[gruppeSlug].name;
 			});
 
-			// Add options
-			Array.from(gruppeSet).sort().forEach(function(gruppeName) {
+			// Add options (sorted by name)
+			Object.keys(gruppeMap).sort(function(a, b) {
+				return gruppeMap[a].localeCompare(gruppeMap[b]);
+			}).forEach(function(gruppeSlug) {
 				var option = document.createElement('option');
-				option.value = gruppeName;
-				option.textContent = gruppeName;
-				if (gruppeName === currentGruppe) {
+				option.value = gruppeSlug; // Use slug as value for API
+				option.textContent = gruppeMap[gruppeSlug]; // Display name to user
+				if (gruppeSlug === currentGruppe) {
 					option.selected = true;
 				}
 				select.appendChild(option);
@@ -1252,14 +1302,11 @@ corners: [
 				return;
 			}
 
-			// Find locations for current gruppe
+			// Find locations for current gruppe (currentGruppe is now a slug)
 			var currentLocations = [];
-			Object.keys(locationsData).forEach(function(gruppeSlug) {
-				var gruppe = locationsData[gruppeSlug];
-				if (gruppe.name === currentGruppe) {
-					currentLocations = gruppe.locations;
-				}
-			});
+			if (locationsData[currentGruppe]) {
+				currentLocations = locationsData[currentGruppe].locations;
+			}
 
 			if (currentLocations.length === 0) {
 				listDiv.innerHTML = '<em>Ingen steder ennå</em>';
@@ -1291,13 +1338,25 @@ corners: [
 
 			// Note: Creating taxonomy terms requires WordPress admin
 			// For now, just alert user - proper implementation would need admin AJAX
-			alert('Nye grupper må opprettes i WordPress admin (Steder > Grupper).\n\nDu kan fortsatt bruke denne gruppen ved å opprette første sted.');
+			alert('Nye grupper må opprettes i WordPress admin (Steder > Grupper).\n\nDu kan også bare bruke gruppenavnet - det blir automatisk opprettet når du lagrer første sted.');
 
-			// Set as current gruppe anyway
-			currentGruppe = name;
+			// Create a temporary slug from name
+			var slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[æ]/g, 'ae').replace(/[ø]/g, 'o').replace(/[å]/g, 'a');
+
+			// Set as current gruppe
+			currentGruppe = slug;
 			document.getElementById('new-layer-name').value = '';
+
+			// Add to locationsData temporarily
+			if (!locationsData[slug]) {
+				locationsData[slug] = {
+					name: name,
+					locations: []
+				};
+			}
+
 			updateGruppeSelect();
-			document.getElementById('poi-layer-select').value = name;
+			document.getElementById('poi-layer-select').value = slug;
 			updatePOIList();
 		});
 
@@ -1512,6 +1571,7 @@ corners: [
 
 		// Save location to database via REST API
 		function saveLocationToDatabase(locationData) {
+			console.log('Saving location to database:', locationData);
 			fetch(wpApiSettings.root + 'bleikoya/v1/locations', {
 				method: 'POST',
 				headers: {
@@ -1527,9 +1587,36 @@ corners: [
 				return response.json();
 			})
 			.then(function(savedLocation) {
+				console.log('Location saved:', savedLocation);
+
+				// Add to locationsData
+				var gruppeSlug = savedLocation.gruppe.slugs[0] || 'default';
+				if (!locationsData[gruppeSlug]) {
+					locationsData[gruppeSlug] = {
+						name: savedLocation.gruppe.names[0] || 'Diverse',
+						locations: []
+					};
+				}
+				locationsData[gruppeSlug].locations.push(savedLocation);
+
+				// Create marker and add to map
+				var marker = createLocationMarker(savedLocation);
+				if (marker) {
+					// Add to existing layer or create new one
+					if (locationLayers[gruppeSlug]) {
+						locationLayers[gruppeSlug].addLayer(marker);
+					} else {
+						// New gruppe - create layer and rebuild control
+						locationLayers[gruppeSlug] = L.layerGroup([marker]);
+						locationLayers[gruppeSlug].addTo(map);
+						rebuildLayerControl();
+					}
+				}
+
+				// Update POI list
+				updatePOIList();
+
 				alert('Stedet "' + savedLocation.title + '" er lagret!');
-				// Reload page to refresh locations
-				window.location.reload();
 			})
 			.catch(function(error) {
 				alert('Feil ved lagring: ' + error.message);
@@ -1539,6 +1626,7 @@ corners: [
 
 		// Update location in database
 		function updateLocationInDatabase(locationId, locationData) {
+			console.log('Updating location:', locationId, locationData);
 			fetch(wpApiSettings.root + 'bleikoya/v1/locations/' + locationId, {
 				method: 'PUT',
 				headers: {
@@ -1554,8 +1642,26 @@ corners: [
 				return response.json();
 			})
 			.then(function(updatedLocation) {
-				alert('Stedet "' + updatedLocation.title + '" er oppdatert!');
-				window.location.reload();
+				console.log('Location updated:', updatedLocation);
+
+				// Update in locationsData
+				Object.keys(locationsData).forEach(function(gruppeSlug) {
+					var gruppe = locationsData[gruppeSlug];
+					gruppe.locations = gruppe.locations.map(function(loc) {
+						if (loc.id === locationId) {
+							// Merge updated data with existing location
+							return Object.assign({}, loc, {
+								coordinates: updatedLocation.coordinates,
+								title: updatedLocation.title || loc.title,
+								style: updatedLocation.style || loc.style
+							});
+						}
+						return loc;
+					});
+				});
+
+				// Show success message (brief, non-blocking)
+				console.log('Stedet "' + updatedLocation.title + '" er oppdatert!');
 			})
 			.catch(function(error) {
 				alert('Feil ved oppdatering: ' + error.message);
@@ -1582,8 +1688,27 @@ corners: [
 				return response.json();
 			})
 			.then(function() {
+				// Remove from locationsData
+				Object.keys(locationsData).forEach(function(gruppeSlug) {
+					var gruppe = locationsData[gruppeSlug];
+					gruppe.locations = gruppe.locations.filter(function(loc) {
+						return loc.id !== locationId;
+					});
+				});
+
+				// Remove from map layers
+				Object.keys(locationLayers).forEach(function(gruppeSlug) {
+					locationLayers[gruppeSlug].eachLayer(function(layer) {
+						if (layer.locationId === locationId) {
+							locationLayers[gruppeSlug].removeLayer(layer);
+						}
+					});
+				});
+
+				// Update POI list
+				updatePOIList();
+
 				alert('Stedet er slettet!');
-				window.location.reload();
 			})
 			.catch(function(error) {
 				alert('Feil ved sletting: ' + error.message);
