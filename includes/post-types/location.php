@@ -41,7 +41,7 @@ function register_location_post_type() {
 		'hierarchical'          => false,
 		'menu_position'         => 20,
 		'menu_icon'             => 'dashicons-location',
-		'supports'              => array( 'title', 'author', 'revisions' ),
+		'supports'              => array( 'title', 'editor', 'author', 'thumbnail', 'revisions' ),
 		'show_in_rest'          => true, // Enable Gutenberg editor and REST API
 	);
 
@@ -85,3 +85,23 @@ function register_location_group_taxonomy() {
 	register_taxonomy( 'gruppe', array( 'kartpunkt' ), $args );
 }
 add_action( 'init', 'register_location_group_taxonomy' );
+
+/**
+ * Redirect kartpunkt single posts to map deep link
+ */
+function redirect_kartpunkt_to_map() {
+	if ( is_singular( 'kartpunkt' ) ) {
+		$post_id = get_the_ID();
+		$gruppe_terms = wp_get_post_terms( $post_id, 'gruppe' );
+		$gruppe_slug = ! empty( $gruppe_terms ) && ! is_wp_error( $gruppe_terms ) ? $gruppe_terms[0]->slug : '';
+
+		$map_url = home_url( '/kart/?poi=' . $post_id );
+		if ( $gruppe_slug ) {
+			$map_url .= '&overlays=' . $gruppe_slug;
+		}
+
+		wp_redirect( $map_url, 301 );
+		exit;
+	}
+}
+add_action( 'template_redirect', 'redirect_kartpunkt_to_map' );

@@ -11,6 +11,8 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 - **Contact Forms**: Contact form functionality
 - **iCal Feed**: `/featured-events.ics` - subscribable calendar feed for featured events
 - **Health Checks**: Integration tests in `test/health-check.php`
+- **Interactive Map (Kart)**: Leaflet-based map with kartpunkt system (see `MAP_DESIGN.md`)
+- **Author Pages**: Custom author template showing cabin owner info and map connections
 
 ## Tech Stack
 - PHP 8.3+
@@ -26,16 +28,31 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 ├── .github/workflows/      # GitHub Actions (auto-deploy to production)
 ├── .vscode/               # VS Code settings (Intelephense config)
 ├── includes/              # PHP functionality
-│   ├── events.php        # Event calendar & iCal feed
-│   ├── templating.php    # Template helpers
-│   └── utilities.php     # Utility functions
+│   ├── events.php         # Event calendar & iCal feed
+│   ├── templating.php     # Template helpers
+│   ├── utilities.php      # Utility functions
+│   ├── post-types/        # Custom post types
+│   │   └── location.php   # Kartpunkt post type & gruppe taxonomy
+│   ├── api/               # REST API endpoints
+│   │   ├── location-connections.php  # Bidirectional connections
+│   │   ├── location-coordinates.php  # Coordinate helpers
+│   │   └── location-rest-endpoints.php
+│   └── admin/             # Admin functionality
+│       ├── location-meta-boxes.php
+│       ├── location-ajax.php
+│       └── users.php      # User export, cabin owner helpers
+├── parts/                 # Template parts
+│   └── post/              # Post templates (content.php, plug.php)
 ├── test/                  # Integration tests
-│   └── health-check.php  # HTTP endpoint health checks
+│   └── health-check.php   # HTTP endpoint health checks
 ├── vendor/                # Composer dependencies (currently committed)
 ├── composer.json          # Composer dependencies
-├── TODO.md               # Project TODO list
+├── author.php             # Author page template (cabin owner info)
+├── page-kart.php          # Interactive map page template
+├── MAP_DESIGN.md          # Map system documentation
+├── TODO.md                # Project TODO list
 ├── functions.php          # Theme initialization
-└── style.css             # Theme metadata
+└── style.css              # Theme metadata
 
 ```
 

@@ -1478,3 +1478,94 @@ a.page-numbers:hover {
 }
 
 /* #endregion */
+
+/* #region Author page */
+.b-author-header {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+	margin-bottom: 2rem;
+}
+
+.b-author-avatar img {
+	border-radius: 50%;
+	width: 120px;
+	height: 120px;
+	object-fit: cover;
+}
+
+.b-author-info h1 {
+	margin: 0;
+}
+
+.b-author-cabin-badge {
+	display: inline-block;
+	background-color: var(--b-green-color);
+	color: white;
+	padding: 5px 15px;
+	border-radius: 20px;
+	font-family: Futura, "Jost", sans-serif;
+	font-weight: bold;
+	font-size: 12px;
+	text-transform: uppercase;
+	margin-bottom: 0.5rem;
+}
+
+.b-author-details {
+	margin-bottom: 2rem;
+}
+
+.b-author-details h2 {
+	margin-top: 0;
+}
+
+.b-author-details h3 {
+	margin-top: 1.5rem;
+	margin-bottom: 0.5rem;
+	color: var(--b-green-color);
+}
+
+.b-author-contact-list {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 0.5rem 1rem;
+	margin: 0;
+}
+
+.b-author-contact-list dt {
+	font-weight: bold;
+	color: var(--b-header-color);
+}
+
+.b-author-contact-list dd {
+	margin: 0;
+	color: var(--b-header-color);
+}
+
+.b-author-contact-list a {
+	color: var(--b-primary-color);
+}
+
+.b-author-bio {
+	margin-top: 2rem;
+}
+
+@media screen and (max-width: 600px) {
+	.b-author-header {
+		flex-direction: column;
+		text-align: center;
+	}
+
+	.b-author-contact-list {
+		grid-template-columns: 1fr;
+	}
+
+	.b-author-contact-list dt {
+		margin-top: 0.5rem;
+	}
+
+	.b-author-contact-list dd {
+		margin-bottom: 0.5rem;
+	}
+}
+/* #endregion */

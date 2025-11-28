@@ -341,9 +341,28 @@ function format_location_for_rest( $location_id ) {
 		$gruppe_slugs[] = $term->slug;
 	}
 
+	// Get description (post content)
+	$description = '';
+	if ( ! empty( $location->post_content ) ) {
+		$description = wp_strip_all_tags( $location->post_content );
+		$description = wp_trim_words( $description, 30, '...' );
+	}
+
+	// Get featured image
+	$thumbnail = null;
+	if ( has_post_thumbnail( $location_id ) ) {
+		$thumbnail = array(
+			'url'    => get_the_post_thumbnail_url( $location_id, 'medium' ),
+			'srcset' => wp_get_attachment_image_srcset( get_post_thumbnail_id( $location_id ), 'medium' ),
+			'alt'    => get_post_meta( get_post_thumbnail_id( $location_id ), '_wp_attachment_image_alt', true )
+		);
+	}
+
 	return array(
 		'id'          => $location_id,
 		'title'       => $location->post_title,
+		'description' => $description,
+		'thumbnail'   => $thumbnail,
 		'type'        => get_location_type( $location_id ),
 		'coordinates' => get_location_coordinates( $location_id ),
 		'style'       => get_location_style( $location_id ),

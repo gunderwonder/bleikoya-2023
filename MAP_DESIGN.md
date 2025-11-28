@@ -380,6 +380,57 @@ Kartpunkt kan kobles til:
    - **Brukere** - med hyttenummer
 4. Klikk på koblingen for å åpne siden/profilen
 
+### URL State Management (Dyplenker)
+
+Kartet støtter dyplenker som bevarer kartets tilstand i URL-en. Dette muliggjør deling av spesifikke kartvisninger.
+
+**Støttede URL-parametere:**
+- `poi` - Kartpunkt-ID som skal velges og fokuseres
+- `lat` / `lng` - Kartets sentrum (latitude/longitude)
+- `zoom` - Zoom-nivå (1-20)
+- `base` - Bakgrunnskart (`topo`, `satellite`, `svg`)
+- `overlays` - Kommaseparert liste av aktive overlay-lag (gruppe-slugs)
+
+**Eksempler:**
+```
+/kart/?poi=123                           # Åpne kartpunkt #123
+/kart/?poi=123&overlays=hytter           # Kartpunkt #123 med hytter-laget aktivt
+/kart/?lat=59.889&lng=10.740&zoom=18     # Spesifikk posisjon og zoom
+/kart/?base=satellite&overlays=brygger   # Satellitt med brygger-lag
+```
+
+**Ved dyplenke til kartpunkt (`poi`):**
+1. Kartet panorerer til kartpunktets posisjon
+2. Zoom settes til minimum 18
+3. Riktig overlay-lag aktiveres automatisk
+4. Popup åpnes på markøren
+5. Sidebar med koblinger vises
+
+**Implementasjon:**
+- URL oppdateres med `replaceState` (unngår historikk-forurensning)
+- State leses ved sidelast via `applyUrlState()`
+- Markører lagres i `markersByLocationId` for rask oppslag
+
+### Lenke til kartpunkt fra andre sider
+
+For å lenke til et kartpunkt fra andre deler av nettstedet:
+
+**PHP-eksempel:**
+```php
+$location_id = 123;
+$gruppe_terms = wp_get_post_terms($location_id, 'gruppe');
+$gruppe_slug = !empty($gruppe_terms) ? $gruppe_terms[0]->slug : '';
+$map_url = '/kart/?poi=' . $location_id;
+if ($gruppe_slug) {
+    $map_url .= '&overlays=' . $gruppe_slug;
+}
+echo '<a href="' . esc_url($map_url) . '">Vis på kart</a>';
+```
+
+**Brukes i:**
+- `author.php` - Lenke til tilkoblede kartpunkt for hytteeiere
+- Admin meta boxes - Lenke til kartpunkt fra tilkoblet innhold
+
 ### Miniature Map Shortcode
 
 Display a small map showing one or more locations in content:
@@ -692,7 +743,13 @@ baseLayers["Nytt lag"] = newLayer;
 
 ## Fremtidige forbedringer
 
-### Nylig implementert (v2.0)
+### Nylig implementert (v2.1)
+- [x] URL state management med dyplenker (`poi`, `lat`, `lng`, `zoom`, `base`, `overlays`)
+- [x] Automatisk popup-åpning ved dyplenke til kartpunkt
+- [x] Taxonomy term connections (kategorier kan kobles til kartpunkt)
+- [x] Author page template med kartlenker for hytteeiere
+
+### Implementert (v2.0)
 - [x] Database-lagring av POI (kartpunkt custom post type)
 - [x] REST API for CRUD-operasjoner
 - [x] Bidireksjonale koblinger mellom kartpunkt og innhold
@@ -708,6 +765,7 @@ baseLayers["Nytt lag"] = newLayer;
 - [ ] Undo/redo for kartpunkt editing
 - [ ] Bildeopplasting for kartpunkt (featured image)
 - [ ] Kategorier/tags for å filtrere kartpunkt på kart
+- [ ] Søkefunksjon for kartpunkt
 
 ### Lang sikt
 - [ ] Export til GeoJSON
@@ -736,10 +794,18 @@ baseLayers["Nytt lag"] = newLayer;
 
 ---
 
-*Sist oppdatert: 2025-01-23*
-*Versjon: 2.0 - Kartpunkt System*
+*Sist oppdatert: 2025-11-28*
+*Versjon: 2.1 - URL State Management*
 
 ## Changelog
+
+### v2.1 (2025-11-28)
+- Implemented URL state management for deep linking
+- Added support for `poi`, `lat`, `lng`, `zoom`, `base`, `overlays` URL parameters
+- Deep links now open popup on marker automatically
+- Markers stored in `markersByLocationId` for efficient lookup
+- Added support for taxonomy term connections (in addition to posts/users)
+- Created `author.php` template with cabin owner info and map links
 
 ### v2.0 (2025-01-23)
 - Added kartpunkt custom post type with gruppe taxonomy

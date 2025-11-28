@@ -146,6 +146,55 @@
 		color: #666;
 	}
 
+	/* Location info in sidebar */
+	.location-info {
+		margin-bottom: 20px;
+		padding-bottom: 15px;
+		border-bottom: 1px solid #eee;
+	}
+
+	.location-info h3 {
+		margin: 0 0 5px 0;
+		padding-right: 40px;
+	}
+
+	.location-gruppe {
+		font-size: 13px;
+		color: #666;
+		margin-bottom: 10px;
+	}
+
+	.location-thumbnail {
+		margin: 10px 0;
+	}
+
+	.location-thumbnail img {
+		width: 100%;
+		height: auto;
+		border-radius: 5px;
+	}
+
+	.location-description {
+		font-size: 14px;
+		line-height: 1.5;
+		color: #333;
+	}
+
+	.connections-heading {
+		font-size: 14px;
+		color: #666;
+		text-transform: uppercase;
+		margin: 15px 0 10px 0;
+		border-bottom: 1px solid #eee;
+		padding-bottom: 5px;
+	}
+
+	.connection-group h5 {
+		font-size: 13px;
+		color: #888;
+		margin: 10px 0 8px 0;
+	}
+
 	.calibration-control {
 		background: white;
 		padding: 10px;
@@ -392,7 +441,7 @@
 	<aside id="connections-sidebar" class="connections-sidebar">
 		<button id="close-sidebar" class="close-sidebar" aria-label="Lukk">&times;</button>
 		<div id="sidebar-content">
-			<h3>Koblinger</h3>
+			<div id="sidebar-location-info"></div>
 			<div id="sidebar-loading" style="display: none;">
 				<p>Laster...</p>
 			</div>
@@ -735,6 +784,7 @@ var wpApiSettings = {
 
 		// Load locations from database and create layer groups
 		var locationLayers = {};
+		var markersByLocationId = {};
 
 		// Debug: Log loaded data
 		console.log('Locations data from database:', locationsData);
@@ -748,6 +798,7 @@ var wpApiSettings = {
 				var marker = createLocationMarker(location);
 				if (marker) {
 					layerMarkers.push(marker);
+					markersByLocationId[location.id] = marker;
 				} else {
 					console.warn('Failed to create marker for:', location.title);
 				}
@@ -977,8 +1028,6 @@ var wpApiSettings = {
 		}
 
 		// Find and select a POI by ID
-		var markersByPoiId = {};
-
 		function selectPoiById(poiId) {
 			// Find the marker for this POI
 			var found = false;
@@ -1020,6 +1069,12 @@ var wpApiSettings = {
 							if (lat && lng) {
 								map.setView([lat, lng], Math.max(map.getZoom(), 18));
 							}
+						}
+
+						// Open popup on the marker
+						var marker = markersByLocationId[poiId];
+						if (marker) {
+							marker.openPopup();
 						}
 
 						// Show sidebar
@@ -2039,31 +2094,58 @@ corners: [
 		function showConnectionsSidebar(locationId) {
 			var sidebar = document.getElementById('connections-sidebar');
 			var loading = document.getElementById('sidebar-loading');
+			var locationInfoContainer = document.getElementById('sidebar-location-info');
 			var dataContainer = document.getElementById('sidebar-data');
 
 			// Show sidebar and loading state
 			sidebar.classList.add('visible');
 			loading.style.display = 'block';
+			locationInfoContainer.innerHTML = '';
 			dataContainer.innerHTML = '';
 
-			// Fetch connections from REST API
-			fetch(wpApiSettings.root + 'bleikoya/v1/locations/' + locationId + '/connections', {
-				headers: {
-					'X-WP-Nonce': wpApiSettings.nonce
-				}
-			})
-			.then(function(response) {
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
-				}
-				return response.json();
-			})
-			.then(function(connections) {
+			// Fetch location data and connections in parallel
+			Promise.all([
+				fetch(wpApiSettings.root + 'bleikoya/v1/locations/' + locationId, {
+					headers: { 'X-WP-Nonce': wpApiSettings.nonce }
+				}).then(function(r) { return r.json(); }),
+				fetch(wpApiSettings.root + 'bleikoya/v1/locations/' + locationId + '/connections', {
+					headers: { 'X-WP-Nonce': wpApiSettings.nonce }
+				}).then(function(r) { return r.json(); })
+			])
+			.then(function(results) {
+				var location = results[0];
+				var connections = results[1];
+
 				loading.style.display = 'none';
 
+				// Render location info
+				var infoHtml = '<div class="location-info">';
+				infoHtml += '<h3>' + location.title + '</h3>';
+
+				if (location.gruppe && location.gruppe.names && location.gruppe.names.length > 0) {
+					infoHtml += '<div class="location-gruppe">' + location.gruppe.names.join(', ') + '</div>';
+				}
+
+				if (location.thumbnail && location.thumbnail.url) {
+					infoHtml += '<div class="location-thumbnail">';
+					infoHtml += '<img src="' + location.thumbnail.url + '" alt="' + (location.thumbnail.alt || location.title) + '"';
+					if (location.thumbnail.srcset) {
+						infoHtml += ' srcset="' + location.thumbnail.srcset + '"';
+					}
+					infoHtml += ' loading="lazy">';
+					infoHtml += '</div>';
+				}
+
+				if (location.description) {
+					infoHtml += '<div class="location-description">' + location.description + '</div>';
+				}
+
+				infoHtml += '</div>';
+				locationInfoContainer.innerHTML = infoHtml;
+
+				// Render connections
 				if (connections.length === 0) {
-					dataContainer.innerHTML = '<p class="empty">Ingen koblinger for dette stedet.</p>';
-					dataContainer.classList.add('empty');
+					dataContainer.innerHTML = '';
 					return;
 				}
 
@@ -2079,12 +2161,12 @@ corners: [
 				});
 
 				// Render grouped connections
-				var html = '';
+				var html = '<h4 class="connections-heading">Koblinger</h4>';
 
 				Object.keys(groupedConnections).forEach(function(type) {
 					var typeLabel = getTypeLabel(type);
 					html += '<div class="connection-group">';
-					html += '<h4>' + typeLabel + '</h4>';
+					html += '<h5>' + typeLabel + '</h5>';
 
 					groupedConnections[type].forEach(function(conn) {
 						html += '<div class="connection-item">';
@@ -2095,7 +2177,6 @@ corners: [
 						}
 
 						html += '<div class="connection-meta">';
-						html += '<span class="connection-type-badge">' + type + '</span>';
 						if (conn.cabin_number) {
 							html += '<span class="connection-cabin-badge">Hytte ' + conn.cabin_number + '</span>';
 						}
@@ -2111,8 +2192,8 @@ corners: [
 			})
 			.catch(function(error) {
 				loading.style.display = 'none';
-				dataContainer.innerHTML = '<p style="color: #d63638;">Feil ved lasting av koblinger. Prøv igjen.</p>';
-				console.error('Error fetching connections:', error);
+				locationInfoContainer.innerHTML = '<p style="color: #d63638;">Feil ved lasting. Prøv igjen.</p>';
+				console.error('Error fetching location data:', error);
 			});
 		}
 
