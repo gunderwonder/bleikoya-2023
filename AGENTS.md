@@ -24,7 +24,6 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 ## Directory Structure
 ```
 /
-├── .ai/                    # AI context documentation
 ├── .github/workflows/      # GitHub Actions (auto-deploy to production)
 ├── .vscode/               # VS Code settings (Intelephense config)
 ├── includes/              # PHP functionality
@@ -49,6 +48,7 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 ├── composer.json          # Composer dependencies
 ├── author.php             # Author page template (cabin owner info)
 ├── page-kart.php          # Interactive map page template
+├── page-stilguide.php     # Style guide template
 ├── MAP_DESIGN.md          # Map system documentation
 ├── TODO.md                # Project TODO list
 ├── functions.php          # Theme initialization
@@ -106,6 +106,14 @@ Tests verify:
 
 ## Local Development
 - **Local URL**: http://localhost:8888
+
+## Style Guide
+There is a style guide at `/stilguide` (template: `page-stilguide.php`).
+
+**Update the style guide when making significant changes to:**
+- CSS variables/colors in `assets/css/tralla.css`
+- New or modified components (`.b-*` classes)
+- Typography, icons, layout structures
 
 ## Important Notes
 - iCal feed includes all upcoming featured events
