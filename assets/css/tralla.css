@@ -4,7 +4,7 @@
 }
 
 :root {
-	--b-primary-color: ;
+	/* Colors */
 	--b-green-color: rgb(81, 131, 71);
 	--b-green-transparent-color: rgba(81, 131, 71, .05);
 	--b-green-light-color: rgb(247, 249, 246);
@@ -18,6 +18,14 @@
 	--b-header-color: rgb(70, 70, 70);
 	--b-black-color: rgb(0, 0, 0);
 	--b-border-color: rgb(230, 230, 233);
+
+	/* Typography */
+	--b-font-heading: Futura, "Jost", sans-serif;
+	--b-font-body: "Libre Franklin", sans-serif;
+
+	/* Border radius */
+	--b-radius-pill: 20px;
+	--b-radius-box: 10px;
 }
 
 [data-href] {
@@ -39,12 +47,12 @@ ol {
 }
 
 body {
-	font-family: "Libre Franklin";
+	font-family: var(--b-font-body);
 	background-color: white;
 }
 
 h2 {
-	font-family: Futura, "Jost", sans-serif;
+	font-family: var(--b-font-heading);
 	font-weight: 600;
 	text-transform: uppercase;
 	font-size: 1rem;
@@ -60,7 +68,7 @@ section > h2 {
 }
 
 h1 {
-	font-family: Futura, "Jost", sans-serif;
+	font-family: var(--b-font-heading);
 	font-weight: normal;
 	font-size: 1.8rem;
 	text-transform: uppercase;
@@ -68,7 +76,7 @@ h1 {
 }
 
 h3 {
-	font-family: Futura, "Jost", sans-serif;
+	font-family: var(--b-font-heading);
 	font-weight: normal;
 	font-size: 1rem;
 	color: var(--b-black-color);
@@ -101,7 +109,7 @@ h3 {
 
 .b-box {
 	padding: 2rem;
-	border-radius: 10px;
+	border-radius: var(--b-radius-box);
 	margin-bottom: 2rem;
 }
 
@@ -139,7 +147,6 @@ a.b-anchor--with-icon {
 }
 
 a.b-anchor--with-icon::after {
-	position: relative;
 	position: absolute;
 	display: block;
 	bottom: -1px;
@@ -152,10 +159,10 @@ a.b-anchor--with-icon::after {
 .b-button {
 	background-color: var(--b-border-color);
 	color: black;
-	padding: 0.5rem 1rem 0.5rem 1rem !important;
-	border-radius: 20px;
+	padding: 0.5rem 1rem !important;
+	border-radius: var(--b-radius-pill);
 	border: none;
-	font-family: Futura, "Jost", sans-serif;
+	font-family: var(--b-font-heading);
 	font-weight: 500;
 	text-transform: uppercase;
 	font-size: 0.8rem;
@@ -326,7 +333,7 @@ a.b-anchor--with-icon::after {
 }
 
 .wp-block-lazyblock-b-calendar {
-	margin: 2rem 0 2rem 0;
+	margin: 2rem 0;
 }
 
 .b-article {
@@ -360,7 +367,7 @@ a {
 	width: 100%;
 	border: 1px solid var(--b-border-color);
 	line-height: 2.5rem;
-	padding: 0 1rem 0 1rem;
+	padding: 0 1rem;
 	border-radius: 5px;
 }
 
@@ -429,9 +436,9 @@ a {
 	display: inline-block;
 	background-color: var(--b-blue-color);
 	color: white;
-	padding: 10px 20px 10px 20px;
-	border-radius: 20px;
-	font-family: Futura, "Jost", sans-serif;
+	padding: 10px 20px;
+	border-radius: var(--b-radius-pill);
+	font-family: var(--b-font-heading);
 	font-weight: bold;
 	font-size: 14px;
 	border-bottom-width: 0;
@@ -447,7 +454,7 @@ a {
 }
 
 .b-subject-list__item-posts-heading {
-	font-family: "Libre Franklin";
+	font-family: var(--b-font-body);
 	font-weight: bold;
 	text-transform: uppercase;
 	font-size: 0.8rem;
@@ -466,10 +473,6 @@ a {
 	margin-bottom: 1rem;
 	margin-right: 1rem;
 }
-
-/* .b-inline-list b-subject-list__item li:last-child {
-	margin-right: 0;
-} */
 
 aside .b-subject-list {
 	margin: 0 auto;
@@ -507,7 +510,7 @@ aside .b-subject-list {
 }
 
 .b-navigation {
-	padding: 1rem 0 1rem 0;
+	padding: 1rem 0;
 	border-bottom: 1px solid var(--b-border-color);
 	position: relative;
 	box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
@@ -571,7 +574,7 @@ aside .b-subject-list {
 .b-header-link__extra {
 	font-weight: normal;
 	display: inline-block;
-	font-family: Futura, "Jost", sans-serif;
+	font-family: var(--b-font-heading);
 	color: black;
 	margin-top: 1rem;
 	text-transform: uppercase;
@@ -619,7 +622,7 @@ aside .b-subject-list {
 }
 
 .b-menu__link {
-	font-family: Futura, "Jost", sans-serif;
+	font-family: var(--b-font-heading);
 	text-transform: uppercase;
 	font-weight: normal;
 	border-bottom: none;
@@ -678,7 +681,7 @@ aside .b-subject-list {
 	font-size: 0.8rem;
 	background: var(--b-blue-color);
 	display: block;
-	border-radius: 20px;
+	border-radius: var(--b-radius-pill);
 	width: 4.5rem;
 	right: 0.5rem;
 	padding: 0.3rem;
@@ -748,7 +751,7 @@ aside .b-subject-list {
 
 .b-profile-button__menu-item a {
 	border-bottom: none;
-	font-family: Futura, "Jost", sans-serif;
+	font-family: var(--b-font-heading);
 	text-transform: uppercase;
 	font-size: 0.9rem;
 	position: relative;
@@ -774,20 +777,6 @@ aside .b-subject-list {
 	.b-login {
 		border-left: 1px solid var(--b-border-color);
 	}
-
-	/* .b-profile-button::before {
-		content: "";
-		display: block;
-		top: calc(-1rem);
-		bottom: calc(-1rem);
-		margin-left: -1rem;
-		width: 1px;
-		background-color: var(--b-blue-color);
-		position: absolute;
-
-
-	} */
-
 }
 
 .b-profile-button__image {
@@ -802,7 +791,6 @@ aside .b-subject-list {
 	grid-template-columns: repeat(8, 1fr) repeat(8, 1fr) repeat(7, 1fr);
 	gap: 0px;
 	background-color: var(--b-red-color);
-	/* box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.4); */
 }
 
 .b-cabin-gallery-item {
@@ -847,9 +835,7 @@ aside .b-subject-list {
 /* #endregion */
 
 .b-search-form {
-	display: -ms-flexbox;
 	display: flex;
-	-ms-flex-align: center;
 	align-items: center;
 	position: relative;
 	margin: 1rem 1rem 2rem 1rem;
@@ -857,19 +843,17 @@ aside .b-subject-list {
 
 .b-search-field {
 	box-sizing: border-box;
-	-ms-flex: 1;
 	flex: 1;
 	min-height: 2.25rem;
 	margin: 0;
 	appearance: none;
-	-webkit-appearance: none;
 	border: 2px solid transparent;
 	padding: 0 0 0 34px;
 	line-height: 2.5rem;
 	width: 100%;
 	min-width: 0;
 	font-size: 1rem;
-	border-radius: 20px;
+	border-radius: var(--b-radius-pill);
 	background-color: var(--b-green-light-color);
 	color: currentColor;
 	z-index: 20;
@@ -899,7 +883,6 @@ aside .b-subject-list {
 	padding: 0;
 	top: 50%;
 	margin-top: -1px;
-	-ms-transform: translateY(-45%);
 	transform: translateY(-45%);
 	opacity: .7;
 	z-index: 30;
@@ -975,16 +958,12 @@ aside .b-subject-list {
 }
 
 .b-image-gallery {
-	padding: 1rem 0 1rem 0;
+	padding: 1rem 0;
 	/* Prevent vertical gaps */
 	line-height: 0;
 
-	-webkit-column-count: 5;
-	-webkit-column-gap: 0px;
-	-moz-column-count: 5;
-	-moz-column-gap: 0px;
 	column-count: 5;
-	column-gap: 0px;
+	column-gap: 0;
 	background-color: var(--b-green-color);
 }
 
@@ -992,19 +971,15 @@ aside .b-subject-list {
 	font-size: 1rem !important;
 	display: flow-root;
 	padding: 1rem;
-	border-radius: 10px;
+	border-radius: var(--b-radius-box);
 	background-color: var(--b-red-transparent-color);
 }
 
 /* min width 800px */
 @media screen and (max-width: 700px) {
 	.b-image-gallery {
-		-webkit-column-count: 3;
-		-webkit-column-gap: 0px;
-		column-gap: 0px;
-		-moz-column-count: 3;
-		-moz-column-gap: 0px;
 		column-count: 3;
+		column-gap: 0;
 	}
 }
 
@@ -1061,10 +1036,10 @@ aside .b-subject-list {
 .page-numbers {
 	background-color: var(--b-border-color);
 	color: black;
-	padding: 0.5rem 1rem 0.5rem 1rem !important;
-	border-radius: 20px;
+	padding: 0.5rem 1rem !important;
+	border-radius: var(--b-radius-pill);
 	border: none;
-	font-family: Futura, "Jost", sans-serif;
+	font-family: var(--b-font-heading);
 	font-weight: 500;
 	text-transform: uppercase;
 	font-size: 0.8rem;
@@ -1109,10 +1084,10 @@ a.page-numbers:hover {
 }
 
 .tribe-events-c-subscribe-dropdown__button {
-	padding: 0.5rem 1rem 0.5rem 1rem !important;
+	padding: 0.5rem 1rem !important;
 	background-color: var(--b-yellow-transparent-color) !important;
-	border-radius: 20px !important;
-	font-family: Futura, "Jost", sans-serif;
+	border-radius: var(--b-radius-pill) !important;
+	font-family: var(--b-font-heading);
 	font-size: 0.8rem;
 
 }
@@ -1152,7 +1127,7 @@ a.page-numbers:hover {
 .tribe-events-widget-events-list {
 	border: 1px solid var(--b-border-color);
 	padding: 1rem 2rem 2rem 2rem;
-	margin: 2rem 0 2rem 0;
+	margin: 2rem 0;
 	font-size: 16px;
 }
 
@@ -1196,7 +1171,7 @@ a.page-numbers:hover {
 	background: var(--b-yellow-color);
 	color: white;
 	padding: 3px 1rem 3px 1rem !important;
-	border-radius: 10px !important;
+	border-radius: var(--b-radius-box) !important;
 	margin-right: 1rem !important;
 	height: 4rem;
 }
@@ -1216,7 +1191,7 @@ a.page-numbers:hover {
 .tribe-events-calendar-list__event-date-tag-weekday,
 .tribe-events-calendar-list__event-date-tag-daynum {
 	text-transform: uppercase;
-	font-family: Futura, "Jost", sans-serif;
+	font-family: var(--b-font-heading);
 	position: absolute;
 	left: 0;
 	right: 0;
@@ -1244,8 +1219,8 @@ a.page-numbers:hover {
 .tribe-common-form-control-text__input.tribe-events-c-search__input {
 	border: 1px solid var(--b-border-color);
 	margin: 0 !important;
-	padding: 0.5rem 1rem 0.5rem 1rem !important;
-	border-radius: 20px !important;
+	padding: 0.5rem 1rem !important;
+	border-radius: var(--b-radius-pill) !important;
 	flex: 1;
 }
 
@@ -1274,7 +1249,7 @@ a.page-numbers:hover {
 	margin-top: 0 !important;
 	background-color: var(--b-blue-color);
 	border: none;
-	border-radius: 20px;
+	border-radius: var(--b-radius-pill);
 	color: var(--b-blue-color);
 	font-size: 1px;
 	padding: 0.5rem 1rem 0.5rem 1rem;
@@ -1287,10 +1262,10 @@ a.page-numbers:hover {
 .tribe-common--breakpoint-medium.tribe-common a.tribe-common-c-btn-border-small {
 	background-color: var(--b-yellow-transparent-color);
 	color: black;
-	padding: 0.5rem 1rem 0.5rem 1rem !important;
-	border-radius: 20px;
+	padding: 0.5rem 1rem !important;
+	border-radius: var(--b-radius-pill);
 	border: none;
-	font-family: Futura, "Jost", sans-serif;
+	font-family: var(--b-font-heading);
 	text-transform: uppercase;
 	font-size: 0.8rem;
 	transition: background-color 0.5s ease-in-out;
@@ -1305,7 +1280,7 @@ a.page-numbers:hover {
 	background-color: var(--b-border-color) !important;
 	border: none;
 	padding: 0.5rem 1rem 0.5rem 1rem;
-	border-radius: 20px;
+	border-radius: var(--b-radius-pill);
 }
 
 .tribe-events-meta-group {
@@ -1323,10 +1298,10 @@ a.page-numbers:hover {
 .tribe-events-event-categories a {
 	background-color: var(--b-border-color);
 	color: black;
-	padding: 0.5rem 1rem 0.5rem 1rem !important;
-	border-radius: 20px;
+	padding: 0.5rem 1rem !important;
+	border-radius: var(--b-radius-pill);
 	border: none;
-	font-family: Futura, "Jost", sans-serif;
+	font-family: var(--b-font-heading);
 	font-weight: 500;
 	text-transform: uppercase;
 	font-size: 0.8rem;
@@ -1393,7 +1368,7 @@ a.page-numbers:hover {
 	position: relative;
 
 	padding: 1rem !important;
-	border-radius: 10px;
+	border-radius: var(--b-radius-box);
 	margin-bottom: 2rem;
 }
 
@@ -1503,8 +1478,8 @@ a.page-numbers:hover {
 	background-color: var(--b-green-color);
 	color: white;
 	padding: 5px 15px;
-	border-radius: 20px;
-	font-family: Futura, "Jost", sans-serif;
+	border-radius: var(--b-radius-pill);
+	font-family: var(--b-font-heading);
 	font-weight: bold;
 	font-size: 12px;
 	text-transform: uppercase;
