@@ -24,9 +24,9 @@ $connected_locations = get_connected_locations($author_id, 'user');
 				</div>
 				<div class="b-author-info">
 					<?php if ($is_cabin_owner) : ?>
-						<span class="b-author-cabin-badge">Hytte <?php echo esc_html($cabin_number); ?></span>
+						<h1>Hytte <?php echo esc_html($cabin_number); ?></h1>
 					<?php endif; ?>
-					<h1><?php echo esc_html($author->display_name); ?></h1>
+					<!-- <h1><?php echo esc_html($author->display_name); ?></h1> -->
 				</div>
 			</div>
 
