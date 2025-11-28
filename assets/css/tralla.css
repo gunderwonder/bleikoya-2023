@@ -425,10 +425,16 @@ a {
 
 @media screen and (min-width: 1080px) {
 	.b-subject-index__entry .b-subject-heading {
-		position: absolute;
-		left: -14rem;
+		position: sticky;
+		top: 1rem;
+		float: left;
+		margin-left: -14rem;
 		width: 12rem;
-		top: 1px;
+		text-align: right;
+	}
+
+	.admin-bar .b-subject-index__entry .b-subject-heading {
+		top: calc(1rem + var(--wp-admin--admin-bar--height, 32px));
 	}
 }
 
