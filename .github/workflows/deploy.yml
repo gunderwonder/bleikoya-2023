@@ -19,3 +19,4 @@ jobs:
           script: |
             cd /www/wp-content/themes/bleikoya-2023
             git pull
+            composer install --no-dev --optimize-autoloader
