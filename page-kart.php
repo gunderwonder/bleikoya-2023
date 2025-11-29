@@ -66,58 +66,38 @@
 	.b-custom-marker-container {
 		background: transparent !important;
 		border: none !important;
+		outline: none !important;
+	}
+
+	.leaflet-marker-icon:focus {
+		outline: none !important;
 	}
 
 	.b-custom-marker {
 		position: relative;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		width: 34px;
+		height: 44px;
 		transition: transform 0.15s ease;
 		transform-origin: center bottom;
+		filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
 	}
 
-	/* Main pin body - circle part */
-	.b-custom-marker__body {
+	.b-custom-marker__svg {
+		width: 100%;
+		height: 100%;
+		display: block;
+	}
+
+	/* Content container - positioned over the circular part of the pin */
+	.b-custom-marker__content {
+		position: absolute;
+		top: 2px;
+		left: 2px;
 		width: 30px;
 		height: 30px;
-		border-radius: 50%;
-		border: 2px solid white;
-		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		position: relative;
-		z-index: 2;
-	}
-
-	/* Pin pointer/arrow */
-	.b-custom-marker__pointer {
-		position: absolute;
-		bottom: -8px;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 0;
-		height: 0;
-		border-left: 8px solid transparent;
-		border-right: 8px solid transparent;
-		border-top: 12px solid currentColor;
-		z-index: 1;
-		filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
-	}
-
-	/* White border effect on pointer */
-	.b-custom-marker__pointer::before {
-		content: '';
-		position: absolute;
-		top: -14px;
-		left: -10px;
-		width: 0;
-		height: 0;
-		border-left: 10px solid transparent;
-		border-right: 10px solid transparent;
-		border-top: 14px solid white;
-		z-index: -1;
 	}
 
 	.b-custom-marker:hover {
@@ -150,8 +130,7 @@
 	/* Active/selected marker state */
 	.b-custom-marker.active,
 	.leaflet-marker-icon:focus .b-custom-marker {
-		transform: scale(1.2);
-		box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.8), 0 2px 8px rgba(0, 0, 0, 0.4);
+		transform: scale(1.25);
 	}
 
 	/* Connections Sidebar */
@@ -1022,7 +1001,7 @@ var wpApiSettings = {
 		}
 
 		/**
-		 * Create custom Leaflet divIcon with pin shape and optional Lucide icon or label
+		 * Create custom Leaflet divIcon with SVG pin shape and optional Lucide icon or label
 		 * @param {Object} style - Style object with color, icon, preset
 		 * @param {string|null} label - Optional label text to show inside marker (e.g. cabin number)
 		 * @returns {L.DivIcon} Custom Leaflet icon
@@ -1039,12 +1018,17 @@ var wpApiSettings = {
 			}
 
 			// Marker dimensions
-			var width = 30;
-			var height = 42; // Body (30) + pointer (12)
+			var width = 34;
+			var height = 44;
 
-			// Generate pin-shaped marker HTML
+			// SVG teardrop pin shape - circle at top curving down to point
+			var svgPath = 'M17 2 C8.716 2 2 8.716 2 17 C2 23.5 6 29 17 42 C28 29 32 23.5 32 17 C32 8.716 25.284 2 17 2 Z';
+
 			var html = '<div class="b-custom-marker">' +
-				'<div class="b-custom-marker__body" style="background-color: ' + color + ';">';
+				'<svg class="b-custom-marker__svg" viewBox="0 0 34 44" xmlns="http://www.w3.org/2000/svg">' +
+				'<path d="' + svgPath + '" fill="' + color + '" stroke="white" stroke-width="2.5"/>' +
+				'</svg>' +
+				'<div class="b-custom-marker__content">';
 
 			// If label is provided, show label instead of icon
 			if (label) {
@@ -1053,9 +1037,7 @@ var wpApiSettings = {
 				html += '<i data-lucide="' + icon + '" class="b-custom-marker__icon"></i>';
 			}
 
-			html += '</div>' +
-				'<div class="b-custom-marker__pointer" style="color: ' + color + ';"></div>' +
-			'</div>';
+			html += '</div></div>';
 
 			return L.divIcon({
 				html: html,

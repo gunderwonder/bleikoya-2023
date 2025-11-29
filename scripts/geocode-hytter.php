@@ -277,7 +277,9 @@ foreach ($hytte_users as $user) {
 		'coordinates' => $coords,
 		'gruppe' => 'hytter',
 		'style' => [
-			'color' => '#e74c3c',
+			'preset' => 'hytte',
+			'color' => 'rgb(81, 131, 71)',
+			'icon' => 'home',
 			'opacity' => 0.9,
 			'weight' => 2
 		],

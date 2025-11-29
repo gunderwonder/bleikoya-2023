@@ -165,6 +165,26 @@ function get_marker_presets() {
 			'color' => 'rgb(81, 131, 71)',   // --b-green-color
 			'icon'  => 'home'
 		),
+		'hytte_rod' => array(
+			'name'  => 'Hytte (rød)',
+			'color' => '#b93e3c',            // --b-red-color
+			'icon'  => 'home'
+		),
+		'hytte_bla' => array(
+			'name'  => 'Hytte (blå)',
+			'color' => 'rgb(90, 146, 203)',  // --b-blue-color
+			'icon'  => 'home'
+		),
+		'hytte_gronn' => array(
+			'name'  => 'Hytte (grønn)',
+			'color' => 'rgb(81, 131, 71)',   // --b-green-color
+			'icon'  => 'home'
+		),
+		'hytte_gul' => array(
+			'name'  => 'Hytte (gul)',
+			'color' => 'rgb(232, 195, 103)', // --b-yellow-color
+			'icon'  => 'home'
+		),
 		'vei' => array(
 			'name'  => 'Vei/Sti',
 			'color' => 'rgb(232, 195, 103)', // --b-yellow-color
