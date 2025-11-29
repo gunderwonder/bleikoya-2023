@@ -4,8 +4,41 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet-toolbar@latest/dist/leaflet.toolbar.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet-distortableimage@0.21.9/dist/leaflet.distortableimage.css" />
 <style>
+	/* Fullscreen map: Hide header, search, and footer */
+	.b-header,
+	.b-search,
+	.b-footer {
+		display: none !important;
+	}
+
+	/* Remove any margin/padding above map */
+	.b-navigation {
+		margin-bottom: 0 !important;
+	}
+	.b-bleikoya-map {
+		margin-top: 0 !important;
+	}
+
+	/* Push Leaflet controls below the map controls overlay */
+	.leaflet-top {
+		top: auto;
+		margin-top: 5rem;
+	}
+
+	@media (max-width: 599px) {
+		.leaflet-top {
+			margin-top: 12rem;
+		}
+	}
+
+	/* Navigation height: 1rem red bar + ~3rem nav = ~4rem */
+	:root {
+		--nav-height: 4rem;
+	}
+
 	.b-bleikoya-map {
 		width: 100%;
+		height: calc(100vh - var(--nav-height));
 		position: relative;
 		background: white;
 		overflow: hidden;
@@ -20,7 +53,7 @@
 
 	#map {
 		width: 100%;
-		height: 50rem !important;
+		height: 100% !important;
 		background: white;
 	}
 
@@ -593,18 +626,6 @@
 		word-break: break-all;
 	}
 </style>
-
-<section class="b-center">
-	<h2>Andre kart</h2>
-
-	<div class="b-quicklinks">
-		<a href="http://od2.pbe.oslo.kommune.no/kart/?&mode=kp_pk1-2_arealformaal,kp_pk1-2_hensynssoner,kp_pk1-2_juridisk,kp_pk1-2_ikke_juridisk,kp_pk2_2,kp_tema_juridisk_naturmiljo,kp_tema_ikke_juridisk_kulturminnevern,regv2,no_historisk_flyfoto,situasjon,text1&north=6640363.039694474&east=597415.3124256631" class="b-button b-button--yellow">
-			<i data-lucide="map" class="b-icon"></i>
-			Reguleringskart
-		</a>
-	</div>
-
-</section>
 
 <div class="b-bleikoya-map">
 	<div id="map-wrapper">
