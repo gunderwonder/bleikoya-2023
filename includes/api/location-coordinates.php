@@ -146,7 +146,70 @@ function update_location_type( $location_id, $type ) {
 }
 
 /**
- * Get location style (color, opacity, etc.)
+ * Get marker style presets
+ *
+ * Returns predefined marker styles for common location types
+ * on Bleikøya. Colors match the theme's CSS variables.
+ *
+ * @return array Associative array of preset configurations
+ */
+function get_marker_presets() {
+	return array(
+		'brygge' => array(
+			'name'  => 'Brygge',
+			'color' => 'rgb(90, 146, 203)',  // --b-blue-color
+			'icon'  => 'anchor'
+		),
+		'hytte' => array(
+			'name'  => 'Hytte',
+			'color' => 'rgb(81, 131, 71)',   // --b-green-color
+			'icon'  => 'home'
+		),
+		'vei' => array(
+			'name'  => 'Vei/Sti',
+			'color' => 'rgb(232, 195, 103)', // --b-yellow-color
+			'icon'  => 'route'
+		),
+		'fellesomrade' => array(
+			'name'  => 'Fellesområde',
+			'color' => '#b93e3c',            // --b-red-color
+			'icon'  => 'users'
+		),
+		'informasjon' => array(
+			'name'  => 'Informasjon',
+			'color' => 'rgb(90, 146, 203)',
+			'icon'  => 'info'
+		),
+		'badeplass' => array(
+			'name'  => 'Badeplass',
+			'color' => 'rgb(90, 146, 203)',
+			'icon'  => 'waves'
+		),
+		'skog' => array(
+			'name'  => 'Skog/Natur',
+			'color' => 'rgb(81, 131, 71)',
+			'icon'  => 'tree-pine'
+		),
+		'velhus' => array(
+			'name'  => 'Velhuset',
+			'color' => '#b93e3c',
+			'icon'  => 'landmark'
+		),
+		'vannpost' => array(
+			'name'  => 'Vannpost',
+			'color' => 'rgb(90, 146, 203)',
+			'icon'  => 'droplet'
+		),
+		'boss' => array(
+			'name'  => 'Avfall/Boss',
+			'color' => 'rgb(81, 131, 71)',
+			'icon'  => 'trash-2'
+		)
+	);
+}
+
+/**
+ * Get location style (color, opacity, icon, preset, etc.)
  *
  * @param int $location_id Location post ID
  * @return array Style data
@@ -154,24 +217,52 @@ function update_location_type( $location_id, $type ) {
 function get_location_style( $location_id ) {
 	$style = get_post_meta( $location_id, '_style', true );
 
+	$defaults = array(
+		'color'   => '#ff7800',
+		'opacity' => 0.7,
+		'weight'  => 2,
+		'icon'    => '',
+		'preset'  => ''
+	);
+
 	if ( ! $style ) {
-		// Return defaults
-		return array(
-			'color'   => '#ff7800',
-			'opacity' => 0.7,
-			'weight'  => 2
-		);
+		return $defaults;
 	}
 
 	// If JSON string, decode
 	if ( is_string( $style ) ) {
 		$decoded = json_decode( $style, true );
 		if ( is_array( $decoded ) ) {
-			return $decoded;
+			return array_merge( $defaults, $decoded );
 		}
 	}
 
-	return is_array( $style ) ? $style : array();
+	return is_array( $style ) ? array_merge( $defaults, $style ) : $defaults;
+}
+
+/**
+ * Sanitize a color value (hex or rgb)
+ *
+ * @param string $color Color value
+ * @return string|null Sanitized color or null
+ */
+function sanitize_marker_color( $color ) {
+	if ( empty( $color ) ) {
+		return null;
+	}
+
+	// Handle RGB format: rgb(r, g, b)
+	if ( preg_match( '/^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/', $color ) ) {
+		return $color;
+	}
+
+	// Handle hex format
+	$hex = sanitize_hex_color( $color );
+	if ( $hex ) {
+		return $hex;
+	}
+
+	return null;
 }
 
 /**
@@ -188,14 +279,26 @@ function update_location_style( $location_id, $style ) {
 
 	// Sanitize style values
 	$sanitized_style = array(
-		'color'   => isset( $style['color'] ) ? sanitize_hex_color( $style['color'] ) : '#ff7800',
+		'color'   => isset( $style['color'] ) ? sanitize_marker_color( $style['color'] ) : '#ff7800',
 		'opacity' => isset( $style['opacity'] ) ? max( 0, min( 1, floatval( $style['opacity'] ) ) ) : 0.7,
-		'weight'  => isset( $style['weight'] ) ? max( 1, min( 10, intval( $style['weight'] ) ) ) : 2
+		'weight'  => isset( $style['weight'] ) ? max( 1, min( 10, intval( $style['weight'] ) ) ) : 2,
+		'icon'    => isset( $style['icon'] ) ? sanitize_text_field( $style['icon'] ) : '',
+		'preset'  => isset( $style['preset'] ) ? sanitize_key( $style['preset'] ) : ''
 	);
 
 	// Fallback if color sanitization fails
 	if ( empty( $sanitized_style['color'] ) ) {
 		$sanitized_style['color'] = '#ff7800';
+	}
+
+	// If using a preset, get color and icon from preset
+	if ( ! empty( $sanitized_style['preset'] ) ) {
+		$presets = get_marker_presets();
+		if ( isset( $presets[ $sanitized_style['preset'] ] ) ) {
+			$preset = $presets[ $sanitized_style['preset'] ];
+			$sanitized_style['color'] = $preset['color'];
+			$sanitized_style['icon']  = $preset['icon'];
+		}
 	}
 
 	$json = json_encode( $sanitized_style );

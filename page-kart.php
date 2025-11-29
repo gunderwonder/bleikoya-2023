@@ -62,6 +62,88 @@
 		z-index: 0;
 	}
 
+	/* Custom Marker Styling - Pin/teardrop shape */
+	.b-custom-marker-container {
+		background: transparent !important;
+		border: none !important;
+	}
+
+	.b-custom-marker {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: transform 0.15s ease;
+		transform-origin: center bottom;
+	}
+
+	/* Main pin body - circle part */
+	.b-custom-marker__body {
+		width: 30px;
+		height: 30px;
+		border-radius: 50%;
+		border: 2px solid white;
+		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+		z-index: 2;
+	}
+
+	/* Pin pointer/arrow */
+	.b-custom-marker__pointer {
+		position: absolute;
+		bottom: -8px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 0;
+		height: 0;
+		border-left: 8px solid transparent;
+		border-right: 8px solid transparent;
+		border-top: 12px solid currentColor;
+		z-index: 1;
+		filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
+	}
+
+	/* White border effect on pointer */
+	.b-custom-marker__pointer::before {
+		content: '';
+		position: absolute;
+		top: -14px;
+		left: -10px;
+		width: 0;
+		height: 0;
+		border-left: 10px solid transparent;
+		border-right: 10px solid transparent;
+		border-top: 14px solid white;
+		z-index: -1;
+	}
+
+	.b-custom-marker:hover {
+		transform: scale(1.15);
+	}
+
+	.b-custom-marker__icon {
+		width: 16px;
+		height: 16px;
+	}
+
+	/* Lucide SVG icons inside markers should be white */
+	.b-custom-marker .lucide {
+		stroke: white !important;
+		stroke-width: 2px;
+		width: 16px;
+		height: 16px;
+	}
+
+	/* Active/selected marker state */
+	.b-custom-marker.active,
+	.leaflet-marker-icon:focus .b-custom-marker {
+		transform: scale(1.2);
+		box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.8), 0 2px 8px rgba(0, 0, 0, 0.4);
+	}
+
 	/* Connections Sidebar */
 	.connections-sidebar {
 		position: absolute;
@@ -730,6 +812,9 @@ foreach ( $locations as $location ) {
 // Locations data loaded from database
 var locationsData = <?php echo json_encode( $locations_by_group, JSON_PRETTY_PRINT ); ?>;
 
+// Marker style presets
+var markerPresets = <?php echo json_encode( get_marker_presets() ); ?>;
+
 // WP REST API settings for frontend
 var wpApiSettings = {
 	root: '<?php echo esc_url_raw( rest_url() ); ?>',
@@ -926,6 +1011,47 @@ var wpApiSettings = {
 			return L.latLng(lat, lng);
 		}
 
+		/**
+		 * Create custom Leaflet divIcon with pin shape and optional Lucide icon
+		 * @param {Object} style - Style object with color, icon, preset
+		 * @returns {L.DivIcon} Custom Leaflet icon
+		 */
+		function createMarkerIcon(style) {
+			var color = style.color || '#3388ff'; // Default Leaflet blue
+			var icon = style.icon || null;
+			var preset = style.preset || null;
+
+			// If using preset, get color and icon from preset
+			if (preset && markerPresets && markerPresets[preset]) {
+				color = markerPresets[preset].color;
+				icon = markerPresets[preset].icon;
+			}
+
+			// Marker dimensions
+			var width = 30;
+			var height = 42; // Body (30) + pointer (12)
+
+			// Generate pin-shaped marker HTML
+			var html = '<div class="b-custom-marker">' +
+				'<div class="b-custom-marker__body" style="background-color: ' + color + ';">';
+
+			if (icon) {
+				html += '<i data-lucide="' + icon + '" class="b-custom-marker__icon"></i>';
+			}
+
+			html += '</div>' +
+				'<div class="b-custom-marker__pointer" style="color: ' + color + ';"></div>' +
+			'</div>';
+
+			return L.divIcon({
+				html: html,
+				className: 'b-custom-marker-container',
+				iconSize: [width, height],
+				iconAnchor: [width / 2, height], // Anchor at bottom center (tip of pointer)
+				popupAnchor: [0, -height + 5]
+			});
+		}
+
 		// Function to create Leaflet marker/shape from location data
 		function createLocationMarker(location) {
 			if (!location.coordinates || !location.type) {
@@ -941,9 +1067,13 @@ var wpApiSettings = {
 				switch (location.type) {
 					case 'marker':
 						if (coords.lat && coords.lng) {
-							marker = L.marker([coords.lat, coords.lng], {
-								draggable: wpApiSettings.canEdit // Only allow dragging for editors
-							});
+							// Always use custom pin-style marker
+							var markerOptions = {
+								draggable: wpApiSettings.canEdit, // Only allow dragging for editors
+								icon: createMarkerIcon(style)
+							};
+
+							marker = L.marker([coords.lat, coords.lng], markerOptions);
 
 							// Add dragend event to save new position (only for editors)
 							if (wpApiSettings.canEdit) {
@@ -1041,6 +1171,11 @@ var wpApiSettings = {
 				locationLayers[gruppeSlug] = L.layerGroup(layerMarkers);
 			}
 		});
+
+		// Re-initialize Lucide icons for dynamically created markers
+		if (typeof lucide !== 'undefined') {
+			lucide.createIcons();
+		}
 
 		// ===================
 		// URL State Management
@@ -1434,6 +1569,11 @@ var wpApiSettings = {
 		map.on('overlayadd overlayremove', function() {
 			updateLocationChipsState();
 			updateImageOverlayChipsState();
+
+			// Re-initialize Lucide icons for newly visible markers
+			if (typeof lucide !== 'undefined') {
+				lucide.createIcons();
+			}
 		});
 
 		// ===================
@@ -2456,6 +2596,11 @@ corners: [
 						locationLayers[gruppeSlug] = L.layerGroup([marker]);
 						locationLayers[gruppeSlug].addTo(map);
 						rebuildLayerControl();
+					}
+
+					// Re-initialize Lucide icons for newly created marker
+					if (typeof lucide !== 'undefined') {
+						lucide.createIcons();
 					}
 				}
 

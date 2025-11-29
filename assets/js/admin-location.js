@@ -12,6 +12,89 @@
 		$('.location-color-picker').wpColorPicker();
 	}
 
+	// ===========================================
+	// Marker Style UI (preset/icon/color toggle)
+	// ===========================================
+
+	/**
+	 * Update field visibility based on location type and preset selection
+	 */
+	function updateStyleFieldVisibility() {
+		const locationType = $('#location_type').val();
+		const preset = $('#location_preset').val();
+		const isMarker = locationType === 'marker' || locationType === '';
+
+		// Marker-specific fields (preset selector)
+		if (isMarker) {
+			$('#marker-style-section').show();
+		} else {
+			$('#marker-style-section').hide();
+		}
+
+		// Custom style fields (icon, color) - only show for markers when no preset selected
+		if (isMarker && !preset) {
+			$('.location-custom-style').show();
+		} else {
+			$('.location-custom-style').hide();
+		}
+
+		// Shape style fields (opacity, weight) - only for rectangles and polygons
+		if (locationType === 'rectangle' || locationType === 'polygon') {
+			$('.location-shape-style').show();
+			// Also show color for shapes
+			$('#color-field').show();
+		} else {
+			$('.location-shape-style').hide();
+		}
+	}
+
+	/**
+	 * Update icon and color fields when preset is selected
+	 */
+	function updateFromPreset(preset) {
+		if (!preset || !locationAdmin.presets || !locationAdmin.presets[preset]) {
+			return;
+		}
+
+		const presetData = locationAdmin.presets[preset];
+
+		// Update icon selector
+		if (presetData.icon) {
+			$('#location_icon').val(presetData.icon);
+		}
+
+		// Update color picker
+		if (presetData.color && $.fn.wpColorPicker) {
+			$('#location_color').wpColorPicker('color', presetData.color);
+		}
+	}
+
+	// Location type change handler
+	$('#location_type').on('change', function() {
+		updateStyleFieldVisibility();
+	});
+
+	// Preset selection handler
+	$('#location_preset').on('change', function() {
+		const preset = $(this).val();
+
+		if (preset) {
+			// Preset selected - update icon/color from preset and hide custom fields
+			updateFromPreset(preset);
+			$('.location-custom-style').hide();
+		} else {
+			// No preset - show custom fields
+			$('.location-custom-style').show();
+		}
+	});
+
+	// Initialize visibility on page load
+	updateStyleFieldVisibility();
+
+	// ===========================================
+	// Connection Search
+	// ===========================================
+
 	// Connection search with debounce
 	let searchTimeout;
 	$('#connection-search-input').on('input', function() {

@@ -11,7 +11,9 @@
       "mcp__chrome-devtools__take_screenshot",
       "mcp__chrome-devtools__click",
       "mcp__chrome-devtools__list_console_messages",
-      "mcp__chrome-devtools__navigate_page"
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__evaluate_script",
+      "WebFetch(domain:www.kartverket.no)"
     ],
     "deny": [],
     "ask": []

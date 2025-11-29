@@ -65,18 +65,80 @@ function render_location_data_meta_box( $post ) {
 			</p>
 		</div>
 
-		<div class="location-field">
+		<div class="location-field location-marker-style" id="marker-style-section">
+			<label for="location_preset"><strong>Markør-stil:</strong></label>
+			<select name="location_preset" id="location_preset" class="widefat">
+				<option value="">-- Egendefinert --</option>
+				<?php
+				$presets = get_marker_presets();
+				foreach ( $presets as $key => $preset ) :
+				?>
+					<option value="<?php echo esc_attr( $key ); ?>"
+							data-color="<?php echo esc_attr( $preset['color'] ); ?>"
+							data-icon="<?php echo esc_attr( $preset['icon'] ); ?>"
+							<?php selected( $style['preset'] ?? '', $key ); ?>>
+						<?php echo esc_html( $preset['name'] ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+			<p class="description">Velg en forhåndsdefinert stil eller bruk egendefinert</p>
+		</div>
+
+		<div class="location-field location-custom-style" id="custom-icon-field">
+			<label for="location_icon"><strong>Ikon:</strong></label>
+			<select name="location_icon" id="location_icon" class="widefat">
+				<option value="" <?php selected( $style['icon'] ?? '', '' ); ?>>-- Ingen ikon --</option>
+				<optgroup label="Bygninger">
+					<option value="home" <?php selected( $style['icon'] ?? '', 'home' ); ?>>Hytte (home)</option>
+					<option value="landmark" <?php selected( $style['icon'] ?? '', 'landmark' ); ?>>Landemerke (landmark)</option>
+					<option value="warehouse" <?php selected( $style['icon'] ?? '', 'warehouse' ); ?>>Bod/Lager (warehouse)</option>
+					<option value="building" <?php selected( $style['icon'] ?? '', 'building' ); ?>>Bygning (building)</option>
+				</optgroup>
+				<optgroup label="Vann/Sjø">
+					<option value="anchor" <?php selected( $style['icon'] ?? '', 'anchor' ); ?>>Anker (anchor)</option>
+					<option value="waves" <?php selected( $style['icon'] ?? '', 'waves' ); ?>>Bølger (waves)</option>
+					<option value="droplet" <?php selected( $style['icon'] ?? '', 'droplet' ); ?>>Dråpe (droplet)</option>
+					<option value="ship" <?php selected( $style['icon'] ?? '', 'ship' ); ?>>Båt (ship)</option>
+				</optgroup>
+				<optgroup label="Natur">
+					<option value="tree-pine" <?php selected( $style['icon'] ?? '', 'tree-pine' ); ?>>Tre (tree-pine)</option>
+					<option value="mountain" <?php selected( $style['icon'] ?? '', 'mountain' ); ?>>Fjell (mountain)</option>
+					<option value="flower" <?php selected( $style['icon'] ?? '', 'flower' ); ?>>Blomst (flower)</option>
+					<option value="leaf" <?php selected( $style['icon'] ?? '', 'leaf' ); ?>>Blad (leaf)</option>
+				</optgroup>
+				<optgroup label="Fasiliteter">
+					<option value="users" <?php selected( $style['icon'] ?? '', 'users' ); ?>>Fellesområde (users)</option>
+					<option value="info" <?php selected( $style['icon'] ?? '', 'info' ); ?>>Informasjon (info)</option>
+					<option value="trash-2" <?php selected( $style['icon'] ?? '', 'trash-2' ); ?>>Søppel (trash-2)</option>
+					<option value="parking-square" <?php selected( $style['icon'] ?? '', 'parking-square' ); ?>>Parkering (parking-square)</option>
+					<option value="bath" <?php selected( $style['icon'] ?? '', 'bath' ); ?>>Bad (bath)</option>
+				</optgroup>
+				<optgroup label="Veier/Stier">
+					<option value="route" <?php selected( $style['icon'] ?? '', 'route' ); ?>>Rute (route)</option>
+					<option value="footprints" <?php selected( $style['icon'] ?? '', 'footprints' ); ?>>Sti (footprints)</option>
+					<option value="map-pin" <?php selected( $style['icon'] ?? '', 'map-pin' ); ?>>Punkt (map-pin)</option>
+				</optgroup>
+				<optgroup label="Annet">
+					<option value="flag" <?php selected( $style['icon'] ?? '', 'flag' ); ?>>Flagg (flag)</option>
+					<option value="star" <?php selected( $style['icon'] ?? '', 'star' ); ?>>Stjerne (star)</option>
+					<option value="heart" <?php selected( $style['icon'] ?? '', 'heart' ); ?>>Hjerte (heart)</option>
+					<option value="circle" <?php selected( $style['icon'] ?? '', 'circle' ); ?>>Sirkel (circle)</option>
+				</optgroup>
+			</select>
+		</div>
+
+		<div class="location-field location-custom-style" id="color-field">
 			<label for="location_color"><strong>Farge:</strong></label>
 			<input type="text" name="location_color" id="location_color" value="<?php echo esc_attr( $style['color'] ?? '#ff7800' ); ?>" class="location-color-picker" />
 		</div>
 
-		<div class="location-field">
+		<div class="location-field location-shape-style" id="opacity-field">
 			<label for="location_opacity"><strong>Opacity:</strong></label>
 			<input type="number" name="location_opacity" id="location_opacity" value="<?php echo esc_attr( $style['opacity'] ?? 0.7 ); ?>" min="0" max="1" step="0.1" />
 			<p class="description">0 = transparent, 1 = solid</p>
 		</div>
 
-		<div class="location-field">
+		<div class="location-field location-shape-style" id="weight-field">
 			<label for="location_weight"><strong>Linjetykkelse:</strong></label>
 			<input type="number" name="location_weight" id="location_weight" value="<?php echo esc_attr( $style['weight'] ?? 2 ); ?>" min="1" max="10" step="1" />
 			<p class="description">Kun for rektangler og polygoner</p>
@@ -272,9 +334,11 @@ function save_location_data_meta_box( $post_id ) {
 
 	// Save style
 	$style = array(
-		'color'   => sanitize_hex_color( $_POST['location_color'] ?? '#ff7800' ),
+		'color'   => $_POST['location_color'] ?? '#ff7800',
 		'opacity' => floatval( $_POST['location_opacity'] ?? 0.7 ),
-		'weight'  => intval( $_POST['location_weight'] ?? 2 )
+		'weight'  => intval( $_POST['location_weight'] ?? 2 ),
+		'icon'    => sanitize_text_field( $_POST['location_icon'] ?? '' ),
+		'preset'  => sanitize_key( $_POST['location_preset'] ?? '' )
 	);
 	update_location_style( $post_id, $style );
 }
@@ -315,7 +379,8 @@ function enqueue_location_admin_assets( $hook ) {
 		wp_localize_script( 'location-admin', 'locationAdmin', array(
 			'nonce'   => wp_create_nonce( 'location_admin' ),
 			'ajaxurl' => admin_url( 'admin-ajax.php' ),
-			'post_id' => get_the_ID()
+			'post_id' => get_the_ID(),
+			'presets' => get_marker_presets()
 		) );
 	}
 }
