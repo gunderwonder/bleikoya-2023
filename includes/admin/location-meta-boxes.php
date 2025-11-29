@@ -84,6 +84,12 @@ function render_location_data_meta_box( $post ) {
 			<p class="description">Velg en forhåndsdefinert stil eller bruk egendefinert</p>
 		</div>
 
+		<div class="location-field location-marker-style" id="marker-label-section">
+			<label for="location_label"><strong>Markør-etikett:</strong></label>
+			<input type="text" name="location_label" id="location_label" value="<?php echo esc_attr( get_location_label( $post->ID ) ?? '' ); ?>" class="widefat" maxlength="4" />
+			<p class="description">Valgfritt tall/tekst som vises inne i markøren (f.eks. hyttenummer). Maks 4 tegn. Hvis tom og markøren er koblet til en hytteeier, brukes hyttenummeret automatisk.</p>
+		</div>
+
 		<div class="location-field location-custom-style" id="custom-icon-field">
 			<label for="location_icon"><strong>Ikon:</strong></label>
 			<select name="location_icon" id="location_icon" class="widefat">
@@ -341,6 +347,11 @@ function save_location_data_meta_box( $post_id ) {
 		'preset'  => sanitize_key( $_POST['location_preset'] ?? '' )
 	);
 	update_location_style( $post_id, $style );
+
+	// Save label
+	if ( isset( $_POST['location_label'] ) ) {
+		update_location_label( $post_id, $_POST['location_label'] );
+	}
 }
 add_action( 'save_post_kartpunkt', 'save_location_data_meta_box' );
 

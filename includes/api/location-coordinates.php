@@ -308,6 +308,34 @@ function update_location_style( $location_id, $style ) {
 }
 
 /**
+ * Get location label (shown inside marker)
+ *
+ * @param int $location_id Location post ID
+ * @return string|null Label text or null
+ */
+function get_location_label( $location_id ) {
+	$label = get_post_meta( $location_id, '_label', true );
+	return ! empty( $label ) ? $label : null;
+}
+
+/**
+ * Update location label
+ *
+ * @param int $location_id Location post ID
+ * @param string $label Label text
+ * @return bool Success
+ */
+function update_location_label( $location_id, $label ) {
+	$sanitized = sanitize_text_field( $label );
+	if ( empty( $sanitized ) ) {
+		delete_post_meta( $location_id, '_label' );
+	} else {
+		update_post_meta( $location_id, '_label', $sanitized );
+	}
+	return true;
+}
+
+/**
  * Get all location data (coordinates, type, style) in one call
  *
  * @param int $location_id Location post ID
@@ -316,28 +344,32 @@ function update_location_style( $location_id, $style ) {
 function get_location_data( $location_id ) {
 	$connections = get_location_connections( $location_id );
 
-	// Extract cabin number from connected users (for marker label)
-	$cabin_number = null;
-	foreach ( $connections as $connection_id ) {
-		$user = get_user_by( 'ID', $connection_id );
-		if ( $user ) {
-			$number = get_user_meta( $connection_id, 'user-cabin-number', true );
-			if ( ! empty( $number ) ) {
-				$cabin_number = $number;
-				break; // Use first cabin number found
+	// Get manual label first
+	$label = get_location_label( $location_id );
+
+	// Fall back to cabin number from connected users if no manual label
+	if ( empty( $label ) ) {
+		foreach ( $connections as $connection_id ) {
+			$user = get_user_by( 'ID', $connection_id );
+			if ( $user ) {
+				$number = get_user_meta( $connection_id, 'user-cabin-number', true );
+				if ( ! empty( $number ) ) {
+					$label = $number;
+					break; // Use first cabin number found
+				}
 			}
 		}
 	}
 
 	return array(
-		'id'           => $location_id,
-		'title'        => get_the_title( $location_id ),
-		'type'         => get_location_type( $location_id ),
-		'coordinates'  => get_location_coordinates( $location_id ),
-		'style'        => get_location_style( $location_id ),
-		'gruppe'       => wp_get_post_terms( $location_id, 'gruppe', array( 'fields' => 'names' ) ),
-		'connections'  => $connections,
-		'cabin_number' => $cabin_number,
-		'permalink'    => get_permalink( $location_id )
+		'id'          => $location_id,
+		'title'       => get_the_title( $location_id ),
+		'type'        => get_location_type( $location_id ),
+		'coordinates' => get_location_coordinates( $location_id ),
+		'style'       => get_location_style( $location_id ),
+		'gruppe'      => wp_get_post_terms( $location_id, 'gruppe', array( 'fields' => 'names' ) ),
+		'connections' => $connections,
+		'label'       => $label,
+		'permalink'   => get_permalink( $location_id )
 	);
 }

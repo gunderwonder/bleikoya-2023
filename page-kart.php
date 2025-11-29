@@ -1082,10 +1082,10 @@ var wpApiSettings = {
 					case 'marker':
 						if (coords.lat && coords.lng) {
 							// Always use custom pin-style marker
-							// Pass cabin_number as label if available
+							// Pass label if available (manual label or cabin number from connected user)
 							var markerOptions = {
 								draggable: wpApiSettings.canEdit, // Only allow dragging for editors
-								icon: createMarkerIcon(style, location.cabin_number || null)
+								icon: createMarkerIcon(style, location.label || null)
 							};
 
 							marker = L.marker([coords.lat, coords.lng], markerOptions);
