@@ -6,7 +6,7 @@
 <style>
 	/* Fullscreen map: Hide header, search, and footer */
 	.b-header,
-	.b-search,
+	.b-search-form,
 	.b-footer {
 		display: none !important;
 	}
