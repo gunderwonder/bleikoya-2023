@@ -391,22 +391,46 @@
 		font-size: 14px;
 	}
 
-	/* Map Controls Container */
+	/* Map Controls Container - positioned at top of map */
 	.map-controls {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 1000;
 		display: flex;
-		flex-direction: column;
+		flex-wrap: wrap;
 		gap: 0;
-		background: var(--b-background-color, #f5f5f5);
-		border-top: 1px solid var(--b-border-color, #ddd);
+		background: rgba(255, 255, 255, 0.95);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
 
 	.map-controls__section {
-		padding: 0.75rem 1rem;
+		padding: 0.5rem 1rem;
 		border-bottom: 1px solid var(--b-border-color, #ddd);
 	}
 
-	.map-controls__section:last-child {
-		border-bottom: none;
+	/* On larger screens, use right borders instead */
+	@media (min-width: 600px) {
+		.map-controls__section {
+			border-bottom: none;
+			border-right: 1px solid var(--b-border-color, #ddd);
+		}
+
+		.map-controls__section:last-child {
+			border-right: none;
+		}
+	}
+
+	/* On mobile, sections take full width and stack */
+	@media (max-width: 599px) {
+		.map-controls__section {
+			flex: 1 1 100%;
+		}
+
+		.map-controls__section:last-child {
+			border-bottom: none;
+		}
 	}
 
 	.map-controls__label {
@@ -585,6 +609,33 @@
 <div class="b-bleikoya-map">
 	<div id="map-wrapper">
 		<div id="map"></div>
+
+		<!-- Map Controls -->
+		<div class="map-controls">
+			<!-- Base layer selector -->
+			<div class="map-controls__section">
+				<div class="map-controls__label">Bakgrunnskart</div>
+				<div id="base-layer-selector" class="b-segmented">
+					<!-- Populated by JavaScript -->
+				</div>
+			</div>
+
+			<!-- Location layers -->
+			<div class="map-controls__section">
+				<div class="map-controls__label">Steder</div>
+				<div id="map-layer-chips" class="map-controls__row">
+					<!-- Populated by JavaScript -->
+				</div>
+			</div>
+
+			<!-- Image overlays -->
+			<div class="map-controls__section map-controls__overlays" id="image-overlays-section" style="display: none;">
+				<div class="map-controls__label">Andre kartlag</div>
+				<div id="image-overlay-chips" class="map-controls__row">
+					<!-- Populated by JavaScript -->
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<!-- Onboarding overlay -->
@@ -613,33 +664,6 @@
 			<div id="sidebar-data"></div>
 		</div>
 	</aside>
-
-	<!-- Map Controls -->
-	<div class="map-controls">
-		<!-- Base layer selector -->
-		<div class="map-controls__section">
-			<div class="map-controls__label">Bakgrunnskart</div>
-			<div id="base-layer-selector" class="b-segmented">
-				<!-- Populated by JavaScript -->
-			</div>
-		</div>
-
-		<!-- Location layers -->
-		<div class="map-controls__section">
-			<div class="map-controls__label">Steder</div>
-			<div id="map-layer-chips" class="map-controls__row">
-				<!-- Populated by JavaScript -->
-			</div>
-		</div>
-
-		<!-- Image overlays -->
-		<div class="map-controls__section map-controls__overlays" id="image-overlays-section" style="display: none;">
-			<div class="map-controls__label">Historiske kart</div>
-			<div id="image-overlay-chips" class="map-controls__row">
-				<!-- Populated by JavaScript -->
-			</div>
-		</div>
-	</div>
 </div>
 
 <?php
