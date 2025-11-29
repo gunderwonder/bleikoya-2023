@@ -129,6 +129,16 @@
 		height: 16px;
 	}
 
+	/* Marker label (e.g. cabin number) */
+	.b-custom-marker__label {
+		color: white;
+		font-size: 11px;
+		font-weight: 700;
+		line-height: 1;
+		text-align: center;
+		user-select: none;
+	}
+
 	/* Lucide SVG icons inside markers should be white */
 	.b-custom-marker .lucide {
 		stroke: white !important;
@@ -1012,11 +1022,12 @@ var wpApiSettings = {
 		}
 
 		/**
-		 * Create custom Leaflet divIcon with pin shape and optional Lucide icon
+		 * Create custom Leaflet divIcon with pin shape and optional Lucide icon or label
 		 * @param {Object} style - Style object with color, icon, preset
+		 * @param {string|null} label - Optional label text to show inside marker (e.g. cabin number)
 		 * @returns {L.DivIcon} Custom Leaflet icon
 		 */
-		function createMarkerIcon(style) {
+		function createMarkerIcon(style, label) {
 			var color = style.color || '#3388ff'; // Default Leaflet blue
 			var icon = style.icon || null;
 			var preset = style.preset || null;
@@ -1035,7 +1046,10 @@ var wpApiSettings = {
 			var html = '<div class="b-custom-marker">' +
 				'<div class="b-custom-marker__body" style="background-color: ' + color + ';">';
 
-			if (icon) {
+			// If label is provided, show label instead of icon
+			if (label) {
+				html += '<span class="b-custom-marker__label">' + label + '</span>';
+			} else if (icon) {
 				html += '<i data-lucide="' + icon + '" class="b-custom-marker__icon"></i>';
 			}
 
@@ -1068,9 +1082,10 @@ var wpApiSettings = {
 					case 'marker':
 						if (coords.lat && coords.lng) {
 							// Always use custom pin-style marker
+							// Pass cabin_number as label if available
 							var markerOptions = {
 								draggable: wpApiSettings.canEdit, // Only allow dragging for editors
-								icon: createMarkerIcon(style)
+								icon: createMarkerIcon(style, location.cabin_number || null)
 							};
 
 							marker = L.marker([coords.lat, coords.lng], markerOptions);
