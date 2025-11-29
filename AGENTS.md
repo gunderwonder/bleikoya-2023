@@ -13,6 +13,7 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 - **Health Checks**: Integration tests in `test/health-check.php`
 - **Interactive Map (Kart)**: Leaflet-based map with kartpunkt system (see `MAP_DESIGN.md`)
 - **Author Pages**: Custom author template showing cabin owner info and map connections
+- **Member Export**: Export member list to Excel (XLSX) or Google Sheets in Shared Drive
 
 ## Tech Stack
 - PHP 8.3+
@@ -36,10 +37,12 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 │   │   ├── location-connections.php  # Bidirectional connections
 │   │   ├── location-coordinates.php  # Coordinate helpers
 │   │   └── location-rest-endpoints.php
-│   └── admin/             # Admin functionality
-│       ├── location-meta-boxes.php
-│       ├── location-ajax.php
-│       └── users.php      # User export, cabin owner helpers
+│   ├── admin/             # Admin functionality
+│   │   ├── location-meta-boxes.php
+│   │   ├── location-ajax.php
+│   │   └── users.php      # User export, cabin owner helpers
+│   └── google/            # Google Workspace integration
+│       └── sheets-export.php  # Google Sheets export functionality
 ├── parts/                 # Template parts
 │   └── post/              # Post templates (content.php, plug.php)
 ├── test/                  # Integration tests
@@ -83,6 +86,14 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 ### WordPress Core
 - Standard WP functions and hooks
 
+### Composer Packages
+- `phpoffice/phpspreadsheet` - Excel export
+- `google/apiclient` - Google Sheets/Drive integration
+- `sentry/sentry` - Error logging
+- `monolog/monolog` - Logging
+- `guzzlehttp/guzzle` - HTTP client
+- `vlucas/phpdotenv` - Environment configuration
+
 ## Testing
 Run health checks locally:
 ```bash
@@ -114,6 +125,46 @@ There is a style guide at `/stilguide` (template: `page-stilguide.php`).
 - CSS variables/colors in `assets/css/tralla.css`
 - New or modified components (`.b-*` classes)
 - Typography, icons, layout structures
+
+## Google Workspace Integration
+
+The theme integrates with Google Workspace for Nonprofits to export the member list directly to a Shared Drive.
+
+### Setup
+
+**1. Google Cloud Console:**
+- Create project at [console.cloud.google.com](https://console.cloud.google.com)
+- Enable **Google Sheets API** and **Google Drive API**
+- Create Service Account (IAM & Admin → Service Accounts)
+- Download JSON credentials file
+
+**2. Shared Drive Access:**
+- Add Service Account email (from JSON: `client_email`) to Shared Drive
+- Give role: **Content Manager**
+
+**3. Environment Configuration:**
+
+Local (`.env`):
+```
+GOOGLE_APPLICATION_CREDENTIALS=secrets/google-credentials.json
+GOOGLE_SHARED_DRIVE_ID=<drive-id-from-url>
+```
+
+Production (`.env`):
+```
+GOOGLE_APPLICATION_CREDENTIALS=/www/google-credentials.json
+GOOGLE_SHARED_DRIVE_ID=<drive-id-from-url>
+```
+
+**4. Usage:**
+- Go to WordPress Admin → Users
+- Click "Eksporter til Google Sheets"
+- A new spreadsheet is created in the Shared Drive with the current date
+
+### Files
+- `includes/google/sheets-export.php` - Export logic
+- `admin/export-user-data-google.php` - AJAX endpoint
+- `includes/admin/users.php` - Admin UI button
 
 ## Important Notes
 - iCal feed includes all upcoming featured events

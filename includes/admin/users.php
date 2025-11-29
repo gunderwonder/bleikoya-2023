@@ -110,11 +110,42 @@ add_action('admin_notices', function() {
 		?>
 		<div class="wrap">
 			<button id="export-users-button" class="button button-primary">Last ned medlemsliste</button>
+			<button id="export-users-google-button" class="button button-primary" style="margin-left: 10px;">Eksporter til Google Sheets</button>
 			<a href="<?php echo esc_attr($mailto_link); ?>" class="button button-primary" style="margin-left: 10px;">Send e-post til alle</a>
+			<span id="google-export-status" style="margin-left: 10px;"></span>
 		</div>
 		<script>
 		document.getElementById('export-users-button').addEventListener('click', function() {
 			window.location.href = '<?php echo get_stylesheet_directory_uri(); ?>/admin/export-user-data.php';
+		});
+
+		document.getElementById('export-users-google-button').addEventListener('click', function() {
+			const button = this;
+			const status = document.getElementById('google-export-status');
+
+			button.disabled = true;
+			button.textContent = 'Eksporterer...';
+			status.innerHTML = '';
+
+			fetch('<?php echo get_stylesheet_directory_uri(); ?>/admin/export-user-data-google.php', {
+				credentials: 'same-origin'
+			})
+			.then(response => response.json())
+			.then(data => {
+				button.disabled = false;
+				button.textContent = 'Eksporter til Google Sheets';
+
+				if (data.success) {
+					status.innerHTML = '<span style="color: green;">Eksportert!</span> <a href="' + data.url + '" target="_blank">Åpne ' + data.title + '</a>';
+				} else {
+					status.innerHTML = '<span style="color: red;">Feil: ' + data.error + '</span>';
+				}
+			})
+			.catch(error => {
+				button.disabled = false;
+				button.textContent = 'Eksporter til Google Sheets';
+				status.innerHTML = '<span style="color: red;">Feil: ' + error.message + '</span>';
+			});
 		});
 		</script>
 		<?php
