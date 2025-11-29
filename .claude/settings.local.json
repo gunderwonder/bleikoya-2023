@@ -6,7 +6,11 @@
       "Bash(mkdir:*)",
       "Bash(cd:*)",
       "Bash(php test-logging-simple.php:*)",
-      "WebSearch"
+      "WebSearch",
+      "mcp__chrome-devtools__take_snapshot",
+      "mcp__chrome-devtools__take_screenshot",
+      "mcp__chrome-devtools__click",
+      "mcp__chrome-devtools__list_console_messages"
     ],
     "deny": [],
     "ask": []

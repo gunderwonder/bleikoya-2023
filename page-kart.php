@@ -35,6 +35,7 @@
 		right: -400px;
 		top: 0;
 		width: 400px;
+		max-width: 100%;
 		height: 100%;
 		background: white;
 		box-shadow: -2px 0 10px rgba(0,0,0,0.1);
@@ -42,29 +43,43 @@
 		z-index: 1001;
 		overflow-y: auto;
 		padding: 20px;
+		box-sizing: border-box;
 	}
 
 	.connections-sidebar.visible {
 		right: 0;
 	}
 
+	/* Mobile sidebar: full width */
+	@media (max-width: 500px) {
+		.connections-sidebar {
+			width: 100%;
+			right: -100%;
+		}
+	}
+
 	.close-sidebar {
 		position: absolute;
-		top: 15px;
-		right: 15px;
-		background: none;
+		top: 10px;
+		right: 10px;
+		background: #f0f0f0;
 		border: none;
-		font-size: 32px;
-		line-height: 1;
+		border-radius: 50%;
+		font-size: 24px;
+		line-height: 44px;
+		text-align: center;
 		cursor: pointer;
 		color: #666;
 		padding: 0;
-		width: 32px;
-		height: 32px;
+		width: 44px;
+		height: 44px;
+		z-index: 10;
 	}
 
-	.close-sidebar:hover {
+	.close-sidebar:hover,
+	.close-sidebar:active {
 		color: #000;
+		background: #e0e0e0;
 	}
 
 	#sidebar-content h3 {
@@ -376,6 +391,139 @@
 		font-size: 14px;
 	}
 
+	/* Map Controls Container */
+	.map-controls {
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+		background: var(--b-background-color, #f5f5f5);
+		border-top: 1px solid var(--b-border-color, #ddd);
+	}
+
+	.map-controls__section {
+		padding: 0.75rem 1rem;
+		border-bottom: 1px solid var(--b-border-color, #ddd);
+	}
+
+	.map-controls__section:last-child {
+		border-bottom: none;
+	}
+
+	.map-controls__label {
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		color: #666;
+		margin-bottom: 0.5rem;
+		font-weight: 500;
+		letter-spacing: 0.02em;
+	}
+
+	.map-controls__row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.map-controls__row .b-button {
+		margin: 0;
+		font-size: 0.875rem;
+	}
+
+	/* Segmented Control */
+	.b-segmented {
+		display: inline-flex;
+		background: var(--b-border-color, #ddd);
+		border-radius: var(--b-border-radius, 0.5rem);
+		padding: 2px;
+		gap: 2px;
+	}
+
+	.b-segmented__item {
+		padding: 0.4rem 0.75rem;
+		background: transparent;
+		border: none;
+		border-radius: calc(var(--b-border-radius, 0.5rem) - 2px);
+		font-size: 0.875rem;
+		cursor: pointer;
+		transition: all 0.15s ease;
+		color: #333;
+		white-space: nowrap;
+	}
+
+	.b-segmented__item:hover {
+		background: rgba(255, 255, 255, 0.5);
+	}
+
+	.b-segmented__item--active {
+		background: white;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		font-weight: 500;
+	}
+
+	/* Image overlay toggles - slightly different style */
+	.map-controls__overlays .b-button {
+		background: white;
+		border: 1px dashed var(--b-border-color, #ccc);
+	}
+
+	.map-controls__overlays .b-button.b-button--active {
+		border-style: solid;
+	}
+
+	/* Onboarding Overlay */
+	.map-onboarding {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.6);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 1000;
+	}
+
+	.map-onboarding.hidden {
+		display: none;
+	}
+
+	.map-onboarding__card {
+		background: white;
+		border-radius: var(--b-border-radius, 8px);
+		padding: 2rem;
+		max-width: 400px;
+		margin: 1rem;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+		text-align: center;
+	}
+
+	.map-onboarding__card h3 {
+		margin: 0 0 1rem 0;
+		font-size: 1.5rem;
+	}
+
+	.map-onboarding__card ul {
+		text-align: left;
+		margin: 1rem 0;
+		padding-left: 1.5rem;
+	}
+
+	.map-onboarding__card li {
+		margin: 0.5rem 0;
+	}
+
+	.map-onboarding__buttons {
+		display: flex;
+		gap: 1rem;
+		justify-content: center;
+		margin-top: 1.5rem;
+	}
+
+	.map-onboarding__buttons .b-button {
+		margin: 0;
+	}
+
 	.calibration-control label {
 		display: block;
 		margin: 5px 0 2px 0;
@@ -434,10 +582,27 @@
 
 </section>
 
-<div class=" b-bleikoya-map">
+<div class="b-bleikoya-map">
 	<div id="map-wrapper">
 		<div id="map"></div>
 	</div>
+
+	<!-- Onboarding overlay -->
+	<div id="map-onboarding" class="map-onboarding hidden">
+		<div class="map-onboarding__card">
+			<h3>Velkommen til kartet!</h3>
+			<ul>
+				<li>Klikk på punkter for å se info og koblinger</li>
+				<li>Bruk knappene under kartet for å filtrere</li>
+				<li>Zoom inn/ut med scroll eller knappene</li>
+			</ul>
+			<div class="map-onboarding__buttons">
+				<button class="b-button" id="onboarding-dismiss">Ikke vis igjen</button>
+				<button class="b-button b-button--active" id="onboarding-start">Kom i gang</button>
+			</div>
+		</div>
+	</div>
+
 	<aside id="connections-sidebar" class="connections-sidebar">
 		<button id="close-sidebar" class="close-sidebar" aria-label="Lukk">&times;</button>
 		<div id="sidebar-content">
@@ -448,6 +613,33 @@
 			<div id="sidebar-data"></div>
 		</div>
 	</aside>
+
+	<!-- Map Controls -->
+	<div class="map-controls">
+		<!-- Base layer selector -->
+		<div class="map-controls__section">
+			<div class="map-controls__label">Bakgrunnskart</div>
+			<div id="base-layer-selector" class="b-segmented">
+				<!-- Populated by JavaScript -->
+			</div>
+		</div>
+
+		<!-- Location layers -->
+		<div class="map-controls__section">
+			<div class="map-controls__label">Steder</div>
+			<div id="map-layer-chips" class="map-controls__row">
+				<!-- Populated by JavaScript -->
+			</div>
+		</div>
+
+		<!-- Image overlays -->
+		<div class="map-controls__section map-controls__overlays" id="image-overlays-section" style="display: none;">
+			<div class="map-controls__label">Historiske kart</div>
+			<div id="image-overlay-chips" class="map-controls__row">
+				<!-- Populated by JavaScript -->
+			</div>
+		</div>
+	</div>
 </div>
 
 <?php
@@ -786,15 +978,11 @@ var wpApiSettings = {
 		var locationLayers = {};
 		var markersByLocationId = {};
 
-		// Debug: Log loaded data
-		console.log('Locations data from database:', locationsData);
-
 		Object.keys(locationsData).forEach(function(gruppeSlug) {
 			var gruppe = locationsData[gruppeSlug];
 			var layerMarkers = [];
 
 			gruppe.locations.forEach(function(location) {
-				console.log('Processing location:', location.title, location);
 				var marker = createLocationMarker(location);
 				if (marker) {
 					layerMarkers.push(marker);
@@ -939,6 +1127,303 @@ var wpApiSettings = {
 
 		// Initial layer control
 		rebuildLayerControl();
+
+		// ===================
+		// Default visible layers
+		// ===================
+		// Only show Brygger and Fellesområder by default (others can be toggled via chips)
+		var defaultVisibleLayers = ['brygger', 'fellesomrader', 'fellesområder'];
+
+		// Add default layers to map
+		Object.keys(locationLayers).forEach(function(gruppeSlug) {
+			var isDefault = defaultVisibleLayers.some(function(d) {
+				return gruppeSlug.toLowerCase().indexOf(d) !== -1;
+			});
+			if (isDefault) {
+				locationLayers[gruppeSlug].addTo(map);
+			}
+		});
+
+		// ===================
+		// Base Layer Segmented Control
+		// ===================
+		var baseLayerNames = {
+			'topo': 'Topografisk',
+			'satellite': 'Satellitt',
+			'svg': 'Bleikøyakart'
+		};
+
+		function renderBaseLayerSelector() {
+			var container = document.getElementById('base-layer-selector');
+			if (!container) return;
+
+			container.innerHTML = '';
+
+			Object.keys(baseLayerKeys).forEach(function(key) {
+				var btn = document.createElement('button');
+				btn.className = 'b-segmented__item';
+				btn.dataset.layer = key;
+				btn.textContent = baseLayerNames[key] || key;
+
+				if (map.hasLayer(baseLayerKeys[key])) {
+					btn.classList.add('b-segmented__item--active');
+				}
+
+				btn.addEventListener('click', function() {
+					switchBaseLayer(key);
+				});
+
+				container.appendChild(btn);
+			});
+		}
+
+		function switchBaseLayer(key) {
+			// Remove all base layers
+			Object.values(baseLayerKeys).forEach(function(layer) {
+				if (map.hasLayer(layer)) {
+					map.removeLayer(layer);
+				}
+			});
+
+			// Add selected base layer
+			if (baseLayerKeys[key]) {
+				baseLayerKeys[key].addTo(map);
+			}
+
+			updateBaseLayerState();
+		}
+
+		function updateBaseLayerState() {
+			document.querySelectorAll('.b-segmented__item[data-layer]').forEach(function(btn) {
+				var key = btn.dataset.layer;
+				if (map.hasLayer(baseLayerKeys[key])) {
+					btn.classList.add('b-segmented__item--active');
+				} else {
+					btn.classList.remove('b-segmented__item--active');
+				}
+			});
+		}
+
+		// Sync when Leaflet layer control changes base layer
+		map.on('baselayerchange', function() {
+			updateBaseLayerState();
+		});
+
+		renderBaseLayerSelector();
+
+		// ===================
+		// Location Layer Chips
+		// ===================
+		function renderLocationChips() {
+			var chipsContainer = document.getElementById('map-layer-chips');
+			if (!chipsContainer) return;
+
+			chipsContainer.innerHTML = '';
+
+			// Add chips for each gruppe
+			Object.keys(locationsData).sort(function(a, b) {
+				return locationsData[a].name.localeCompare(locationsData[b].name);
+			}).forEach(function(gruppeSlug) {
+				var gruppe = locationsData[gruppeSlug];
+				var chip = document.createElement('button');
+				chip.className = 'b-button';
+				chip.dataset.gruppe = gruppeSlug;
+				chip.textContent = gruppe.name;
+
+				// Set initial state
+				if (locationLayers[gruppeSlug] && map.hasLayer(locationLayers[gruppeSlug])) {
+					chip.classList.add('b-button--active');
+				}
+
+				chip.addEventListener('click', function() {
+					toggleLocationLayer(gruppeSlug);
+				});
+
+				chipsContainer.appendChild(chip);
+			});
+
+			// Add "Vis alle" chip
+			var allChip = document.createElement('button');
+			allChip.className = 'b-button';
+			allChip.id = 'chip-toggle-all';
+			allChip.textContent = 'Vis alle';
+			updateAllChipState();
+
+			allChip.addEventListener('click', function() {
+				var allVisible = Object.keys(locationLayers).every(function(slug) {
+					return map.hasLayer(locationLayers[slug]);
+				});
+
+				Object.keys(locationLayers).forEach(function(slug) {
+					if (allVisible) {
+						map.removeLayer(locationLayers[slug]);
+					} else {
+						locationLayers[slug].addTo(map);
+					}
+				});
+
+				updateLocationChipsState();
+			});
+
+			chipsContainer.appendChild(allChip);
+		}
+
+		function toggleLocationLayer(gruppeSlug) {
+			var layer = locationLayers[gruppeSlug];
+			if (!layer) return;
+
+			if (map.hasLayer(layer)) {
+				map.removeLayer(layer);
+			} else {
+				layer.addTo(map);
+			}
+
+			updateLocationChipsState();
+		}
+
+		function updateLocationChipsState() {
+			document.querySelectorAll('#map-layer-chips .b-button[data-gruppe]').forEach(function(chip) {
+				var gruppeSlug = chip.dataset.gruppe;
+				var layer = locationLayers[gruppeSlug];
+				if (layer && map.hasLayer(layer)) {
+					chip.classList.add('b-button--active');
+				} else {
+					chip.classList.remove('b-button--active');
+				}
+			});
+
+			updateAllChipState();
+		}
+
+		function updateAllChipState() {
+			var allChip = document.getElementById('chip-toggle-all');
+			if (!allChip) return;
+
+			var allVisible = Object.keys(locationLayers).every(function(slug) {
+				return map.hasLayer(locationLayers[slug]);
+			});
+
+			if (allVisible) {
+				allChip.classList.add('b-button--active');
+				allChip.textContent = 'Skjul alle';
+			} else {
+				allChip.classList.remove('b-button--active');
+				allChip.textContent = 'Vis alle';
+			}
+		}
+
+		renderLocationChips();
+
+		// ===================
+		// Image Overlay Chips
+		// ===================
+		var imageOverlayLayers = {}; // Will store layer groups for image overlays
+
+		function renderImageOverlayChips() {
+			var container = document.getElementById('image-overlay-chips');
+			var section = document.getElementById('image-overlays-section');
+			if (!container || !section) return;
+
+			var configKeys = Object.keys(distortableImageConfigs);
+			if (configKeys.length === 0) {
+				section.style.display = 'none';
+				return;
+			}
+
+			section.style.display = '';
+			container.innerHTML = '';
+
+			configKeys.forEach(function(key) {
+				var config = distortableImageConfigs[key];
+				var chip = document.createElement('button');
+				chip.className = 'b-button';
+				chip.dataset.overlay = key;
+				chip.textContent = config.name;
+
+				// Check if already active
+				if (imageOverlayLayers[key] && map.hasLayer(imageOverlayLayers[key])) {
+					chip.classList.add('b-button--active');
+				}
+
+				chip.addEventListener('click', function() {
+					toggleImageOverlay(key);
+				});
+
+				container.appendChild(chip);
+			});
+		}
+
+		function toggleImageOverlay(key) {
+			// Create layer group if not exists
+			if (!imageOverlayLayers[key]) {
+				imageOverlayLayers[key] = createDistortableLayerGroup(key);
+			}
+
+			var layer = imageOverlayLayers[key];
+
+			if (map.hasLayer(layer)) {
+				map.removeLayer(layer);
+			} else {
+				layer.addTo(map);
+			}
+
+			updateImageOverlayChipsState();
+		}
+
+		function updateImageOverlayChipsState() {
+			document.querySelectorAll('#image-overlay-chips .b-button[data-overlay]').forEach(function(chip) {
+				var key = chip.dataset.overlay;
+				if (imageOverlayLayers[key] && map.hasLayer(imageOverlayLayers[key])) {
+					chip.classList.add('b-button--active');
+				} else {
+					chip.classList.remove('b-button--active');
+				}
+			});
+		}
+
+		renderImageOverlayChips();
+
+		// ===================
+		// Sync all controls with Leaflet layer control
+		// ===================
+		map.on('overlayadd overlayremove', function() {
+			updateLocationChipsState();
+			updateImageOverlayChipsState();
+		});
+
+		// ===================
+		// Onboarding
+		// ===================
+		function showOnboarding() {
+			var overlay = document.getElementById('map-onboarding');
+			if (overlay) {
+				overlay.classList.remove('hidden');
+			}
+		}
+
+		function hideOnboarding(remember) {
+			var overlay = document.getElementById('map-onboarding');
+			if (overlay) {
+				overlay.classList.add('hidden');
+			}
+			if (remember) {
+				localStorage.setItem('mapOnboardingSeen', 'true');
+			}
+		}
+
+		// Check if onboarding should be shown
+		if (!localStorage.getItem('mapOnboardingSeen')) {
+			showOnboarding();
+		}
+
+		// Onboarding button handlers
+		document.getElementById('onboarding-start').addEventListener('click', function() {
+			hideOnboarding(true);
+		});
+
+		document.getElementById('onboarding-dismiss').addEventListener('click', function() {
+			hideOnboarding(true);
+		});
 
 		// ===================
 		// URL State: Event Listeners
@@ -1315,6 +1800,7 @@ var wpApiSettings = {
 		// Populate image selector
 		function updateImageSelect() {
 			var select = document.getElementById('image-select');
+			if (!select) return; // Only exists for editors
 			select.innerHTML = '<option value="">-- Velg bilde --</option>';
 
 			Object.keys(distortableImageConfigs).forEach(function(key) {
@@ -1327,8 +1813,9 @@ var wpApiSettings = {
 
 		updateImageSelect();
 
-		// Image selection change
-		document.getElementById('image-select').addEventListener('change', function(e) {
+		// Image selection change (only for editors)
+		var imageSelectEl = document.getElementById('image-select');
+		if (imageSelectEl) imageSelectEl.addEventListener('change', function(e) {
 			var imageKey = e.target.value;
 
 			// Disable editing on previous image
@@ -1356,8 +1843,9 @@ var wpApiSettings = {
 			}
 		});
 
-		// Toggle editing
-		document.getElementById('toggle-edit-btn').addEventListener('click', function() {
+		// Toggle editing (only for editors)
+		var toggleEditBtn = document.getElementById('toggle-edit-btn');
+		if (toggleEditBtn) toggleEditBtn.addEventListener('click', function() {
 			if (!currentEditingImage) return;
 
 			var imageData = distortableImages[currentEditingImage];
@@ -1395,8 +1883,9 @@ var wpApiSettings = {
 			}
 		});
 
-		// Export corners
-		document.getElementById('export-corners-btn').addEventListener('click', function() {
+		// Export corners (only for editors)
+		var exportCornersBtn = document.getElementById('export-corners-btn');
+		if (exportCornersBtn) exportCornersBtn.addEventListener('click', function() {
 			if (!currentEditingImage) return;
 
 			var imageData = distortableImages[currentEditingImage];
@@ -1429,8 +1918,9 @@ corners: [
 			});
 		});
 
-		// Calibration event handlers
-		function updateDisplay() {
+		// Calibration event handlers (only for editors)
+		if (wpApiSettings.canEdit) {
+			function updateDisplay() {
 			var text = `south: ${currentBounds.south},\nwest: ${currentBounds.west},\nnorth: ${currentBounds.north},\neast: ${currentBounds.east}`;
 			if (currentRotation !== 0) {
 				text += `\nrotation: ${currentRotation.toFixed(1)}°`;
@@ -2081,6 +2571,7 @@ corners: [
 		map.on('click', function(e) {
 			console.log('Clicked at:', e.latlng.lat.toFixed(6) + ', ' + e.latlng.lng.toFixed(6));
 		});
+		} // End of wpApiSettings.canEdit block
 
 		// ===== CONNECTIONS SIDEBAR =====
 

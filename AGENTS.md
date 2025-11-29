@@ -166,6 +166,36 @@ GOOGLE_SHARED_DRIVE_ID=<drive-id-from-url>
 - `admin/export-user-data-google.php` - AJAX endpoint
 - `includes/admin/users.php` - Admin UI button
 
+## Browser Debugging with Chrome DevTools MCP
+
+This project has Chrome DevTools MCP configured for browser-based debugging and testing.
+
+### Starting Chrome with Remote Debugging
+```bash
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 http://localhost:8888/kart/
+```
+
+### Capabilities
+- **Screenshots**: Visual verification of page state
+- **Click/interact**: Test UI elements programmatically
+- **Console logs**: View JavaScript errors and warnings
+- **Network requests**: Debug API calls
+- **Resize**: Test responsive layouts
+
+### When to Use
+- Debugging UI issues (like the sidebar close button not working on mobile)
+- Verifying JavaScript interactions work correctly
+- Checking for console errors after changes
+- Testing map controls, popups, and overlays
+- Investigating issues that only reproduce in browser
+
+### Common Commands
+- `mcp__chrome-devtools__take_screenshot` - Capture current viewport
+- `mcp__chrome-devtools__take_snapshot` - Get accessibility tree (element UIDs for clicking)
+- `mcp__chrome-devtools__click` - Click element by UID
+- `mcp__chrome-devtools__list_console_messages` - View JS console output
+- `mcp__chrome-devtools__evaluate_script` - Run JavaScript in page context
+
 ## Important Notes
 - iCal feed includes all upcoming featured events
 - Rewrite rules require flush after theme activation (`wp rewrite flush`)
