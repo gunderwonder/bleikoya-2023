@@ -35,4 +35,10 @@ require 'includes/shortcodes/location-map.php';
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
-
+/**
+ * Extend login session to 1 year
+ * This is a members-only site with non-sensitive content
+ */
+add_filter('auth_cookie_expiration', function($expiration, $user_id, $remember) {
+    return YEAR_IN_SECONDS;
+}, 10, 3);
