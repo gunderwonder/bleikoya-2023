@@ -196,11 +196,11 @@ function parseSvgCabins($svg_path) {
 
 	$xpath = new DOMXPath($dom);
 
-	// Register namespace if needed
+	// Register SVG namespace for XPath queries
 	$xpath->registerNamespace('svg', 'http://www.w3.org/2000/svg');
 
 	foreach ($svg_color_to_preset as $group_id => $preset) {
-		// Find the group by ID
+		// Find the group by ID (works without namespace prefix for attribute selectors)
 		$group = $xpath->query("//*[@id='$group_id']")->item(0);
 
 		if (!$group) {
@@ -208,8 +208,8 @@ function parseSvgCabins($svg_path) {
 			continue;
 		}
 
-		// Find all rect elements within this group
-		$rects = $xpath->query(".//rect", $group);
+		// Find all rect elements within this group (must use svg: prefix for namespaced elements)
+		$rects = $xpath->query(".//svg:rect", $group);
 
 		foreach ($rects as $rect) {
 			$x = floatval($rect->getAttribute('x'));
@@ -265,6 +265,15 @@ foreach ($svg_cabins as $cabin) {
 foreach ($by_group as $group => $count) {
 	echo "    - $group: $count\n";
 }
+
+// Debug: Show sample SVG cabin coordinates
+if ($debug && !empty($svg_cabins)) {
+	echo "\n  Sample SVG cabin coordinates:\n";
+	for ($i = 0; $i < min(3, count($svg_cabins)); $i++) {
+		$c = $svg_cabins[$i];
+		echo "    [{$c['group']}] SVG: ({$c['svg_x']}, {$c['svg_y']}) -> Lat/Lng: ({$c['lat']}, {$c['lng']})\n";
+	}
+}
 echo "\n";
 
 // Step 2: Fetch markers from API
@@ -281,7 +290,19 @@ $markers = array_filter($locations, function($loc) {
 	return ($loc['type'] ?? '') === 'marker';
 });
 
-echo "  Found " . count($markers) . " markers\n\n";
+echo "  Found " . count($markers) . " markers\n";
+
+// Debug: Show sample marker coordinates
+if ($debug && !empty($markers)) {
+	echo "\n  Sample marker coordinates:\n";
+	$sample = array_slice($markers, 0, 3);
+	foreach ($sample as $m) {
+		$lat = $m['coordinates']['lat'] ?? 'N/A';
+		$lng = $m['coordinates']['lng'] ?? 'N/A';
+		echo "    [{$m['id']}] {$m['title']}: Lat/Lng: ($lat, $lng)\n";
+	}
+}
+echo "\n";
 
 // Step 3: Match markers to SVG cabins
 echo "Step 3: Matching markers to SVG cabins...\n\n";
@@ -320,12 +341,12 @@ foreach ($markers as $marker) {
 		$stats[$nearest['preset']]++;
 
 		if ($debug) {
-			echo "  [{$marker['id']}] {$marker['title']} -> {$nearest['preset']} ({$nearest_dist:.1f}m)\n";
+			echo "  [{$marker['id']}] {$marker['title']} -> {$nearest['preset']} (" . number_format($nearest_dist, 1) . "m)\n";
 		}
 	} else {
 		$no_match[] = [
 			'marker'   => $marker,
-			'reason'   => $nearest ? "Too far ({$nearest_dist:.1f}m)" : "No cabin found",
+			'reason'   => $nearest ? "Too far (" . number_format($nearest_dist, 1) . "m)" : "No cabin found",
 			'distance' => $nearest_dist ?? null
 		];
 	}
@@ -360,7 +381,7 @@ if ($dry_run) {
 		$m = $match['marker'];
 		$c = $match['cabin'];
 		$current = $m['style']['preset'] ?? 'none';
-		echo "  [{$m['id']}] {$m['title']}: $current -> {$c['preset']} ({$match['distance']:.1f}m)\n";
+		echo "  [{$m['id']}] {$m['title']}: $current -> {$c['preset']} (" . number_format($match['distance'], 1) . "m)\n";
 	}
 	echo "\nRun without --dry-run to apply changes.\n";
 	exit(0);
@@ -378,8 +399,8 @@ foreach ($matches as $match) {
 
 	echo "  [{$marker['id']}] {$marker['title']} -> {$cabin['preset']}... ";
 
-	$result = api_request('PUT', "bleikoya/v1/locations/{$marker['id']}/style", [
-		'preset' => $cabin['preset']
+	$result = api_request('PUT', "bleikoya/v1/locations/{$marker['id']}", [
+		'style' => ['preset' => $cabin['preset']]
 	]);
 
 	if (isset($result['error'])) {
