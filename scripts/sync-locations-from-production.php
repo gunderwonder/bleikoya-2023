@@ -37,12 +37,13 @@ $options = getopt('', [
 	'debug'
 ]);
 
-$source_url = rtrim($options['source'] ?? '', '/');
-$target_url = rtrim($options['target'] ?? '', '/');
-$source_user = $options['source-user'] ?? '';
-$source_password = $options['source-password'] ?? '';
-$target_user = $options['target-user'] ?? '';
-$target_password = $options['target-password'] ?? '';
+// Support both CLI args and environment variables
+$source_url = rtrim($options['source'] ?? getenv('SOURCE_URL') ?: 'https://bleikoya.net', '/');
+$target_url = rtrim($options['target'] ?? getenv('TARGET_URL') ?: 'http://localhost:8888', '/');
+$source_user = $options['source-user'] ?? getenv('PRODUCTION_USER') ?: '';
+$source_password = $options['source-password'] ?? getenv('PRODUCTION_APPLICATION_PASSWORD') ?: '';
+$target_user = $options['target-user'] ?? getenv('PRODUCTION_USER') ?: '';
+$target_password = $options['target-password'] ?? getenv('LOCAL_APPLICATION_PASSWORD') ?: '';
 $dry_run = isset($options['dry-run']);
 $skip_connections = isset($options['skip-connections']);
 $debug = isset($options['debug']);
