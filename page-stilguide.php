@@ -268,6 +268,107 @@ get_header();
 			</div>
 			<div class="sg-code"><code>&lt;a class="b-article-permalink" href="#"&gt;Dato&lt;/a&gt;</code></div>
 		</div>
+
+		<div class="sg-component">
+			<div class="sg-label">Løpende brødtekst (komplett eksempel)</div>
+			<div class="sg-example--white sg-example">
+				<div class="b-body-text">
+					<p>Bleikøya er en liten øy i Oslofjorden som har vært et populært feriested i over hundre år. Øya har en rik historie og mange tradisjoner som fortsatt holdes i hevd av beboerne.</p>
+
+					<h2>Øyas historie</h2>
+					<p>De første hyttene ble bygget på slutten av 1800-tallet, og siden den gang har øya vært et kjært feriested for mange familier. Les mer om <a href="#">øyas fascinerende historie</a> i vårt arkiv.</p>
+
+					<h3>Viktige årstall</h3>
+					<p>Her er noen viktige milepæler i øyas utvikling:</p>
+
+					<ul>
+						<li>1890: De første hyttene bygges</li>
+						<li>1920: Velforeningen stiftes</li>
+						<li>1950: Strøm legges inn på øya</li>
+						<li>2000: Ny brygge ferdigstilles</li>
+					</ul>
+
+					<h3>Praktisk informasjon</h3>
+					<p>For å komme til øya følger du disse stegene:</p>
+
+					<ol>
+						<li>Ta buss eller trikk til Aker brygge</li>
+						<li>Gå til båtterminalen ved Rådhusbrygge 4</li>
+						<li>Ta Nesoddbåten og gå av på Bleikøya</li>
+					</ol>
+
+					<figure>
+						<img src="https://placehold.co/600x300/518347/white?text=Bleik%C3%B8ya" alt="Utsikt over Bleikøya">
+						<figcaption>Utsikt over Bleikøya en sommerdag. Foto: Velforeningen</figcaption>
+					</figure>
+
+					<blockquote>
+						<p>«Bleikøya er ikke bare et sted – det er en livsstil og et fellesskap som går i arv fra generasjon til generasjon.»</p>
+					</blockquote>
+
+					<h3>Nøkkeltall</h3>
+					<table>
+						<thead>
+							<tr>
+								<th>Kategori</th>
+								<th>Antall</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Hytter</td>
+								<td>91</td>
+							</tr>
+							<tr>
+								<td>Brygger</td>
+								<td>4</td>
+							</tr>
+							<tr>
+								<td>Areal</td>
+								<td>0,12 km²</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<h3>Teknisk informasjon</h3>
+					<p>For utviklere som jobber med nettsiden:</p>
+
+					<pre><code>// Eksempel på API-kall
+fetch('/wp-json/bleikoya/v1/locations')
+  .then(response => response.json())
+  .then(data => console.log(data));</code></pre>
+
+					<h3>Ordliste</h3>
+					<dl>
+						<dt>Velforening</dt>
+						<dd>En organisasjon som ivaretar fellesinteressene til beboerne i et område.</dd>
+						<dt>Kartpunkt</dt>
+						<dd>Et sted på kartet som kan kobles til annet innhold på nettsiden.</dd>
+						<dt>Gruppe</dt>
+						<dd>En kategori for kartpunkter, f.eks. "Hytter" eller "Brygger".</dd>
+					</dl>
+
+					<hr>
+
+					<p>For mer informasjon, ta kontakt med velforeningen.</p>
+				</div>
+			</div>
+			<div class="sg-code"><code>&lt;div class="b-body-text"&gt;
+  &lt;p&gt;Brødtekst...&lt;/p&gt;
+  &lt;h2&gt;Underoverskrift&lt;/h2&gt;
+  &lt;ul&gt;&lt;li&gt;Punktliste&lt;/li&gt;&lt;/ul&gt;
+  &lt;ol&gt;&lt;li&gt;Nummerert liste&lt;/li&gt;&lt;/ol&gt;
+  &lt;figure&gt;
+    &lt;img src="..." alt="..."&gt;
+    &lt;figcaption&gt;Bildetekst&lt;/figcaption&gt;
+  &lt;/figure&gt;
+  &lt;blockquote&gt;&lt;p&gt;Sitat&lt;/p&gt;&lt;/blockquote&gt;
+  &lt;table&gt;...&lt;/table&gt;
+  &lt;pre&gt;&lt;code&gt;Kodeblokk&lt;/code&gt;&lt;/pre&gt;
+  &lt;dl&gt;&lt;dt&gt;Term&lt;/dt&gt;&lt;dd&gt;Definisjon&lt;/dd&gt;&lt;/dl&gt;
+  &lt;hr&gt;
+&lt;/div&gt;</code></div>
+		</div>
 	</section>
 
 	<!-- LAYOUT -->

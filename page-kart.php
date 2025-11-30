@@ -215,58 +215,44 @@
 	}
 
 	.connection-item {
-		padding: 12px;
+		display: block;
+		padding: 1rem;
 		margin-bottom: 8px;
-		background: #f9f9f9;
-		border-left: 3px solid #0073aa;
-		border-radius: 3px;
-		transition: background 0.2s;
+		background: var(--b-green-transparent-color);
+		border-radius: var(--b-radius-box);
+		text-decoration: none;
+		border-bottom: none;
+		color: inherit;
+		transition: background-color 0.15s ease;
 	}
 
 	.connection-item:hover {
-		background: #f0f0f0;
+		background: rgba(81, 131, 71, 0.12);
+		border-bottom: none;
 	}
 
-	.connection-item a {
-		text-decoration: none;
-		color: #0073aa;
-		font-weight: 500;
-	}
-
-	.connection-item a:hover {
-		text-decoration: underline;
-	}
-
-	.connection-item .connection-excerpt {
-		font-size: 13px;
-		color: #666;
-		margin-top: 5px;
+	.connection-item .connection-title {
+		font-family: var(--b-font-heading);
+		font-size: 1rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		color: var(--b-header-color);
 		line-height: 1.4;
 	}
 
-	.connection-item .connection-meta {
-		display: flex;
-		gap: 5px;
-		margin-top: 5px;
-	}
-
-	.connection-type-badge {
-		display: inline-block;
-		padding: 2px 6px;
-		background: #eee;
-		border-radius: 3px;
-		font-size: 11px;
+	.connection-item .connection-type {
+		font-size: 12px;
+		color: rgba(0, 0, 0, 0.7);
 		text-transform: uppercase;
-		color: #666;
+		letter-spacing: 0.05em;
+		margin-bottom: 6px;
 	}
 
-	.connection-cabin-badge {
-		display: inline-block;
-		padding: 2px 6px;
-		background: #d4edda;
-		border-radius: 3px;
-		font-size: 11px;
-		color: #155724;
+	.connection-item .connection-excerpt {
+		font-size: 14px;
+		color: var(--b-header-color);
+		margin-top: 8px;
+		line-height: 1.5;
 	}
 
 	#sidebar-data.empty {
@@ -278,19 +264,23 @@
 	/* Location info in sidebar */
 	.location-info {
 		margin-bottom: 20px;
-		padding-bottom: 15px;
-		border-bottom: 1px solid #eee;
 	}
 
 	.location-info h3 {
-		margin: 0 0 5px 0;
-		padding-right: 40px;
+		font-family: var(--b-font-heading);
+		font-size: 1.4rem;
+		font-weight: normal;
+		text-transform: uppercase;
+		margin: 0 0 10px 0;
+		padding-right: 50px;
 	}
 
 	.location-gruppe {
-		font-size: 13px;
-		color: #666;
-		margin-bottom: 10px;
+		font-size: 12px;
+		color: rgba(0, 0, 0, 0.7);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin-bottom: 5px;
 	}
 
 	.location-thumbnail {
@@ -311,34 +301,57 @@
 
 	.location-edit-link {
 		display: inline-block;
-		margin-top: 10px;
-		padding: 6px 12px;
-		font-size: 13px;
-		color: #666;
-		background: #f5f5f5;
-		border: 1px solid #ddd;
-		border-radius: 4px;
+		margin-top: 2rem;
+		padding: 10px 20px;
+		font-family: var(--b-font-heading);
+		font-size: 14px;
+		font-weight: bold;
+		color: white;
+		background: var(--b-green-color);
+		border: none;
+		border-radius: var(--b-radius-pill);
 		text-decoration: none;
+		text-transform: uppercase;
 	}
 
 	.location-edit-link:hover {
-		background: #e8e8e8;
-		color: #333;
+		opacity: 0.9;
+		color: white;
 	}
 
 	.connections-heading {
-		font-size: 14px;
-		color: #666;
+		font-family: var(--b-font-heading);
+		font-size: 1rem;
+		font-weight: 600;
+		color: var(--b-header-color);
 		text-transform: uppercase;
-		margin: 15px 0 10px 0;
-		border-bottom: 1px solid #eee;
-		padding-bottom: 5px;
+		margin: 20px 0 15px 0;
 	}
 
+	/* Hide type labels for now */
 	.connection-group h5 {
-		font-size: 13px;
-		color: #888;
-		margin: 10px 0 8px 0;
+		display: none;
+	}
+
+	/* User connection with avatar */
+	.connection-item--user {
+		display: flex;
+		align-items: flex-start;
+		gap: 12px;
+	}
+
+	.connection-user__avatar {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		object-fit: cover;
+		flex-shrink: 0;
+		margin-top: 2px;
+	}
+
+	.connection-user__info {
+		flex: 1;
+		min-width: 0;
 	}
 
 	.calibration-control {
@@ -922,7 +935,6 @@ foreach ($locations as $location) {
 		// });
 
 		// Mapbox Satellite (requires API key)
-		// Get a free token at https://account.mapbox.com/access-tokens/
 		var mapboxToken = 'pk.eyJ1IjoiZ3VuZGVyd29uZGVyIiwiYSI6ImNtZ2ZqdHVwMTA5NnAyanNibjcweGcweHcifQ.-Rm6k9TH1hBF_nazP9uiew'; // Replace with your token
 		var mapboxSatellite = null;
 		if (mapboxToken && mapboxToken !== 'YOUR_MAPBOX_TOKEN_HERE') {
@@ -941,8 +953,8 @@ foreach ($locations as $location) {
 		} else {
 			topographic.addTo(map);
 		}
-
 		// Registry for distortable images with configurations
+
 		// This stores the config, not the overlay instance
 		var distortableImageConfigs = {
 			bleikoyakart: {
@@ -2963,11 +2975,12 @@ corners: [
 
 					// Render location info
 					var infoHtml = '<div class="location-info">';
-					infoHtml += '<h3>' + location.title + '</h3>';
 
 					if (location.gruppe && location.gruppe.names && location.gruppe.names.length > 0) {
 						infoHtml += '<div class="location-gruppe">' + location.gruppe.names.join(', ') + '</div>';
 					}
+
+					infoHtml += '<h3>' + location.title + '</h3>';
 
 					if (location.thumbnail && location.thumbnail.url) {
 						infoHtml += '<div class="location-thumbnail">';
@@ -2983,17 +2996,18 @@ corners: [
 						infoHtml += '<div class="location-description">' + location.description + '</div>';
 					}
 
-					// Show edit link for admins
-					if (wpApiSettings.canEdit && location.edit_link) {
-						infoHtml += '<a href="' + location.edit_link + '" class="location-edit-link" target="_blank">Rediger</a>';
-					}
-
 					infoHtml += '</div>';
 					locationInfoContainer.innerHTML = infoHtml;
 
+					// Build edit link HTML (will be added at bottom)
+					var editLinkHtml = '';
+					if (wpApiSettings.canEdit && location.edit_link) {
+						editLinkHtml = '<a href="' + location.edit_link + '" class="location-edit-link" target="_blank">Rediger</a>';
+					}
+
 					// Render connections
 					if (connections.length === 0) {
-						dataContainer.innerHTML = '';
+						dataContainer.innerHTML = editLinkHtml;
 						return;
 					}
 
@@ -3008,8 +3022,14 @@ corners: [
 						groupedConnections[conn.type].push(conn);
 					});
 
+					// Check if this location is a cabin (gruppe includes "hytter")
+					var isHytte = location.gruppe && location.gruppe.slugs &&
+						location.gruppe.slugs.some(function(slug) {
+							return slug === 'hytter';
+						});
+
 					// Render grouped connections
-					var html = '<h4 class="connections-heading">Koblinger</h4>';
+					var html = '';
 
 					Object.keys(groupedConnections).forEach(function(type) {
 						var typeLabel = getTypeLabel(type);
@@ -3017,24 +3037,53 @@ corners: [
 						html += '<h5>' + typeLabel + '</h5>';
 
 						groupedConnections[type].forEach(function(conn) {
-							html += '<div class="connection-item">';
-							html += '<a href="' + conn.link + '" target="_blank">' + conn.title + '</a>';
+							var connTypeLabel = getTypeLabel(conn.type);
+							// Use description for users/terms, excerpt for posts
+							var description = conn.description || conn.excerpt || '';
 
-							if (conn.excerpt) {
-								html += '<div class="connection-excerpt">' + conn.excerpt + '</div>';
+							if (conn.type === 'user') {
+								// User with avatar
+								// If location is a cabin, show only name (no "Hytte X" title since it's redundant)
+								// Otherwise show "Hytte X" as title with name as description
+								html += '<a href="' + conn.link + '" class="connection-item connection-item--user" target="_blank">';
+								if (conn.avatar_url) {
+									html += '<img src="' + conn.avatar_url + '" alt="" class="connection-user__avatar">';
+								}
+								html += '<div class="connection-user__info">';
+
+								if (isHytte && conn.description) {
+									// For cabins: just show the name(s) in body text style
+									html += '<div class="connection-excerpt">' + conn.description + '</div>';
+								} else {
+									// For other locations: show "Hytte X" as title, name as description
+									var displayName = conn.cabin_number ? 'Hytte ' + conn.cabin_number : conn.title;
+									html += '<div class="connection-title">' + displayName + '</div>';
+									if (conn.description) {
+										html += '<div class="connection-excerpt">' + conn.description + '</div>';
+									}
+								}
+
+								html += '</div>';
+								html += '</a>';
+							} else {
+								// Standard connection item (posts, pages, events, terms)
+								html += '<a href="' + conn.link + '" class="connection-item" target="_blank">';
+								html += '<div class="connection-type">' + connTypeLabel + '</div>';
+								html += '<div class="connection-title">' + conn.title + '</div>';
+
+								if (description) {
+									html += '<div class="connection-excerpt">' + description + '</div>';
+								}
+
+								html += '</a>';
 							}
-
-							html += '<div class="connection-meta">';
-							if (conn.cabin_number) {
-								html += '<span class="connection-cabin-badge">Hytte ' + conn.cabin_number + '</span>';
-							}
-							html += '</div>';
-
-							html += '</div>';
 						});
 
 						html += '</div>';
 					});
+
+					// Add edit link at the bottom
+					html += editLinkHtml;
 
 					dataContainer.innerHTML = html;
 				})
@@ -3048,10 +3097,11 @@ corners: [
 		// Helper function to get human-readable type label
 		function getTypeLabel(type) {
 			var labels = {
-				'post': 'Artikler',
+				'post': 'Oppslag',
 				'page': 'Sider',
-				'tribe_events': 'Hendelser',
-				'user': 'Brukere'
+				'tribe_events': 'Kalenderhendelser',
+				'user': 'Hytteeiere',
+				'term': 'Kategorier'
 			};
 			return labels[type] || type;
 		}

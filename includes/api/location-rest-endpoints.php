@@ -306,10 +306,28 @@ function rest_get_location_connections( $request ) {
 		$item = $conn;
 
 		if ( $conn['type'] === 'user' ) {
-			// Add email for users (for cross-environment matching)
+			// Add avatar and display info for users
 			$user = get_user_by( 'ID', $conn['id'] );
 			if ( $user ) {
 				$item['email'] = $user->user_email;
+				$item['avatar_url'] = get_avatar_url( $conn['id'], array( 'size' => 80 ) ); // 2x for retina (40px display)
+
+				// Build user description from first/last name (not display_name which is often username)
+				$user_fields = get_fields( 'user_' . $conn['id'] );
+				$parts = array();
+
+				// Use first_name + last_name
+				$full_name = trim( $user->first_name . ' ' . $user->last_name );
+				if ( ! empty( $full_name ) ) {
+					$parts[] = $full_name;
+				}
+
+				// Add alternate name if available
+				if ( ! empty( $user_fields['user-alternate-name'] ) ) {
+					$parts[] = $user_fields['user-alternate-name'];
+				}
+
+				$item['description'] = implode( ', ', $parts );
 			}
 		} elseif ( $conn['type'] !== 'term' ) {
 			// Add slug and excerpt for posts
@@ -324,9 +342,19 @@ function rest_get_location_connections( $request ) {
 				}
 			}
 		} else {
-			// For terms, add taxonomy and slug
+			// For terms, add taxonomy, slug and description
 			if ( isset( $conn['data'] ) && $conn['data'] instanceof WP_Term ) {
 				$item['slug'] = $conn['data']->slug;
+
+				// For categories (tema), use ACF field 'category-documentation'
+				if ( $conn['data']->taxonomy === 'category' ) {
+					$documentation = get_field( 'category-documentation', 'category_' . $conn['data']->term_id );
+					if ( ! empty( $documentation ) ) {
+						$item['description'] = wp_trim_words( wp_strip_all_tags( $documentation ), 20 );
+					}
+				} elseif ( ! empty( $conn['data']->description ) ) {
+					$item['description'] = wp_trim_words( $conn['data']->description, 20 );
+				}
 			}
 		}
 
