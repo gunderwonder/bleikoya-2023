@@ -164,12 +164,108 @@
 		right: 0;
 	}
 
-	/* Mobile sidebar: full width */
+	/* Drag handle - hidden on desktop */
+	.sidebar-drag-handle {
+		display: none;
+	}
+
+	/* Mobile sidebar: bottom sheet */
 	@media (max-width: 500px) {
 		.connections-sidebar {
+			/* Position at bottom */
+			right: 0;
+			left: 0;
+			top: auto;
+			bottom: 0;
 			width: 100%;
-			right: -100%;
+			height: 90vh; /* Full height, position controlled by transform */
+			max-height: none;
+			padding: 0;
+			display: flex;
+			flex-direction: column;
+
+			/* Bottom sheet styling */
+			border-radius: 16px 16px 0 0;
+			box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.15);
+
+			/* GPU-accelerated transform */
+			transform: translate3d(0, 100%, 0);
+			transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			will-change: transform;
+
+			/* Prevent sidebar itself from scrolling */
+			overflow: hidden;
 		}
+
+		.connections-sidebar.visible {
+			transform: translate3d(0, 0, 0);
+		}
+
+		/* Drag handle visible on mobile */
+		.sidebar-drag-handle {
+			display: block;
+			width: 100%;
+			padding: 12px 0 8px;
+			cursor: grab;
+			touch-action: none;
+			user-select: none;
+			-webkit-user-select: none;
+			background: white;
+			border-radius: 16px 16px 0 0;
+			flex-shrink: 0;
+		}
+
+		.sidebar-drag-handle::before {
+			content: '';
+			display: block;
+			width: 40px;
+			height: 4px;
+			background: #ccc;
+			border-radius: 2px;
+			margin: 0 auto;
+		}
+
+		.sidebar-drag-handle:active {
+			cursor: grabbing;
+		}
+
+		.sidebar-drag-handle:active::before {
+			background: #999;
+		}
+
+		/* Scrollable content area - fills remaining space */
+		#sidebar-content {
+			flex: 1;
+			overflow-y: auto;
+			-webkit-overflow-scrolling: touch;
+			overscroll-behavior: contain;
+			padding: 0 20px 40px; /* Extra bottom padding for edit button */
+			min-height: 0; /* Important for flex overflow */
+		}
+
+		/* Prevent text selection while dragging */
+		.connections-sidebar.dragging {
+			user-select: none;
+			-webkit-user-select: none;
+		}
+
+		/* Disable transition during drag */
+		.connections-sidebar.dragging {
+			transition: none !important;
+		}
+
+		/* Adjust close button position */
+		.close-sidebar {
+			top: 4px;
+			right: 8px;
+		}
+	}
+
+	/* Prevent body scroll when bottom sheet is open on mobile */
+	body.bottom-sheet-open {
+		overflow: hidden;
+		position: fixed;
+		width: 100%;
 	}
 
 	.close-sidebar {
@@ -789,6 +885,7 @@
 	</div>
 
 	<aside id="connections-sidebar" class="connections-sidebar">
+		<div class="sidebar-drag-handle"></div>
 		<button id="close-sidebar" class="close-sidebar" aria-label="Lukk">&times;</button>
 		<div id="sidebar-content">
 			<div id="sidebar-location-info"></div>
@@ -2936,6 +3033,222 @@ corners: [
 				poi: null
 			});
 		});
+
+		// ===== MOBILE BOTTOM SHEET TOUCH HANDLING =====
+		(function() {
+			var sidebar = document.getElementById('connections-sidebar');
+			var dragHandle = sidebar.querySelector('.sidebar-drag-handle');
+
+			// Only enable on mobile (≤500px)
+			function isMobile() {
+				return window.innerWidth <= 500;
+			}
+
+			// Snap points as percentage of viewport height (0 = fully visible, 100 = hidden)
+			var snapPoints = {
+				closed: 100,   // Fully hidden
+				peek: 75,      // 25% visible - show title/gruppe
+				half: 45,      // 55% visible - default open
+				full: 10       // 90% visible - almost fullscreen
+			};
+
+			var currentSnapPoint = 'half'; // Track current position
+			var isDragging = false;
+			var startY = 0;
+			var startTranslateY = 0;
+			var lastTouchY = 0;
+			var lastTouchTime = 0;
+
+			// Get current translateY percentage
+			function getCurrentTranslateY() {
+				var transform = sidebar.style.transform;
+				var match = transform.match(/translate3d\([^,]+,\s*([0-9.-]+)%/);
+				if (match) {
+					return parseFloat(match[1]);
+				}
+				// If visible class is present and no inline style, assume half position
+				if (sidebar.classList.contains('visible')) {
+					return snapPoints[currentSnapPoint];
+				}
+				return 100; // Hidden
+			}
+
+			// Set sidebar position using translate3d for GPU acceleration
+			function setPosition(percent, animate) {
+				if (animate) {
+					sidebar.classList.remove('dragging');
+				} else {
+					sidebar.classList.add('dragging');
+				}
+				sidebar.style.transform = 'translate3d(0, ' + percent + '%, 0)';
+
+				// Adjust content height based on visible area
+				var sidebarContent = document.getElementById('sidebar-content');
+				var visiblePercent = 100 - percent;
+				var visibleHeight = (visiblePercent / 100) * 0.9 * window.innerHeight; // 90vh * visible%
+				var handleHeight = 36; // drag handle height
+				sidebarContent.style.maxHeight = (visibleHeight - handleHeight) + 'px';
+			}
+
+			// Find closest snap point
+			function getClosestSnapPoint(percent, velocity) {
+				// If swiped down fast enough, close
+				if (velocity > 0.5 && percent > 50) {
+					return 'closed';
+				}
+				// If swiped up fast enough, go to full
+				if (velocity < -0.5 && percent < 50) {
+					return 'full';
+				}
+
+				// Find closest snap point
+				var closest = 'half';
+				var closestDist = Infinity;
+
+				for (var point in snapPoints) {
+					var dist = Math.abs(snapPoints[point] - percent);
+					if (dist < closestDist) {
+						closestDist = dist;
+						closest = point;
+					}
+				}
+
+				return closest;
+			}
+
+			// Handle touch start on drag handle
+			dragHandle.addEventListener('touchstart', function(e) {
+				if (!isMobile()) return;
+
+				e.preventDefault();
+				isDragging = true;
+				startY = e.touches[0].clientY;
+				startTranslateY = getCurrentTranslateY();
+				lastTouchY = startY;
+				lastTouchTime = Date.now();
+
+				sidebar.classList.add('dragging');
+			}, { passive: false });
+
+			// Handle touch move
+			dragHandle.addEventListener('touchmove', function(e) {
+				if (!isDragging || !isMobile()) return;
+
+				e.preventDefault();
+
+				var currentY = e.touches[0].clientY;
+				var deltaY = currentY - startY;
+				var viewportHeight = window.innerHeight;
+
+				lastTouchY = currentY;
+				lastTouchTime = Date.now();
+
+				var deltaPercent = (deltaY / viewportHeight) * 100;
+				var newPercent = startTranslateY + deltaPercent;
+
+				if (newPercent < snapPoints.full) {
+					newPercent = snapPoints.full - (snapPoints.full - newPercent) * 0.3;
+				}
+				newPercent = Math.min(100, newPercent);
+
+				setPosition(newPercent, false);
+			}, { passive: false });
+
+			// Click fallback - cycle through snap points
+			var clickTimeout = null;
+			dragHandle.addEventListener('click', function(e) {
+				if (!isMobile()) return;
+
+				// Cycle: half -> full -> half
+				if (currentSnapPoint === 'half' || currentSnapPoint === 'peek') {
+					currentSnapPoint = 'full';
+				} else {
+					currentSnapPoint = 'half';
+				}
+				setPosition(snapPoints[currentSnapPoint], true);
+			});
+
+			// Handle touch end
+			dragHandle.addEventListener('touchend', function(e) {
+				if (!isDragging || !isMobile()) return;
+
+				isDragging = false;
+				sidebar.classList.remove('dragging');
+
+				// Calculate velocity
+				var currentY = e.changedTouches[0].clientY;
+				var currentTime = Date.now();
+				var velocity = 0;
+
+				if (lastTouchTime > 0) {
+					var timeDelta = (currentTime - lastTouchTime) / 1000;
+					if (timeDelta > 0) {
+						var yDelta = (currentY - lastTouchY) / window.innerHeight;
+						velocity = yDelta / timeDelta;
+					}
+				}
+
+				var currentPercent = getCurrentTranslateY();
+				var targetPoint = getClosestSnapPoint(currentPercent, velocity);
+
+				// Animate to snap point
+				setPosition(snapPoints[targetPoint], true);
+
+				// Handle closed state
+				if (targetPoint === 'closed') {
+					setTimeout(function() {
+						sidebar.classList.remove('visible');
+						sidebar.style.transform = '';
+						document.body.classList.remove('bottom-sheet-open');
+						updateUrlState({ poi: null });
+					}, 300); // Wait for animation
+				} else {
+					currentSnapPoint = targetPoint;
+				}
+			}, { passive: true });
+
+			// Set initial position when sidebar opens on mobile
+			var isSettingPosition = false;
+			var lastVisibleState = false;
+
+			function checkVisibility() {
+				var isVisible = sidebar.classList.contains('visible');
+
+				if (isVisible !== lastVisibleState) {
+					lastVisibleState = isVisible;
+
+					if (isVisible && isMobile() && !isSettingPosition) {
+						isSettingPosition = true;
+						currentSnapPoint = 'half';
+						setPosition(snapPoints.half, true);
+						// Lock body scroll
+						document.body.classList.add('bottom-sheet-open');
+						setTimeout(function() {
+							isSettingPosition = false;
+						}, 50);
+					} else if (!isVisible) {
+						sidebar.style.transform = '';
+						// Unlock body scroll
+						document.body.classList.remove('bottom-sheet-open');
+					}
+				}
+			}
+
+			// Check periodically instead of using MutationObserver
+			setInterval(checkVisibility, 100);
+
+			// Also allow tapping on map to close on mobile
+			document.getElementById('map').addEventListener('click', function(e) {
+				if (isMobile() && sidebar.classList.contains('visible')) {
+					if (!e.target.closest('.leaflet-marker-icon')) {
+						sidebar.classList.remove('visible');
+						sidebar.style.transform = '';
+						document.body.classList.remove('bottom-sheet-open');
+						updateUrlState({ poi: null });
+					}
+				}
+			});
+		})();
 
 		// Function to show connections sidebar
 		function showConnectionsSidebar(locationId) {
