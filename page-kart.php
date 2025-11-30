@@ -239,7 +239,7 @@
 			overflow-y: auto;
 			-webkit-overflow-scrolling: touch;
 			overscroll-behavior: contain;
-			padding: 0 20px 40px; /* Extra bottom padding for edit button */
+			padding: 0 20px 60px; /* Extra bottom padding for edit button */
 			min-height: 0; /* Important for flex overflow */
 		}
 
