@@ -15,6 +15,7 @@
 	.b-navigation {
 		margin-bottom: 0 !important;
 	}
+
 	.b-bleikoya-map {
 		margin-top: 0 !important;
 	}
@@ -131,6 +132,7 @@
 	.b-custom-marker--light .lucide {
 		stroke: #333 !important;
 	}
+
 	.b-custom-marker--light .b-custom-marker__label {
 		color: #333;
 	}
@@ -150,7 +152,7 @@
 		max-width: 100%;
 		height: 100%;
 		background: white;
-		box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+		box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
 		transition: right 0.3s ease;
 		z-index: 1001;
 		overflow-y: auto;
@@ -621,6 +623,8 @@
 
 	.map-controls__overlays .b-button.b-button--active {
 		border-style: solid;
+		background-color: var(--b-primary-color);
+		color: white;
 	}
 
 	/* Onboarding Overlay */
@@ -785,57 +789,57 @@
 
 <?php
 // Check if user can edit posts (Editor role or higher)
-$can_edit = current_user_can( 'edit_posts' );
+$can_edit = current_user_can('edit_posts');
 
 // Load all published locations from database
-$locations = get_posts( array(
+$locations = get_posts(array(
 	'post_type'      => 'kartpunkt',
 	'posts_per_page' => -1,
 	'post_status'    => 'publish',
 	'orderby'        => 'title',
 	'order'          => 'ASC'
-) );
+));
 
 // Group locations by gruppe taxonomy
 $locations_by_group = array();
 
-foreach ( $locations as $location ) {
-	$gruppe_terms = wp_get_post_terms( $location->ID, 'gruppe' );
+foreach ($locations as $location) {
+	$gruppe_terms = wp_get_post_terms($location->ID, 'gruppe');
 	$gruppe_slug = 'default';
 	$gruppe_name = 'Diverse';
 
-	if ( ! empty( $gruppe_terms ) && ! is_wp_error( $gruppe_terms ) ) {
+	if (! empty($gruppe_terms) && ! is_wp_error($gruppe_terms)) {
 		$gruppe_slug = $gruppe_terms[0]->slug;
 		$gruppe_name = $gruppe_terms[0]->name;
 	}
 
-	if ( ! isset( $locations_by_group[ $gruppe_slug ] ) ) {
-		$locations_by_group[ $gruppe_slug ] = array(
+	if (! isset($locations_by_group[$gruppe_slug])) {
+		$locations_by_group[$gruppe_slug] = array(
 			'name'      => $gruppe_name,
 			'locations' => array()
 		);
 	}
 
-	$location_data = get_location_data( $location->ID );
+	$location_data = get_location_data($location->ID);
 
-	$locations_by_group[ $gruppe_slug ]['locations'][] = $location_data;
+	$locations_by_group[$gruppe_slug]['locations'][] = $location_data;
 }
 ?>
 
 <script>
-// Locations data loaded from database
-var locationsData = <?php echo json_encode( $locations_by_group, JSON_PRETTY_PRINT ); ?>;
+	// Locations data loaded from database
+	var locationsData = <?php echo json_encode($locations_by_group, JSON_PRETTY_PRINT); ?>;
 
-// Marker style presets
-var markerPresets = <?php echo json_encode( get_marker_presets() ); ?>;
+	// Marker style presets
+	var markerPresets = <?php echo json_encode(get_marker_presets()); ?>;
 
-// WP REST API settings for frontend
-var wpApiSettings = {
-	root: '<?php echo esc_url_raw( rest_url() ); ?>',
-	nonce: '<?php echo wp_create_nonce( 'wp_rest' ); ?>',
-	currentUser: <?php echo json_encode( wp_get_current_user() ); ?>,
-	canEdit: <?php echo $can_edit ? 'true' : 'false'; ?>
-};
+	// WP REST API settings for frontend
+	var wpApiSettings = {
+		root: '<?php echo esc_url_raw(rest_url()); ?>',
+		nonce: '<?php echo wp_create_nonce('wp_rest'); ?>',
+		currentUser: <?php echo json_encode(wp_get_current_user()); ?>,
+		canEdit: <?php echo $can_edit ? 'true' : 'false'; ?>
+	};
 </script>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -902,7 +906,7 @@ var wpApiSettings = {
 
 		var topographic = L.tileLayer('https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png', {
 			attribution: '&copy; <a href="http://www.kartverket.no/">Kartverket</a>'
-		}).addTo(map);
+		});
 
 		// var kartverketSatellite = L.tileLayer('https://opencache.statkart.no/gatekeeper/gk/gk.open_nib_utm33_wmts_v2?layer=Nibcache_UTM33_EUREF89&style=default&tilematrixset=default028mm&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix={z}&TileCol={x}&TileRow={y}', {
 		// 	attribution: '&copy; <a href="http://www.kartverket.no/">Kartverket</a>',
@@ -923,14 +927,28 @@ var wpApiSettings = {
 			});
 		}
 
-		// Add the SVG as an image overlay (not added to map by default)
-		var svgOverlay = L.imageOverlay('<?php echo get_stylesheet_directory_uri(); ?>/assets/img/bleikoya-kart.svg', getBounds(), {
-			opacity: 0.7
-		});
+		// Add default base layer (satellite preferred, fallback to topographic)
+		if (mapboxSatellite) {
+			mapboxSatellite.addTo(map);
+		} else {
+			topographic.addTo(map);
+		}
 
 		// Registry for distortable images with configurations
 		// This stores the config, not the overlay instance
 		var distortableImageConfigs = {
+			bleikoyakart: {
+				name: 'Bleikøyakart',
+				url: '<?php echo get_stylesheet_directory_uri(); ?>/assets/img/bleikoya-kart.svg',
+				opacity: 0.7,
+				// Bleikøyakart - Hjørnekoordinater
+				corners: [
+					L.latLng(59.89256444889466, 10.731303691864014), // top-left
+					L.latLng(59.89258059438378, 10.749499797821047), // top-right
+					L.latLng(59.885976434645144, 10.731282234191896), // bottom-left
+					L.latLng(59.88598720043973, 10.74915647506714) // bottom-right
+				]
+			},
 			bym: {
 				name: 'Naturkart',
 				url: '<?php echo get_stylesheet_directory_uri(); ?>/assets/img/bleikoya-bym-kart.png',
@@ -1010,7 +1028,8 @@ var wpApiSettings = {
 			return group;
 		}
 
-
+		// Create distortable layer group for SVG map (allows perspective calibration)
+		var svgOverlay = createDistortableLayerGroup('bleikoyakart');
 
 		// Convert SVG coordinates to lat/lng
 		function svgToLatLng(svgX, svgY) {
@@ -1122,7 +1141,11 @@ var wpApiSettings = {
 			}
 
 			var coords = location.coordinates;
-			var style = location.style || {color: '#ff7800', opacity: 0.7, weight: 2};
+			var style = location.style || {
+				color: '#ff7800',
+				opacity: 0.7,
+				weight: 2
+			};
 			var marker = null;
 
 			try {
@@ -1205,7 +1228,9 @@ var wpApiSettings = {
 				// Add click handler to show connections sidebar and update URL
 				marker.on('click', function() {
 					showConnectionsSidebar(location.id);
-					updateUrlState({ poi: location.id });
+					updateUrlState({
+						poi: location.id
+					});
 				});
 			}
 
@@ -1577,6 +1602,11 @@ var wpApiSettings = {
 			container.innerHTML = '';
 
 			configKeys.forEach(function(key) {
+				// Skip bleikoyakart for non-admins (it's available as base layer, calibration is admin-only)
+				if (key === 'bleikoyakart' && !wpApiSettings.canEdit) {
+					return;
+				}
+
 				var config = distortableImageConfigs[key];
 				var chip = document.createElement('button');
 				chip.className = 'b-button';
@@ -1699,7 +1729,9 @@ var wpApiSettings = {
 					baseKey = key;
 				}
 			});
-			updateUrlState({ base: baseKey });
+			updateUrlState({
+				base: baseKey
+			});
 		});
 
 		// Update URL when overlays change
@@ -1710,7 +1742,9 @@ var wpApiSettings = {
 					activeOverlays.push(key);
 				}
 			});
-			updateUrlState({ overlays: activeOverlays.length > 0 ? activeOverlays : null });
+			updateUrlState({
+				overlays: activeOverlays.length > 0 ? activeOverlays : null
+			});
 		});
 
 		// ===================
@@ -1790,7 +1824,8 @@ var wpApiSettings = {
 								lng = (parseFloat(b[0].lng || b[0][1]) + parseFloat(b[1].lng || b[1][1])) / 2;
 							} else if (coords.latlngs) {
 								// Polygon - use centroid
-								var sumLat = 0, sumLng = 0;
+								var sumLat = 0,
+									sumLng = 0;
 								coords.latlngs.forEach(function(p) {
 									sumLat += parseFloat(p.lat || p[0]);
 									sumLng += parseFloat(p.lng || p[1]);
@@ -2169,353 +2204,461 @@ corners: [
 		// Calibration event handlers (only for editors)
 		if (wpApiSettings.canEdit) {
 			function updateDisplay() {
-			var text = `south: ${currentBounds.south},\nwest: ${currentBounds.west},\nnorth: ${currentBounds.north},\neast: ${currentBounds.east}`;
-			if (currentRotation !== 0) {
-				text += `\nrotation: ${currentRotation.toFixed(1)}°`;
-			}
-			document.getElementById('bounds-code').textContent = text;
-		}
-
-		var currentRotation = 0;
-
-		document.getElementById('cal-opacity').addEventListener('input', function(e) {
-			var opacity = e.target.value / 100;
-			svgOverlay.setOpacity(opacity);
-			document.getElementById('opacity-val').textContent = e.target.value + '%';
-		});
-
-		document.getElementById('cal-rotation').addEventListener('input', function(e) {
-			currentRotation = parseFloat(e.target.value);
-			document.getElementById('rotation-val').textContent = currentRotation.toFixed(1) + '°';
-
-			// Apply CSS transform to the image element
-			var svgElement = svgOverlay.getElement();
-			if (svgElement) {
-				svgElement.style.transform = 'rotate(' + currentRotation + 'deg)';
-				svgElement.style.transformOrigin = 'center center';
-			}
-		});
-
-		document.getElementById('cal-reset').addEventListener('click', function() {
-			currentRotation = 0;
-			document.getElementById('cal-rotation').value = 0;
-			document.getElementById('rotation-val').textContent = '0°';
-
-			var svgElement = svgOverlay.getElement();
-			if (svgElement) {
-				svgElement.style.transform = 'none';
-			}
-		});
-
-		document.getElementById('cal-update').addEventListener('click', function() {
-			currentBounds.north = parseFloat(document.getElementById('cal-north').value);
-			currentBounds.south = parseFloat(document.getElementById('cal-south').value);
-			currentBounds.east = parseFloat(document.getElementById('cal-east').value);
-			currentBounds.west = parseFloat(document.getElementById('cal-west').value);
-
-			svgOverlay.setBounds(getBounds());
-			updateDisplay();
-
-			// Update cabin marker
-			var newCabin74 = svgToLatLng(1532.5, 1115.5);
-			cabin74Marker.setLatLng(newCabin74);
-			cabin74Marker.setPopupContent('<b>Hytte 74</b><br>Koordinater: ' + newCabin74.lat.toFixed(5) + ', ' + newCabin74.lng.toFixed(5));
-		});
-
-		document.getElementById('cal-copy').addEventListener('click', function() {
-			var text = `south: ${currentBounds.south},\nwest: ${currentBounds.west},\nnorth: ${currentBounds.north},\neast: ${currentBounds.east}`;
-			if (currentRotation !== 0) {
-				text += `\nrotation: ${currentRotation}°`;
-			}
-			navigator.clipboard.writeText(text).then(function() {
-				alert('Bounds kopiert til clipboard!');
-			});
-		});
-
-		// Adjustment step size (0.001 degrees ≈ 111 meters)
-		var step = 0.001;
-
-		// Helper to update everything after bounds change
-		function updateAll() {
-			svgOverlay.setBounds(getBounds());
-			updateDisplay();
-			// Update cabin marker position
-			var newCabin74 = svgToLatLng(1532.5, 1115.5);
-			cabin74Marker.setLatLng(newCabin74);
-			cabin74Marker.setPopupContent('<b>Hytte 74</b><br>Koordinater: ' + newCabin74.lat.toFixed(5) + ', ' + newCabin74.lng.toFixed(5));
-		}
-
-		// Nord +/- buttons
-		document.getElementById('north-plus').addEventListener('click', function() {
-			currentBounds.north += step;
-			document.getElementById('cal-north').value = currentBounds.north;
-			updateAll();
-		});
-		document.getElementById('north-minus').addEventListener('click', function() {
-			currentBounds.north -= step;
-			document.getElementById('cal-north').value = currentBounds.north;
-			updateAll();
-		});
-
-		// Sør +/- buttons
-		document.getElementById('south-plus').addEventListener('click', function() {
-			currentBounds.south += step;
-			document.getElementById('cal-south').value = currentBounds.south;
-			updateAll();
-		});
-		document.getElementById('south-minus').addEventListener('click', function() {
-			currentBounds.south -= step;
-			document.getElementById('cal-south').value = currentBounds.south;
-			updateAll();
-		});
-
-		// Øst +/- buttons
-		document.getElementById('east-plus').addEventListener('click', function() {
-			currentBounds.east += step;
-			document.getElementById('cal-east').value = currentBounds.east;
-			updateAll();
-		});
-		document.getElementById('east-minus').addEventListener('click', function() {
-			currentBounds.east -= step;
-			document.getElementById('cal-east').value = currentBounds.east;
-			updateAll();
-		});
-
-		// Vest +/- buttons
-		document.getElementById('west-plus').addEventListener('click', function() {
-			currentBounds.west += step;
-			document.getElementById('cal-west').value = currentBounds.west;
-			updateAll();
-		});
-		document.getElementById('west-minus').addEventListener('click', function() {
-			currentBounds.west -= step;
-			document.getElementById('cal-west').value = currentBounds.west;
-			updateAll();
-		});
-
-		// Direct input field changes
-		document.getElementById('cal-north').addEventListener('input', function() {
-			currentBounds.north = parseFloat(this.value);
-			updateAll();
-		});
-		document.getElementById('cal-south').addEventListener('input', function() {
-			currentBounds.south = parseFloat(this.value);
-			updateAll();
-		});
-		document.getElementById('cal-east').addEventListener('input', function() {
-			currentBounds.east = parseFloat(this.value);
-			updateAll();
-		});
-		document.getElementById('cal-west').addEventListener('input', function() {
-			currentBounds.west = parseFloat(this.value);
-			updateAll();
-		});
-
-		updateDisplay();
-
-		// ===== POI MANAGER FUNCTIONALITY =====
-		var currentGruppe = null;
-		var drawingMode = null;
-		var tempMarkers = [];
-		var currentEditingLocation = null;
-
-		// Load available grupper (categories)
-		function updateGruppeSelect() {
-			var select = document.getElementById('poi-layer-select');
-			select.innerHTML = '<option value="">-- Velg gruppe --</option>';
-
-			// Get unique grupper from loaded locations (store both slug and name)
-			var gruppeMap = {};
-			Object.keys(locationsData).forEach(function(gruppeSlug) {
-				gruppeMap[gruppeSlug] = locationsData[gruppeSlug].name;
-			});
-
-			// Add options (sorted by name)
-			Object.keys(gruppeMap).sort(function(a, b) {
-				return gruppeMap[a].localeCompare(gruppeMap[b]);
-			}).forEach(function(gruppeSlug) {
-				var option = document.createElement('option');
-				option.value = gruppeSlug; // Use slug as value for API
-				option.textContent = gruppeMap[gruppeSlug]; // Display name to user
-				if (gruppeSlug === currentGruppe) {
-					option.selected = true;
+				var text = `south: ${currentBounds.south},\nwest: ${currentBounds.west},\nnorth: ${currentBounds.north},\neast: ${currentBounds.east}`;
+				if (currentRotation !== 0) {
+					text += `\nrotation: ${currentRotation.toFixed(1)}°`;
 				}
-				select.appendChild(option);
+				document.getElementById('bounds-code').textContent = text;
+			}
+
+			var currentRotation = 0;
+
+			// Helper to get the actual overlay (works with both imageOverlay and distortable layer groups)
+			function getSvgActualOverlay() {
+				// If it's a distortable layer group, get the actual overlay
+				if (distortableImages['bleikoyakart'] && distortableImages['bleikoyakart'].overlay) {
+					return distortableImages['bleikoyakart'].overlay;
+				}
+				// If svgOverlay has setOpacity directly, it's a simple imageOverlay
+				if (svgOverlay && typeof svgOverlay.setOpacity === 'function') {
+					return svgOverlay;
+				}
+				return null;
+			}
+
+			document.getElementById('cal-opacity').addEventListener('input', function(e) {
+				var opacity = e.target.value / 100;
+				var overlay = getSvgActualOverlay();
+				if (overlay && typeof overlay.setOpacity === 'function') {
+					overlay.setOpacity(opacity);
+				}
+				document.getElementById('opacity-val').textContent = e.target.value + '%';
 			});
-		}
 
-		function updatePOIList() {
-			var listDiv = document.getElementById('poi-list');
-			if (!currentGruppe) {
-				listDiv.innerHTML = '<em>Velg en gruppe først</em>';
-				return;
+			document.getElementById('cal-rotation').addEventListener('input', function(e) {
+				currentRotation = parseFloat(e.target.value);
+				document.getElementById('rotation-val').textContent = currentRotation.toFixed(1) + '°';
+
+				// Apply CSS transform to the image element
+				var overlay = getSvgActualOverlay();
+				var svgElement = overlay && typeof overlay.getElement === 'function' ? overlay.getElement() : null;
+				if (svgElement) {
+					svgElement.style.transform = 'rotate(' + currentRotation + 'deg)';
+					svgElement.style.transformOrigin = 'center center';
+				}
+			});
+
+			document.getElementById('cal-reset').addEventListener('click', function() {
+				currentRotation = 0;
+				document.getElementById('cal-rotation').value = 0;
+				document.getElementById('rotation-val').textContent = '0°';
+
+				var overlay = getSvgActualOverlay();
+				var svgElement = overlay && typeof overlay.getElement === 'function' ? overlay.getElement() : null;
+				if (svgElement) {
+					svgElement.style.transform = 'none';
+				}
+			});
+
+			document.getElementById('cal-update').addEventListener('click', function() {
+				currentBounds.north = parseFloat(document.getElementById('cal-north').value);
+				currentBounds.south = parseFloat(document.getElementById('cal-south').value);
+				currentBounds.east = parseFloat(document.getElementById('cal-east').value);
+				currentBounds.west = parseFloat(document.getElementById('cal-west').value);
+
+				// Note: setBounds doesn't work for distortable images - use corner editing instead
+				var overlay = getSvgActualOverlay();
+				if (overlay && typeof overlay.setBounds === 'function') {
+					overlay.setBounds(getBounds());
+				}
+				updateDisplay();
+
+				// Update cabin marker
+				var newCabin74 = svgToLatLng(1532.5, 1115.5);
+				cabin74Marker.setLatLng(newCabin74);
+				cabin74Marker.setPopupContent('<b>Hytte 74</b><br>Koordinater: ' + newCabin74.lat.toFixed(5) + ', ' + newCabin74.lng.toFixed(5));
+			});
+
+			document.getElementById('cal-copy').addEventListener('click', function() {
+				var text = `south: ${currentBounds.south},\nwest: ${currentBounds.west},\nnorth: ${currentBounds.north},\neast: ${currentBounds.east}`;
+				if (currentRotation !== 0) {
+					text += `\nrotation: ${currentRotation}°`;
+				}
+				navigator.clipboard.writeText(text).then(function() {
+					alert('Bounds kopiert til clipboard!');
+				});
+			});
+
+			// Adjustment step size (0.001 degrees ≈ 111 meters)
+			var step = 0.001;
+
+			// Helper to update everything after bounds change
+			function updateAll() {
+				// Note: setBounds doesn't work for distortable images - use corner editing instead
+				var overlay = getSvgActualOverlay();
+				if (overlay && typeof overlay.setBounds === 'function') {
+					overlay.setBounds(getBounds());
+				}
+				updateDisplay();
+				// Update cabin marker position
+				var newCabin74 = svgToLatLng(1532.5, 1115.5);
+				cabin74Marker.setLatLng(newCabin74);
+				cabin74Marker.setPopupContent('<b>Hytte 74</b><br>Koordinater: ' + newCabin74.lat.toFixed(5) + ', ' + newCabin74.lng.toFixed(5));
 			}
 
-			// Find locations for current gruppe (currentGruppe is now a slug)
-			var currentLocations = [];
-			if (locationsData[currentGruppe]) {
-				currentLocations = locationsData[currentGruppe].locations;
+			// Nord +/- buttons
+			document.getElementById('north-plus').addEventListener('click', function() {
+				currentBounds.north += step;
+				document.getElementById('cal-north').value = currentBounds.north;
+				updateAll();
+			});
+			document.getElementById('north-minus').addEventListener('click', function() {
+				currentBounds.north -= step;
+				document.getElementById('cal-north').value = currentBounds.north;
+				updateAll();
+			});
+
+			// Sør +/- buttons
+			document.getElementById('south-plus').addEventListener('click', function() {
+				currentBounds.south += step;
+				document.getElementById('cal-south').value = currentBounds.south;
+				updateAll();
+			});
+			document.getElementById('south-minus').addEventListener('click', function() {
+				currentBounds.south -= step;
+				document.getElementById('cal-south').value = currentBounds.south;
+				updateAll();
+			});
+
+			// Øst +/- buttons
+			document.getElementById('east-plus').addEventListener('click', function() {
+				currentBounds.east += step;
+				document.getElementById('cal-east').value = currentBounds.east;
+				updateAll();
+			});
+			document.getElementById('east-minus').addEventListener('click', function() {
+				currentBounds.east -= step;
+				document.getElementById('cal-east').value = currentBounds.east;
+				updateAll();
+			});
+
+			// Vest +/- buttons
+			document.getElementById('west-plus').addEventListener('click', function() {
+				currentBounds.west += step;
+				document.getElementById('cal-west').value = currentBounds.west;
+				updateAll();
+			});
+			document.getElementById('west-minus').addEventListener('click', function() {
+				currentBounds.west -= step;
+				document.getElementById('cal-west').value = currentBounds.west;
+				updateAll();
+			});
+
+			// Direct input field changes
+			document.getElementById('cal-north').addEventListener('input', function() {
+				currentBounds.north = parseFloat(this.value);
+				updateAll();
+			});
+			document.getElementById('cal-south').addEventListener('input', function() {
+				currentBounds.south = parseFloat(this.value);
+				updateAll();
+			});
+			document.getElementById('cal-east').addEventListener('input', function() {
+				currentBounds.east = parseFloat(this.value);
+				updateAll();
+			});
+			document.getElementById('cal-west').addEventListener('input', function() {
+				currentBounds.west = parseFloat(this.value);
+				updateAll();
+			});
+
+			updateDisplay();
+
+			// ===== POI MANAGER FUNCTIONALITY =====
+			var currentGruppe = null;
+			var drawingMode = null;
+			var tempMarkers = [];
+			var currentEditingLocation = null;
+
+			// Load available grupper (categories)
+			function updateGruppeSelect() {
+				var select = document.getElementById('poi-layer-select');
+				select.innerHTML = '<option value="">-- Velg gruppe --</option>';
+
+				// Get unique grupper from loaded locations (store both slug and name)
+				var gruppeMap = {};
+				Object.keys(locationsData).forEach(function(gruppeSlug) {
+					gruppeMap[gruppeSlug] = locationsData[gruppeSlug].name;
+				});
+
+				// Add options (sorted by name)
+				Object.keys(gruppeMap).sort(function(a, b) {
+					return gruppeMap[a].localeCompare(gruppeMap[b]);
+				}).forEach(function(gruppeSlug) {
+					var option = document.createElement('option');
+					option.value = gruppeSlug; // Use slug as value for API
+					option.textContent = gruppeMap[gruppeSlug]; // Display name to user
+					if (gruppeSlug === currentGruppe) {
+						option.selected = true;
+					}
+					select.appendChild(option);
+				});
 			}
 
-			if (currentLocations.length === 0) {
-				listDiv.innerHTML = '<em>Ingen steder ennå</em>';
-				return;
-			}
+			function updatePOIList() {
+				var listDiv = document.getElementById('poi-list');
+				if (!currentGruppe) {
+					listDiv.innerHTML = '<em>Velg en gruppe først</em>';
+					return;
+				}
 
-			listDiv.innerHTML = '';
-			currentLocations.forEach(function(location) {
-				var item = document.createElement('div');
-				item.className = 'poi-item';
-				item.innerHTML = `
+				// Find locations for current gruppe (currentGruppe is now a slug)
+				var currentLocations = [];
+				if (locationsData[currentGruppe]) {
+					currentLocations = locationsData[currentGruppe].locations;
+				}
+
+				if (currentLocations.length === 0) {
+					listDiv.innerHTML = '<em>Ingen steder ennå</em>';
+					return;
+				}
+
+				listDiv.innerHTML = '';
+				currentLocations.forEach(function(location) {
+					var item = document.createElement('div');
+					item.className = 'poi-item';
+					item.innerHTML = `
 					<span>${location.title} (${location.type})</span>
 					<div>
 						<button onclick="window.bleikoyaMap.editLocation(${location.id})">✏️</button>
 						<button onclick="window.bleikoyaMap.deletePOI(${location.id})">🗑</button>
 					</div>
 				`;
-				listDiv.appendChild(item);
-			});
-		}
-
-		// Add new gruppe (create taxonomy term via WordPress)
-		document.getElementById('add-layer-btn').addEventListener('click', function() {
-			var name = document.getElementById('new-layer-name').value.trim();
-			if (!name) {
-				alert('Skriv inn navn på gruppen');
-				return;
-			}
-
-			// Note: Creating taxonomy terms requires WordPress admin
-			// For now, just alert user - proper implementation would need admin AJAX
-			alert('Nye grupper må opprettes i WordPress admin (Steder > Grupper).\n\nDu kan også bare bruke gruppenavnet - det blir automatisk opprettet når du lagrer første sted.');
-
-			// Create a temporary slug from name
-			var slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[æ]/g, 'ae').replace(/[ø]/g, 'o').replace(/[å]/g, 'a');
-
-			// Set as current gruppe
-			currentGruppe = slug;
-			document.getElementById('new-layer-name').value = '';
-
-			// Add to locationsData temporarily
-			if (!locationsData[slug]) {
-				locationsData[slug] = {
-					name: name,
-					locations: []
-				};
-			}
-
-			updateGruppeSelect();
-			document.getElementById('poi-layer-select').value = slug;
-			updatePOIList();
-		});
-
-		// Gruppe select change
-		document.getElementById('poi-layer-select').addEventListener('change', function(e) {
-			currentGruppe = e.target.value || null;
-			updatePOIList();
-		});
-
-		// Initialize gruppe select
-		updateGruppeSelect();
-
-		// Drawing tools
-		function cancelDrawing() {
-			drawingMode = null;
-			tempMarkers.forEach(function(m) {
-				map.removeLayer(m);
-			});
-			tempMarkers = [];
-			document.getElementById('cancel-draw-btn').style.display = 'none';
-			document.querySelectorAll('#draw-marker-btn, #draw-rectangle-btn, #draw-polygon-btn').forEach(function(btn) {
-				btn.classList.remove('active');
-			});
-			map.off('click');
-		}
-
-		document.getElementById('cancel-draw-btn').addEventListener('click', cancelDrawing);
-
-		// Marker drawing
-		document.getElementById('draw-marker-btn').addEventListener('click', function() {
-			if (!currentGruppe) {
-				alert('Velg en gruppe først');
-				return;
-			}
-			cancelDrawing();
-			drawingMode = 'marker';
-			this.classList.add('active');
-			document.getElementById('cancel-draw-btn').style.display = 'block';
-
-			map.on('click', function(e) {
-				if (drawingMode !== 'marker') return;
-
-				var name = prompt('Navn på punktet:');
-				if (!name) return;
-
-				// Save to database via REST API
-				saveLocationToDatabase({
-					title: name,
-					type: 'marker',
-					coordinates: {
-						lat: e.latlng.lat,
-						lng: e.latlng.lng
-					},
-					gruppe: currentGruppe,
-					style: {
-						color: '#3388ff',
-						opacity: 0.8,
-						weight: 2
-					}
+					listDiv.appendChild(item);
 				});
-
-				cancelDrawing();
-			});
-		});
-
-		// Rectangle drawing
-		document.getElementById('draw-rectangle-btn').addEventListener('click', function() {
-			if (!currentGruppe) {
-				alert('Velg en gruppe først');
-				return;
 			}
-			cancelDrawing();
-			drawingMode = 'rectangle';
-			this.classList.add('active');
-			document.getElementById('cancel-draw-btn').style.display = 'block';
 
-			var startPoint = null;
-			var rect = null;
+			// Add new gruppe (create taxonomy term via WordPress)
+			document.getElementById('add-layer-btn').addEventListener('click', function() {
+				var name = document.getElementById('new-layer-name').value.trim();
+				if (!name) {
+					alert('Skriv inn navn på gruppen');
+					return;
+				}
 
-			map.on('click', function(e) {
-				if (drawingMode !== 'rectangle') return;
+				// Note: Creating taxonomy terms requires WordPress admin
+				// For now, just alert user - proper implementation would need admin AJAX
+				alert('Nye grupper må opprettes i WordPress admin (Steder > Grupper).\n\nDu kan også bare bruke gruppenavnet - det blir automatisk opprettet når du lagrer første sted.');
 
-				if (!startPoint) {
-					startPoint = e.latlng;
-					rect = L.rectangle([startPoint, startPoint], {
-						color: '#ff7800',
-						weight: 2
-					}).addTo(map);
-					tempMarkers.push(rect);
-				} else {
-					var name = prompt('Navn på firkanten:');
-					if (!name) {
-						map.removeLayer(rect);
-						tempMarkers = [];
-						startPoint = null;
-						rect = null;
-						return;
-					}
+				// Create a temporary slug from name
+				var slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[æ]/g, 'ae').replace(/[ø]/g, 'o').replace(/[å]/g, 'a');
 
-					var bounds = [startPoint, e.latlng];
+				// Set as current gruppe
+				currentGruppe = slug;
+				document.getElementById('new-layer-name').value = '';
+
+				// Add to locationsData temporarily
+				if (!locationsData[slug]) {
+					locationsData[slug] = {
+						name: name,
+						locations: []
+					};
+				}
+
+				updateGruppeSelect();
+				document.getElementById('poi-layer-select').value = slug;
+				updatePOIList();
+			});
+
+			// Gruppe select change
+			document.getElementById('poi-layer-select').addEventListener('change', function(e) {
+				currentGruppe = e.target.value || null;
+				updatePOIList();
+			});
+
+			// Initialize gruppe select
+			updateGruppeSelect();
+
+			// Drawing tools
+			function cancelDrawing() {
+				drawingMode = null;
+				tempMarkers.forEach(function(m) {
+					map.removeLayer(m);
+				});
+				tempMarkers = [];
+				document.getElementById('cancel-draw-btn').style.display = 'none';
+				document.querySelectorAll('#draw-marker-btn, #draw-rectangle-btn, #draw-polygon-btn').forEach(function(btn) {
+					btn.classList.remove('active');
+				});
+				map.off('click');
+			}
+
+			document.getElementById('cancel-draw-btn').addEventListener('click', cancelDrawing);
+
+			// Marker drawing
+			document.getElementById('draw-marker-btn').addEventListener('click', function() {
+				if (!currentGruppe) {
+					alert('Velg en gruppe først');
+					return;
+				}
+				cancelDrawing();
+				drawingMode = 'marker';
+				this.classList.add('active');
+				document.getElementById('cancel-draw-btn').style.display = 'block';
+
+				map.on('click', function(e) {
+					if (drawingMode !== 'marker') return;
+
+					var name = prompt('Navn på punktet:');
+					if (!name) return;
 
 					// Save to database via REST API
 					saveLocationToDatabase({
 						title: name,
-						type: 'rectangle',
+						type: 'marker',
 						coordinates: {
-							bounds: [
-								[bounds[0].lat, bounds[0].lng],
-								[bounds[1].lat, bounds[1].lng]
-							]
+							lat: e.latlng.lat,
+							lng: e.latlng.lng
+						},
+						gruppe: currentGruppe,
+						style: {
+							color: '#3388ff',
+							opacity: 0.8,
+							weight: 2
+						}
+					});
+
+					cancelDrawing();
+				});
+			});
+
+			// Rectangle drawing
+			document.getElementById('draw-rectangle-btn').addEventListener('click', function() {
+				if (!currentGruppe) {
+					alert('Velg en gruppe først');
+					return;
+				}
+				cancelDrawing();
+				drawingMode = 'rectangle';
+				this.classList.add('active');
+				document.getElementById('cancel-draw-btn').style.display = 'block';
+
+				var startPoint = null;
+				var rect = null;
+
+				map.on('click', function(e) {
+					if (drawingMode !== 'rectangle') return;
+
+					if (!startPoint) {
+						startPoint = e.latlng;
+						rect = L.rectangle([startPoint, startPoint], {
+							color: '#ff7800',
+							weight: 2
+						}).addTo(map);
+						tempMarkers.push(rect);
+					} else {
+						var name = prompt('Navn på firkanten:');
+						if (!name) {
+							map.removeLayer(rect);
+							tempMarkers = [];
+							startPoint = null;
+							rect = null;
+							return;
+						}
+
+						var bounds = [startPoint, e.latlng];
+
+						// Save to database via REST API
+						saveLocationToDatabase({
+							title: name,
+							type: 'rectangle',
+							coordinates: {
+								bounds: [
+									[bounds[0].lat, bounds[0].lng],
+									[bounds[1].lat, bounds[1].lng]
+								]
+							},
+							gruppe: currentGruppe,
+							style: {
+								color: '#ff7800',
+								opacity: 0.5,
+								weight: 2
+							}
+						});
+
+						map.removeLayer(rect);
+						tempMarkers = [];
+						cancelDrawing();
+						startPoint = null;
+						rect = null;
+					}
+				});
+
+				map.on('mousemove', function(e) {
+					if (drawingMode === 'rectangle' && startPoint && rect) {
+						rect.setBounds([startPoint, e.latlng]);
+					}
+				});
+			});
+
+			// Polygon drawing
+			document.getElementById('draw-polygon-btn').addEventListener('click', function() {
+				if (!currentGruppe) {
+					alert('Velg en gruppe først');
+					return;
+				}
+				cancelDrawing();
+				drawingMode = 'polygon';
+				this.classList.add('active');
+				document.getElementById('cancel-draw-btn').style.display = 'block';
+
+				var points = [];
+				var polyline = null;
+
+				map.on('click', function(e) {
+					if (drawingMode !== 'polygon') return;
+
+					points.push(e.latlng);
+					var marker = L.circleMarker(e.latlng, {
+						radius: 4,
+						color: 'red'
+					}).addTo(map);
+					tempMarkers.push(marker);
+
+					if (polyline) {
+						map.removeLayer(polyline);
+					}
+					polyline = L.polyline(points, {
+						color: '#ff7800',
+						weight: 2
+					}).addTo(map);
+					tempMarkers.push(polyline);
+				});
+
+				map.on('dblclick', function(e) {
+					if (drawingMode !== 'polygon' || points.length < 3) return;
+
+					var name = prompt('Navn på polygonet:');
+					if (!name) {
+						tempMarkers.forEach(function(m) {
+							map.removeLayer(m);
+						});
+						tempMarkers = [];
+						points = [];
+						return;
+					}
+
+					// Convert latlngs to array format
+					var latlngsArray = points.map(function(p) {
+						return [p.lat, p.lng];
+					});
+
+					// Save to database via REST API
+					saveLocationToDatabase({
+						title: name,
+						type: 'polygon',
+						coordinates: {
+							latlngs: latlngsArray
 						},
 						gruppe: currentGruppe,
 						style: {
@@ -2525,305 +2668,227 @@ corners: [
 						}
 					});
 
-					map.removeLayer(rect);
-					tempMarkers = [];
-					cancelDrawing();
-					startPoint = null;
-					rect = null;
-				}
-			});
-
-			map.on('mousemove', function(e) {
-				if (drawingMode === 'rectangle' && startPoint && rect) {
-					rect.setBounds([startPoint, e.latlng]);
-				}
-			});
-		});
-
-		// Polygon drawing
-		document.getElementById('draw-polygon-btn').addEventListener('click', function() {
-			if (!currentGruppe) {
-				alert('Velg en gruppe først');
-				return;
-			}
-			cancelDrawing();
-			drawingMode = 'polygon';
-			this.classList.add('active');
-			document.getElementById('cancel-draw-btn').style.display = 'block';
-
-			var points = [];
-			var polyline = null;
-
-			map.on('click', function(e) {
-				if (drawingMode !== 'polygon') return;
-
-				points.push(e.latlng);
-				var marker = L.circleMarker(e.latlng, {
-					radius: 4,
-					color: 'red'
-				}).addTo(map);
-				tempMarkers.push(marker);
-
-				if (polyline) {
-					map.removeLayer(polyline);
-				}
-				polyline = L.polyline(points, {
-					color: '#ff7800',
-					weight: 2
-				}).addTo(map);
-				tempMarkers.push(polyline);
-			});
-
-			map.on('dblclick', function(e) {
-				if (drawingMode !== 'polygon' || points.length < 3) return;
-
-				var name = prompt('Navn på polygonet:');
-				if (!name) {
+					// Clean up temp markers
 					tempMarkers.forEach(function(m) {
 						map.removeLayer(m);
 					});
 					tempMarkers = [];
+
+					cancelDrawing();
 					points = [];
+				});
+			});
+
+			// Save location to database via REST API
+			function saveLocationToDatabase(locationData) {
+				console.log('Saving location to database:', locationData);
+				fetch(wpApiSettings.root + 'bleikoya/v1/locations', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce': wpApiSettings.nonce
+						},
+						body: JSON.stringify(locationData)
+					})
+					.then(function(response) {
+						if (!response.ok) {
+							throw new Error('Failed to save location');
+						}
+						return response.json();
+					})
+					.then(function(savedLocation) {
+						console.log('Location saved:', savedLocation);
+
+						// Add to locationsData
+						var gruppeSlug = savedLocation.gruppe.slugs[0] || 'default';
+						if (!locationsData[gruppeSlug]) {
+							locationsData[gruppeSlug] = {
+								name: savedLocation.gruppe.names[0] || 'Diverse',
+								locations: []
+							};
+						}
+						locationsData[gruppeSlug].locations.push(savedLocation);
+
+						// Create marker and add to map
+						var marker = createLocationMarker(savedLocation);
+						if (marker) {
+							// Add to existing layer or create new one
+							if (locationLayers[gruppeSlug]) {
+								locationLayers[gruppeSlug].addLayer(marker);
+							} else {
+								// New gruppe - create layer and rebuild control
+								locationLayers[gruppeSlug] = L.layerGroup([marker]);
+								locationLayers[gruppeSlug].addTo(map);
+								rebuildLayerControl();
+							}
+
+							// Re-initialize Lucide icons for newly created marker
+							if (typeof lucide !== 'undefined') {
+								lucide.createIcons();
+							}
+						}
+
+						// Update POI list
+						updatePOIList();
+
+						alert('Stedet "' + savedLocation.title + '" er lagret!');
+					})
+					.catch(function(error) {
+						alert('Feil ved lagring: ' + error.message);
+						console.error('Save error:', error);
+					});
+			}
+
+			// Update location in database
+			function updateLocationInDatabase(locationId, locationData) {
+				console.log('Updating location:', locationId, locationData);
+				fetch(wpApiSettings.root + 'bleikoya/v1/locations/' + locationId, {
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce': wpApiSettings.nonce
+						},
+						body: JSON.stringify(locationData)
+					})
+					.then(function(response) {
+						if (!response.ok) {
+							throw new Error('Failed to update location');
+						}
+						return response.json();
+					})
+					.then(function(updatedLocation) {
+						console.log('Location updated:', updatedLocation);
+
+						// Update in locationsData
+						Object.keys(locationsData).forEach(function(gruppeSlug) {
+							var gruppe = locationsData[gruppeSlug];
+							gruppe.locations = gruppe.locations.map(function(loc) {
+								if (loc.id === locationId) {
+									// Merge updated data with existing location
+									return Object.assign({}, loc, {
+										coordinates: updatedLocation.coordinates,
+										title: updatedLocation.title || loc.title,
+										style: updatedLocation.style || loc.style
+									});
+								}
+								return loc;
+							});
+						});
+
+						// Show success message (brief, non-blocking)
+						console.log('Stedet "' + updatedLocation.title + '" er oppdatert!');
+					})
+					.catch(function(error) {
+						alert('Feil ved oppdatering: ' + error.message);
+						console.error('Update error:', error);
+					});
+			}
+
+			// Delete POI
+			function deletePOI(locationId) {
+				if (!confirm('Er du sikker på at du vil slette dette stedet?')) {
 					return;
 				}
 
-				// Convert latlngs to array format
-				var latlngsArray = points.map(function(p) {
-					return [p.lat, p.lng];
-				});
-
-				// Save to database via REST API
-				saveLocationToDatabase({
-					title: name,
-					type: 'polygon',
-					coordinates: {
-						latlngs: latlngsArray
-					},
-					gruppe: currentGruppe,
-					style: {
-						color: '#ff7800',
-						opacity: 0.5,
-						weight: 2
-					}
-				});
-
-				// Clean up temp markers
-				tempMarkers.forEach(function(m) {
-					map.removeLayer(m);
-				});
-				tempMarkers = [];
-
-				cancelDrawing();
-				points = [];
-			});
-		});
-
-		// Save location to database via REST API
-		function saveLocationToDatabase(locationData) {
-			console.log('Saving location to database:', locationData);
-			fetch(wpApiSettings.root + 'bleikoya/v1/locations', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-WP-Nonce': wpApiSettings.nonce
-				},
-				body: JSON.stringify(locationData)
-			})
-			.then(function(response) {
-				if (!response.ok) {
-					throw new Error('Failed to save location');
-				}
-				return response.json();
-			})
-			.then(function(savedLocation) {
-				console.log('Location saved:', savedLocation);
-
-				// Add to locationsData
-				var gruppeSlug = savedLocation.gruppe.slugs[0] || 'default';
-				if (!locationsData[gruppeSlug]) {
-					locationsData[gruppeSlug] = {
-						name: savedLocation.gruppe.names[0] || 'Diverse',
-						locations: []
-					};
-				}
-				locationsData[gruppeSlug].locations.push(savedLocation);
-
-				// Create marker and add to map
-				var marker = createLocationMarker(savedLocation);
-				if (marker) {
-					// Add to existing layer or create new one
-					if (locationLayers[gruppeSlug]) {
-						locationLayers[gruppeSlug].addLayer(marker);
-					} else {
-						// New gruppe - create layer and rebuild control
-						locationLayers[gruppeSlug] = L.layerGroup([marker]);
-						locationLayers[gruppeSlug].addTo(map);
-						rebuildLayerControl();
-					}
-
-					// Re-initialize Lucide icons for newly created marker
-					if (typeof lucide !== 'undefined') {
-						lucide.createIcons();
-					}
-				}
-
-				// Update POI list
-				updatePOIList();
-
-				alert('Stedet "' + savedLocation.title + '" er lagret!');
-			})
-			.catch(function(error) {
-				alert('Feil ved lagring: ' + error.message);
-				console.error('Save error:', error);
-			});
-		}
-
-		// Update location in database
-		function updateLocationInDatabase(locationId, locationData) {
-			console.log('Updating location:', locationId, locationData);
-			fetch(wpApiSettings.root + 'bleikoya/v1/locations/' + locationId, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-WP-Nonce': wpApiSettings.nonce
-				},
-				body: JSON.stringify(locationData)
-			})
-			.then(function(response) {
-				if (!response.ok) {
-					throw new Error('Failed to update location');
-				}
-				return response.json();
-			})
-			.then(function(updatedLocation) {
-				console.log('Location updated:', updatedLocation);
-
-				// Update in locationsData
-				Object.keys(locationsData).forEach(function(gruppeSlug) {
-					var gruppe = locationsData[gruppeSlug];
-					gruppe.locations = gruppe.locations.map(function(loc) {
-						if (loc.id === locationId) {
-							// Merge updated data with existing location
-							return Object.assign({}, loc, {
-								coordinates: updatedLocation.coordinates,
-								title: updatedLocation.title || loc.title,
-								style: updatedLocation.style || loc.style
-							});
+				fetch(wpApiSettings.root + 'bleikoya/v1/locations/' + locationId, {
+						method: 'DELETE',
+						headers: {
+							'X-WP-Nonce': wpApiSettings.nonce
 						}
-						return loc;
+					})
+					.then(function(response) {
+						if (!response.ok) {
+							throw new Error('Failed to delete location');
+						}
+						return response.json();
+					})
+					.then(function() {
+						// Remove from locationsData
+						Object.keys(locationsData).forEach(function(gruppeSlug) {
+							var gruppe = locationsData[gruppeSlug];
+							gruppe.locations = gruppe.locations.filter(function(loc) {
+								return loc.id !== locationId;
+							});
+						});
+
+						// Remove from map layers
+						Object.keys(locationLayers).forEach(function(gruppeSlug) {
+							locationLayers[gruppeSlug].eachLayer(function(layer) {
+								if (layer.locationId === locationId) {
+									locationLayers[gruppeSlug].removeLayer(layer);
+								}
+							});
+						});
+
+						// Update POI list
+						updatePOIList();
+
+						alert('Stedet er slettet!');
+					})
+					.catch(function(error) {
+						alert('Feil ved sletting: ' + error.message);
+						console.error('Delete error:', error);
 					});
-				});
-
-				// Show success message (brief, non-blocking)
-				console.log('Stedet "' + updatedLocation.title + '" er oppdatert!');
-			})
-			.catch(function(error) {
-				alert('Feil ved oppdatering: ' + error.message);
-				console.error('Update error:', error);
-			});
-		}
-
-		// Delete POI
-		function deletePOI(locationId) {
-			if (!confirm('Er du sikker på at du vil slette dette stedet?')) {
-				return;
 			}
 
-			fetch(wpApiSettings.root + 'bleikoya/v1/locations/' + locationId, {
-				method: 'DELETE',
-				headers: {
-					'X-WP-Nonce': wpApiSettings.nonce
-				}
-			})
-			.then(function(response) {
-				if (!response.ok) {
-					throw new Error('Failed to delete location');
-				}
-				return response.json();
-			})
-			.then(function() {
-				// Remove from locationsData
-				Object.keys(locationsData).forEach(function(gruppeSlug) {
-					var gruppe = locationsData[gruppeSlug];
-					gruppe.locations = gruppe.locations.filter(function(loc) {
-						return loc.id !== locationId;
-					});
-				});
+			// Edit location
+			function editLocation(locationId) {
+				// For now, redirect to admin edit page
+				var editUrl = wpApiSettings.root.replace('/wp-json/', '/wp-admin/post.php?post=' + locationId + '&action=edit');
+				window.open(editUrl, '_blank');
+			}
 
-				// Remove from map layers
-				Object.keys(locationLayers).forEach(function(gruppeSlug) {
-					locationLayers[gruppeSlug].eachLayer(function(layer) {
-						if (layer.locationId === locationId) {
-							locationLayers[gruppeSlug].removeLayer(layer);
-						}
-					});
-				});
-
-				// Update POI list
-				updatePOIList();
-
-				alert('Stedet er slettet!');
-			})
-			.catch(function(error) {
-				alert('Feil ved sletting: ' + error.message);
-				console.error('Delete error:', error);
+			// Export to JavaScript (legacy - kept for backward compatibility)
+			document.getElementById('export-poi-btn').addEventListener('click', function() {
+				alert('Eksportfunksjon er ikke lenger nødvendig.\n\nAlle steder lagres nå automatisk i databasen og lastes fra REST API.');
 			});
-		}
 
-		// Edit location
-		function editLocation(locationId) {
-			// For now, redirect to admin edit page
-			var editUrl = wpApiSettings.root.replace('/wp-json/', '/wp-admin/post.php?post=' + locationId + '&action=edit');
-			window.open(editUrl, '_blank');
-		}
+			// Expose to window for testing
+			window.bleikoyaMap = {
+				map: map,
+				svgToLatLng: svgToLatLng,
+				currentBounds: currentBounds,
+				currentRotation: function() {
+					return currentRotation;
+				},
+				updateBounds: function(s, w, n, e) {
+					currentBounds.south = s;
+					currentBounds.west = w;
+					currentBounds.north = n;
+					currentBounds.east = e;
+					var overlay = getSvgActualOverlay();
+					if (overlay && typeof overlay.setBounds === 'function') {
+						overlay.setBounds(getBounds());
+					}
+				},
+				setRotation: function(deg) {
+					currentRotation = deg;
+					document.getElementById('cal-rotation').value = deg;
+					document.getElementById('rotation-val').textContent = deg.toFixed(1) + '°';
+					var overlay = getSvgActualOverlay();
+					var svgElement = overlay && typeof overlay.getElement === 'function' ? overlay.getElement() : null;
+					if (svgElement) {
+						svgElement.style.transform = 'rotate(' + deg + 'deg)';
+						svgElement.style.transformOrigin = 'center center';
+					}
+					updateDisplay();
+				},
+				// Location/POI functions
+				deletePOI: deletePOI,
+				editLocation: editLocation,
+				saveLocationToDatabase: saveLocationToDatabase,
+				updateLocationInDatabase: updateLocationInDatabase,
+				locationsData: locationsData,
+				// Distortable images
+				distortableImageConfigs: distortableImageConfigs,
+				distortableImages: distortableImages,
+				updateImageSelect: updateImageSelect
+			};
 
-		// Export to JavaScript (legacy - kept for backward compatibility)
-		document.getElementById('export-poi-btn').addEventListener('click', function() {
-			alert('Eksportfunksjon er ikke lenger nødvendig.\n\nAlle steder lagres nå automatisk i databasen og lastes fra REST API.');
-		});
-
-		// Expose to window for testing
-		window.bleikoyaMap = {
-			map: map,
-			svgToLatLng: svgToLatLng,
-			currentBounds: currentBounds,
-			currentRotation: function() {
-				return currentRotation;
-			},
-			updateBounds: function(s, w, n, e) {
-				currentBounds.south = s;
-				currentBounds.west = w;
-				currentBounds.north = n;
-				currentBounds.east = e;
-				svgOverlay.setBounds(getBounds());
-			},
-			setRotation: function(deg) {
-				currentRotation = deg;
-				document.getElementById('cal-rotation').value = deg;
-				document.getElementById('rotation-val').textContent = deg.toFixed(1) + '°';
-				var svgElement = svgOverlay.getElement();
-				if (svgElement) {
-					svgElement.style.transform = 'rotate(' + deg + 'deg)';
-					svgElement.style.transformOrigin = 'center center';
-				}
-				updateDisplay();
-			},
-			// Location/POI functions
-			deletePOI: deletePOI,
-			editLocation: editLocation,
-			saveLocationToDatabase: saveLocationToDatabase,
-			updateLocationInDatabase: updateLocationInDatabase,
-			locationsData: locationsData,
-			// Distortable images
-			distortableImageConfigs: distortableImageConfigs,
-			distortableImages: distortableImages,
-			updateImageSelect: updateImageSelect
-		};
-
-		// Helper: Log click coordinates
-		map.on('click', function(e) {
-			console.log('Clicked at:', e.latlng.lat.toFixed(6) + ', ' + e.latlng.lng.toFixed(6));
-		});
+			// Helper: Log click coordinates
+			map.on('click', function(e) {
+				console.log('Clicked at:', e.latlng.lat.toFixed(6) + ', ' + e.latlng.lng.toFixed(6));
+			});
 		} // End of wpApiSettings.canEdit block
 
 		// ===== CONNECTIONS SIDEBAR =====
@@ -2831,7 +2896,9 @@ corners: [
 		// Close sidebar button
 		document.getElementById('close-sidebar').addEventListener('click', function() {
 			document.getElementById('connections-sidebar').classList.remove('visible');
-			updateUrlState({ poi: null });
+			updateUrlState({
+				poi: null
+			});
 		});
 
 		// Function to show connections sidebar
@@ -2849,101 +2916,109 @@ corners: [
 
 			// Fetch location data and connections in parallel
 			Promise.all([
-				fetch(wpApiSettings.root + 'bleikoya/v1/locations/' + locationId, {
-					headers: { 'X-WP-Nonce': wpApiSettings.nonce }
-				}).then(function(r) { return r.json(); }),
-				fetch(wpApiSettings.root + 'bleikoya/v1/locations/' + locationId + '/connections', {
-					headers: { 'X-WP-Nonce': wpApiSettings.nonce }
-				}).then(function(r) { return r.json(); })
-			])
-			.then(function(results) {
-				var location = results[0];
-				var connections = results[1];
+					fetch(wpApiSettings.root + 'bleikoya/v1/locations/' + locationId, {
+						headers: {
+							'X-WP-Nonce': wpApiSettings.nonce
+						}
+					}).then(function(r) {
+						return r.json();
+					}),
+					fetch(wpApiSettings.root + 'bleikoya/v1/locations/' + locationId + '/connections', {
+						headers: {
+							'X-WP-Nonce': wpApiSettings.nonce
+						}
+					}).then(function(r) {
+						return r.json();
+					})
+				])
+				.then(function(results) {
+					var location = results[0];
+					var connections = results[1];
 
-				loading.style.display = 'none';
+					loading.style.display = 'none';
 
-				// Render location info
-				var infoHtml = '<div class="location-info">';
-				infoHtml += '<h3>' + location.title + '</h3>';
+					// Render location info
+					var infoHtml = '<div class="location-info">';
+					infoHtml += '<h3>' + location.title + '</h3>';
 
-				if (location.gruppe && location.gruppe.names && location.gruppe.names.length > 0) {
-					infoHtml += '<div class="location-gruppe">' + location.gruppe.names.join(', ') + '</div>';
-				}
-
-				if (location.thumbnail && location.thumbnail.url) {
-					infoHtml += '<div class="location-thumbnail">';
-					infoHtml += '<img src="' + location.thumbnail.url + '" alt="' + (location.thumbnail.alt || location.title) + '"';
-					if (location.thumbnail.srcset) {
-						infoHtml += ' srcset="' + location.thumbnail.srcset + '"';
+					if (location.gruppe && location.gruppe.names && location.gruppe.names.length > 0) {
+						infoHtml += '<div class="location-gruppe">' + location.gruppe.names.join(', ') + '</div>';
 					}
-					infoHtml += ' loading="lazy">';
+
+					if (location.thumbnail && location.thumbnail.url) {
+						infoHtml += '<div class="location-thumbnail">';
+						infoHtml += '<img src="' + location.thumbnail.url + '" alt="' + (location.thumbnail.alt || location.title) + '"';
+						if (location.thumbnail.srcset) {
+							infoHtml += ' srcset="' + location.thumbnail.srcset + '"';
+						}
+						infoHtml += ' loading="lazy">';
+						infoHtml += '</div>';
+					}
+
+					if (location.description) {
+						infoHtml += '<div class="location-description">' + location.description + '</div>';
+					}
+
+					// Show edit link for admins
+					if (wpApiSettings.canEdit && location.edit_link) {
+						infoHtml += '<a href="' + location.edit_link + '" class="location-edit-link" target="_blank">Rediger</a>';
+					}
+
 					infoHtml += '</div>';
-				}
+					locationInfoContainer.innerHTML = infoHtml;
 
-				if (location.description) {
-					infoHtml += '<div class="location-description">' + location.description + '</div>';
-				}
-
-				// Show edit link for admins
-				if (wpApiSettings.canEdit && location.edit_link) {
-					infoHtml += '<a href="' + location.edit_link + '" class="location-edit-link" target="_blank">Rediger</a>';
-				}
-
-				infoHtml += '</div>';
-				locationInfoContainer.innerHTML = infoHtml;
-
-				// Render connections
-				if (connections.length === 0) {
-					dataContainer.innerHTML = '';
-					return;
-				}
-
-				dataContainer.classList.remove('empty');
-
-				// Group connections by type
-				var groupedConnections = {};
-				connections.forEach(function(conn) {
-					if (!groupedConnections[conn.type]) {
-						groupedConnections[conn.type] = [];
+					// Render connections
+					if (connections.length === 0) {
+						dataContainer.innerHTML = '';
+						return;
 					}
-					groupedConnections[conn.type].push(conn);
-				});
 
-				// Render grouped connections
-				var html = '<h4 class="connections-heading">Koblinger</h4>';
+					dataContainer.classList.remove('empty');
 
-				Object.keys(groupedConnections).forEach(function(type) {
-					var typeLabel = getTypeLabel(type);
-					html += '<div class="connection-group">';
-					html += '<h5>' + typeLabel + '</h5>';
-
-					groupedConnections[type].forEach(function(conn) {
-						html += '<div class="connection-item">';
-						html += '<a href="' + conn.link + '" target="_blank">' + conn.title + '</a>';
-
-						if (conn.excerpt) {
-							html += '<div class="connection-excerpt">' + conn.excerpt + '</div>';
+					// Group connections by type
+					var groupedConnections = {};
+					connections.forEach(function(conn) {
+						if (!groupedConnections[conn.type]) {
+							groupedConnections[conn.type] = [];
 						}
+						groupedConnections[conn.type].push(conn);
+					});
 
-						html += '<div class="connection-meta">';
-						if (conn.cabin_number) {
-							html += '<span class="connection-cabin-badge">Hytte ' + conn.cabin_number + '</span>';
-						}
-						html += '</div>';
+					// Render grouped connections
+					var html = '<h4 class="connections-heading">Koblinger</h4>';
+
+					Object.keys(groupedConnections).forEach(function(type) {
+						var typeLabel = getTypeLabel(type);
+						html += '<div class="connection-group">';
+						html += '<h5>' + typeLabel + '</h5>';
+
+						groupedConnections[type].forEach(function(conn) {
+							html += '<div class="connection-item">';
+							html += '<a href="' + conn.link + '" target="_blank">' + conn.title + '</a>';
+
+							if (conn.excerpt) {
+								html += '<div class="connection-excerpt">' + conn.excerpt + '</div>';
+							}
+
+							html += '<div class="connection-meta">';
+							if (conn.cabin_number) {
+								html += '<span class="connection-cabin-badge">Hytte ' + conn.cabin_number + '</span>';
+							}
+							html += '</div>';
+
+							html += '</div>';
+						});
 
 						html += '</div>';
 					});
 
-					html += '</div>';
+					dataContainer.innerHTML = html;
+				})
+				.catch(function(error) {
+					loading.style.display = 'none';
+					locationInfoContainer.innerHTML = '<p style="color: #d63638;">Feil ved lasting. Prøv igjen.</p>';
+					console.error('Error fetching location data:', error);
 				});
-
-				dataContainer.innerHTML = html;
-			})
-			.catch(function(error) {
-				loading.style.display = 'none';
-				locationInfoContainer.innerHTML = '<p style="color: #d63638;">Feil ved lasting. Prøv igjen.</p>';
-				console.error('Error fetching location data:', error);
-			});
 		}
 
 		// Helper function to get human-readable type label
