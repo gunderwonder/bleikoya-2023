@@ -299,6 +299,23 @@
 		color: #333;
 	}
 
+	.location-edit-link {
+		display: inline-block;
+		margin-top: 10px;
+		padding: 6px 12px;
+		font-size: 13px;
+		color: #666;
+		background: #f5f5f5;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		text-decoration: none;
+	}
+
+	.location-edit-link:hover {
+		background: #e8e8e8;
+		color: #333;
+	}
+
 	.connections-heading {
 		font-size: 14px;
 		color: #666;
@@ -907,7 +924,7 @@ var wpApiSettings = {
 		// This stores the config, not the overlay instance
 		var distortableImageConfigs = {
 			bym: {
-				name: 'BYM-kart',
+				name: 'Naturkart',
 				url: '<?php echo get_stylesheet_directory_uri(); ?>/assets/img/bleikoya-bym-kart.png',
 				opacity: 0.7,
 				corners: [
@@ -2816,6 +2833,11 @@ corners: [
 
 				if (location.description) {
 					infoHtml += '<div class="location-description">' + location.description + '</div>';
+				}
+
+				// Show edit link for admins
+				if (wpApiSettings.canEdit && location.edit_link) {
+					infoHtml += '<a href="' + location.edit_link + '" class="location-edit-link" target="_blank">Rediger</a>';
 				}
 
 				infoHtml += '</div>';
