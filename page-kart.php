@@ -32,6 +32,13 @@
 		}
 	}
 
+	<?php if (!current_user_can('edit_posts')): ?>
+	/* Hide layer controls for non-editors */
+	.leaflet-control-layers {
+		display: none !important;
+	}
+	<?php endif; ?>
+
 	/* Navigation height: 1rem red bar + ~3rem nav = ~4rem */
 	:root {
 		--nav-height: 4rem;
@@ -977,12 +984,18 @@ foreach ($locations as $location) {
 		}
 
 		// Initialize map with geographic projection (standard Leaflet)
+		// Place zoom control in bottom-left for non-editors
 		var map = L.map('map', {
 			minZoom: 13,
 			maxZoom: 22,
 			zoom: 18,
-			zoomControl: true
+			zoomControl: wpApiSettings.canEdit ? true : false
 		});
+
+		// Add zoom control in bottom-left for non-editors
+		if (!wpApiSettings.canEdit) {
+			L.control.zoom({ position: 'bottomleft' }).addTo(map);
+		}
 
 		// Set initial view based on screen size
 		// Large screens: closer view of central Bleikøya
