@@ -224,6 +224,21 @@ function get_marker_presets() {
 			'name'  => 'Avfall/Boss',
 			'color' => 'rgb(81, 131, 71)',
 			'icon'  => 'trash-2'
+		),
+		'toalett' => array(
+			'name'  => 'Toalett',
+			'color' => 'rgb(81, 131, 71)',
+			'icon'  => 'toilet'
+		),
+		'volleyball' => array(
+			'name'  => 'Volleyballbane',
+			'color' => 'rgb(232, 195, 103)',
+			'icon'  => 'circle'
+		),
+		'septiktank' => array(
+			'name'  => 'Septiktank',
+			'color' => 'rgb(139, 90, 43)',
+			'icon'  => 'cylinder'
 		)
 	);
 }

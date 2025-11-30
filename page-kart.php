@@ -127,6 +127,14 @@
 		height: 16px;
 	}
 
+	/* Light marker variant - use dark icons/labels */
+	.b-custom-marker--light .lucide {
+		stroke: #333 !important;
+	}
+	.b-custom-marker--light .b-custom-marker__label {
+		color: #333;
+	}
+
 	/* Active/selected marker state */
 	.b-custom-marker.active,
 	.leaflet-marker-icon:focus .b-custom-marker {
@@ -1018,6 +1026,43 @@ var wpApiSettings = {
 		}
 
 		/**
+		 * Check if a color is light (for determining icon color)
+		 * @param {string} color - CSS color value (hex, rgb, or named)
+		 * @returns {boolean} True if color is light
+		 */
+		function isLightColor(color) {
+			var r, g, b;
+
+			// Parse hex color
+			if (color.charAt(0) === '#') {
+				var hex = color.slice(1);
+				if (hex.length === 3) {
+					hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+				}
+				r = parseInt(hex.slice(0, 2), 16);
+				g = parseInt(hex.slice(2, 4), 16);
+				b = parseInt(hex.slice(4, 6), 16);
+			}
+			// Parse rgb/rgba color
+			else if (color.indexOf('rgb') === 0) {
+				var match = color.match(/\d+/g);
+				if (match && match.length >= 3) {
+					r = parseInt(match[0]);
+					g = parseInt(match[1]);
+					b = parseInt(match[2]);
+				}
+			}
+			// Default: assume dark
+			else {
+				return false;
+			}
+
+			// Calculate relative luminance (simplified)
+			var luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+			return luminance > 0.6;
+		}
+
+		/**
 		 * Create custom Leaflet divIcon with SVG pin shape and optional Lucide icon or label
 		 * @param {Object} style - Style object with color, icon, preset
 		 * @param {string|null} label - Optional label text to show inside marker (e.g. cabin number)
@@ -1034,6 +1079,10 @@ var wpApiSettings = {
 				icon = markerPresets[preset].icon;
 			}
 
+			// Determine if marker needs dark icons/labels
+			var isLight = isLightColor(color);
+			var markerClass = 'b-custom-marker' + (isLight ? ' b-custom-marker--light' : '');
+
 			// Marker dimensions
 			var width = 34;
 			var height = 44;
@@ -1041,7 +1090,7 @@ var wpApiSettings = {
 			// SVG teardrop pin shape - circle at top curving down to point
 			var svgPath = 'M17 2 C8.716 2 2 8.716 2 17 C2 23.5 6 29 17 42 C28 29 32 23.5 32 17 C32 8.716 25.284 2 17 2 Z';
 
-			var html = '<div class="b-custom-marker">' +
+			var html = '<div class="' + markerClass + '">' +
 				'<svg class="b-custom-marker__svg" viewBox="0 0 34 44" xmlns="http://www.w3.org/2000/svg">' +
 				'<path d="' + svgPath + '" fill="' + color + '" stroke="white" stroke-width="2.5"/>' +
 				'</svg>' +
