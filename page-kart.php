@@ -874,8 +874,15 @@ foreach ($locations as $location) {
 			zoomControl: true
 		});
 
-		// Set initial view to Bleikøya
-		map.fitBounds(getBounds());
+		// Set initial view based on screen size
+		// Large screens: closer view of central Bleikøya
+		// Small screens: wider view to fit more in viewport
+		var isLargeScreen = window.innerWidth >= 768;
+		if (isLargeScreen) {
+			map.setView([59.88972, 10.74123], 17);
+		} else {
+			map.setView([59.89275, 10.74091], 15);
+		}
 
 		// Create simple gray tile layer (for viewing SVG without OSM)
 		L.GridLayer.GrayTiles = L.GridLayer.extend({
@@ -905,7 +912,8 @@ foreach ($locations as $location) {
 		// });
 
 		var topographic = L.tileLayer('https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png', {
-			attribution: '&copy; <a href="http://www.kartverket.no/">Kartverket</a>'
+			attribution: '&copy; <a href="http://www.kartverket.no/">Kartverket</a>',
+			maxZoom: 18
 		});
 
 		// var kartverketSatellite = L.tileLayer('https://opencache.statkart.no/gatekeeper/gk/gk.open_nib_utm33_wmts_v2?layer=Nibcache_UTM33_EUREF89&style=default&tilematrixset=default028mm&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix={z}&TileCol={x}&TileRow={y}', {
@@ -1445,6 +1453,13 @@ foreach ($locations as $location) {
 			});
 		}
 
+		// Max zoom levels for each base layer
+		var baseLayerMaxZoom = {
+			'topo': 18,
+			'satellite': 22,
+			'svg': 22
+		};
+
 		function switchBaseLayer(key) {
 			// Remove all base layers
 			Object.values(baseLayerKeys).forEach(function(layer) {
@@ -1456,6 +1471,15 @@ foreach ($locations as $location) {
 			// Add selected base layer
 			if (baseLayerKeys[key]) {
 				baseLayerKeys[key].addTo(map);
+
+				// Enforce max zoom for the selected layer
+				var maxZoom = baseLayerMaxZoom[key] || 22;
+				if (map.getZoom() > maxZoom) {
+					map.setZoom(maxZoom);
+				}
+
+				// Update map's max zoom constraint
+				map.setMaxZoom(maxZoom);
 			}
 
 			updateBaseLayerState();

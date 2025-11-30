@@ -305,14 +305,28 @@ function rest_get_location_connections( $request ) {
 	foreach ( $connections as $conn ) {
 		$item = $conn;
 
-		// Add excerpt for posts
-		if ( $conn['type'] !== 'user' ) {
+		if ( $conn['type'] === 'user' ) {
+			// Add email for users (for cross-environment matching)
+			$user = get_user_by( 'ID', $conn['id'] );
+			if ( $user ) {
+				$item['email'] = $user->user_email;
+			}
+		} elseif ( $conn['type'] !== 'term' ) {
+			// Add slug and excerpt for posts
 			$post = get_post( $conn['id'] );
-			$item['excerpt'] = has_excerpt( $conn['id'] ) ? get_the_excerpt( $conn['id'] ) : wp_trim_words( $post->post_content, 20 );
+			if ( $post ) {
+				$item['slug'] = $post->post_name;
+				$item['excerpt'] = has_excerpt( $conn['id'] ) ? get_the_excerpt( $conn['id'] ) : wp_trim_words( $post->post_content, 20 );
 
-			// Add thumbnail if available
-			if ( has_post_thumbnail( $conn['id'] ) ) {
-				$item['thumbnail'] = get_the_post_thumbnail_url( $conn['id'], 'thumbnail' );
+				// Add thumbnail if available
+				if ( has_post_thumbnail( $conn['id'] ) ) {
+					$item['thumbnail'] = get_the_post_thumbnail_url( $conn['id'], 'thumbnail' );
+				}
+			}
+		} else {
+			// For terms, add taxonomy and slug
+			if ( isset( $conn['data'] ) && $conn['data'] instanceof WP_Term ) {
+				$item['slug'] = $conn['data']->slug;
 			}
 		}
 

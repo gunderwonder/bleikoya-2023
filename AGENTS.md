@@ -182,12 +182,15 @@ This project has Chrome DevTools MCP configured for browser-based debugging and 
 - **Network requests**: Debug API calls
 - **Resize**: Test responsive layouts
 
-### When to Use
-- Debugging UI issues (like the sidebar close button not working on mobile)
-- Verifying JavaScript interactions work correctly
-- Checking for console errors after changes
-- Testing map controls, popups, and overlays
-- Investigating issues that only reproduce in browser
+### When to Use (actively)
+- **Debugging**: Checking console for JavaScript errors after changes
+- **Investigating bugs**: Issues that only reproduce in browser
+- **Verifying fixes**: Confirming a specific bug is resolved
+
+### When NOT to Use
+- **General testing after changes**: Ask the user first - they can often test faster manually
+- **Visual verification**: User can check the result themselves
+- **Simple UI changes**: Let the user verify styling, layout changes etc.
 
 ### Common Commands
 - `mcp__chrome-devtools__take_screenshot` - Capture current viewport
