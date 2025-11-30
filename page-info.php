@@ -50,6 +50,26 @@
 					</ul>
 					<?php wp_reset_postdata(); ?>
 				<?php endif; ?>
+
+				<?php $connected_locations = get_connected_locations($category->term_id, 'term'); ?>
+				<?php if (!empty($connected_locations)) : ?>
+					<h3 class="b-subject-list__item-posts-heading">På kartet</h3>
+					<ul class="b-subject-list__item-posts">
+						<?php foreach ($connected_locations as $location_id) : ?>
+							<?php $location = get_post($location_id); ?>
+							<?php if ($location && $location->post_status === 'publish') : ?>
+								<?php $gruppe_terms = wp_get_post_terms($location_id, 'gruppe'); ?>
+								<?php $overlay_slug = !empty($gruppe_terms) ? $gruppe_terms[0]->slug : ''; ?>
+								<li class="b-subject-list__item-post">
+									<a href="/kart/?poi=<?php echo $location_id; ?><?php echo $overlay_slug ? '&overlays=' . $overlay_slug : ''; ?>" class="b-subject-list__item-post-link b-anchor--with-icon">
+										<i data-lucide="map-pin" class="b-icon b-icon--small"></i>
+										<?php echo esc_html($location->post_title); ?>
+									</a>
+								</li>
+							<?php endif; ?>
+						<?php endforeach; ?>
+					</ul>
+				<?php endif; ?>
 			</div>
 
 		<?php endforeach; ?>

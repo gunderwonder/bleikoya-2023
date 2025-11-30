@@ -13,7 +13,8 @@
       "mcp__chrome-devtools__list_console_messages",
       "mcp__chrome-devtools__navigate_page",
       "mcp__chrome-devtools__evaluate_script",
-      "WebFetch(domain:www.kartverket.no)"
+      "WebFetch(domain:www.kartverket.no)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
