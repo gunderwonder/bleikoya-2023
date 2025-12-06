@@ -8,15 +8,27 @@
  */
 
 // Build map of dates with events (fetch all events for the year range if needed)
-// Track both regular and featured events
+// Track regular events, featured events, and rental events
 $event_dates = [];
 $featured_dates = [];
+$rental_dates = [];
+
+// Get the rental category term (by slug)
+$rental_category = get_term_by('slug', 'velhuset', 'tribe_events_cat');
+
 if (!empty($events)) {
 	foreach ($events as $event) {
 		$date = tribe_get_start_date($event, false, 'Y-m-d');
 		$event_dates[$date] = true;
 		if (get_post_meta($event->ID, '_tribe_featured', true)) {
 			$featured_dates[$date] = true;
+		}
+		// Check if event is in the rental category
+		if ($rental_category) {
+			$category_ids = tribe_get_event_cat_ids($event->ID);
+			if (in_array($rental_category->term_id, $category_ids)) {
+				$rental_dates[$date] = true;
+			}
 		}
 	}
 }
@@ -102,6 +114,7 @@ $base_url = strtok($_SERVER['REQUEST_URI'], '?');
 				$is_today = $date_str === $today->format('Y-m-d');
 				$has_event = isset($event_dates[$date_str]);
 				$has_featured = isset($featured_dates[$date_str]);
+				$has_rental = isset($rental_dates[$date_str]);
 				$is_sunday = $day === 6;
 
 				$classes = ['b-month-grid__day'];
@@ -109,6 +122,7 @@ $base_url = strtok($_SERVER['REQUEST_URI'], '?');
 				if ($is_today) $classes[] = 'b-month-grid__day--today';
 				if ($has_event) $classes[] = 'b-month-grid__day--has-event';
 				if ($has_featured) $classes[] = 'b-month-grid__day--has-featured';
+				if ($has_rental) $classes[] = 'b-month-grid__day--rented';
 				if ($is_sunday) $classes[] = 'b-month-grid__day--sunday';
 			?>
 				<button type="button" class="<?php echo implode(' ', $classes); ?>" data-scroll-date="<?php echo $current_day->format('Y-m-d'); ?>">

@@ -1123,7 +1123,7 @@ a.page-numbers:hover {
 	}
 
 	.b-calendar-page__sidebar .b-month-grid {
-		margin: 0;
+		margin: 0 0 2rem 0;
 		max-width: none;
 		width: 100%;
 	}
@@ -1278,6 +1278,11 @@ a.page-numbers:hover {
 
 .b-month-grid__header--sunday {
 	color: var(--b-primary-color);
+}
+
+.b-month-grid__day--rented {
+	text-decoration: line-through;
+	text-decoration-thickness: 2px;
 }
 
 .b-month-grid__day:hover {

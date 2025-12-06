@@ -190,4 +190,71 @@ create_test_event('Jubileumsfeiring - Velforeningen 150 år', ($current_year + 3
 create_test_event('Stor rehabilitering av brygga - oppstart', ($current_year + 2) . '-04-01');
 create_test_event('Nytt lekestativ - innvielse', ($current_year + 2) . '-07-01', null, true);
 
+// Create rental events (Velhuset rentals)
+echo "\nRental events (Utleie av Velhuset):\n";
+
+// Get the rental category (slug: velhuset)
+$rental_cat = get_term_by('slug', 'velhuset', 'tribe_events_cat');
+if (!$rental_cat) {
+	echo "  Warning: Category 'velhuset' not found. Skipping rental events.\n";
+}
+
+if ($rental_cat) {
+	// Create some rental events in May, early June, and late August/September
+	$rental_events = [
+		["Privat arrangement (Hansen)", "$current_year-05-10"],
+		["Privat arrangement (Olsen)", "$current_year-05-24"],
+		["Bursdagsfeiring", "$current_year-06-07"],
+		["Privat arrangement (Johansen)", "$current_year-08-16"],
+		["Konfirmasjon", "$current_year-09-06"],
+	];
+
+	foreach ($rental_events as $rental) {
+		$title = $rental[0];
+		$date = $rental[1];
+
+		// Check if already exists
+		$existing = tribe_get_events([
+			's' => $title,
+			'start_date' => $date,
+			'posts_per_page' => 1,
+		]);
+
+		$skip = false;
+		if (!empty($existing)) {
+			foreach ($existing as $e) {
+				if ($e->post_title === $title && tribe_get_start_date($e, false, 'Y-m-d') === $date) {
+					echo "  Skipping (exists): $title on $date\n";
+					$skip = true;
+					break;
+				}
+			}
+		}
+
+		if (!$skip) {
+			$args = [
+				'post_title' => $title,
+				'post_content' => 'Privat utleie av Velhuset.',
+				'post_status' => 'publish',
+				'EventStartDate' => $date,
+				'EventEndDate' => $date,
+				'EventStartHour' => '18',
+				'EventStartMinute' => '00',
+				'EventEndHour' => '23',
+				'EventEndMinute' => '00',
+				'EventAllDay' => false,
+				'EventTimezone' => 'Europe/Oslo',
+			];
+
+			$post_id = tribe_create_event($args);
+
+			if (!is_wp_error($post_id) && $post_id) {
+				wp_set_object_terms($post_id, $rental_cat->term_id, 'tribe_events_cat');
+				$created_count++;
+				echo "  Created (ID $post_id): $title on $date [RENTAL]\n";
+			}
+		}
+	}
+}
+
 echo "\n=== Done! Created $created_count events ===\n";

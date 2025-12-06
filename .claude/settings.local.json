@@ -15,7 +15,22 @@
       "mcp__chrome-devtools__evaluate_script",
       "WebFetch(domain:www.kartverket.no)",
       "Bash(cat:*)",
-      "mcp__chrome-devtools__resize_page"
+      "mcp__chrome-devtools__resize_page",
+      "WebFetch(domain:theeventscalendar.com)",
+      "Bash(git add:*)",
+      "Bash(git restore:*)",
+      "Bash(git commit:*)",
+      "Bash(wp eval-file:*)",
+      "Bash(wp term list:*)",
+      "Bash(wp post list:*)",
+      "Bash(wp term delete:*)",
+      "Bash(for id in 4919 4920 4921 4922 4923)",
+      "Bash(do wp post term add $id tribe_events_cat velhuset)",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "Bash(wp post term list:*)",
+      "Bash(wp post get:*)",
+      "Bash(wp eval:*)"
     ],
     "deny": [],
     "ask": []
