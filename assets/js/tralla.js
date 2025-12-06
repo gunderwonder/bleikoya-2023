@@ -122,4 +122,32 @@
 		}
 	});
 
+	// Calendar grid scroll to date
+	document.addEventListener('click', (e) => {
+		const dayBtn = e.target.closest('[data-scroll-date]');
+		if (!dayBtn) return;
+
+		const targetDate = dayBtn.dataset.scrollDate;
+
+		// Find first event on or after this date
+		const events = document.querySelectorAll('.b-event-list__item[data-date]');
+		let targetEvent = null;
+
+		for (const event of events) {
+			if (event.dataset.date >= targetDate) {
+				targetEvent = event;
+				break;
+			}
+		}
+
+		if (targetEvent) {
+			targetEvent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		}
+
+		// Mark selected date in grid
+		document.querySelectorAll('.b-month-grid__day--selected').forEach(el =>
+			el.classList.remove('b-month-grid__day--selected'));
+		dayBtn.classList.add('b-month-grid__day--selected');
+	});
+
 })();

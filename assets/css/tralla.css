@@ -1170,9 +1170,12 @@ a.page-numbers:hover {
 
 .b-month-grid__day {
 	text-align: center;
-	padding: 0.25rem 0.5rem;
+	padding: 0.6rem 0.5rem 1.1rem;
 	position: relative;
-	line-height: 1.6;
+	cursor: pointer;
+	border: none;
+	background: none;
+	font: inherit;
 }
 
 .b-month-grid__day--other-month {
@@ -1188,13 +1191,23 @@ a.page-numbers:hover {
 .b-month-grid__day--has-event::after {
 	content: '';
 	position: absolute;
-	bottom: 2px;
+	bottom: 4px;
 	left: 50%;
 	transform: translateX(-50%);
-	width: 4px;
-	height: 4px;
+	width: 6px;
+	height: 6px;
 	background: var(--b-primary-color);
 	border-radius: 50%;
+}
+
+.b-month-grid__day--has-featured::after {
+	background: var(--b-yellow-color);
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+.b-month-grid__day--today.b-month-grid__day--has-featured::after {
+	background: white;
+	box-shadow: none;
 }
 
 .b-month-grid__day--sunday {
@@ -1203,6 +1216,16 @@ a.page-numbers:hover {
 
 .b-month-grid__header--sunday {
 	color: var(--b-primary-color);
+}
+
+.b-month-grid__day:hover {
+	background: var(--b-off-white-color);
+	border-radius: 4px;
+}
+
+.b-month-grid__day--selected {
+	background: var(--b-yellow-color);
+	border-radius: 4px;
 }
 
 /* Calendar archive list */

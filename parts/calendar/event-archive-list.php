@@ -37,7 +37,7 @@ $current_month = '';
 				'include' => $category_ids
 			]) : [];
 		?>
-			<li class="b-event-list__item b-box <?php echo $box_class; ?>">
+			<li class="b-event-list__item b-box <?php echo $box_class; ?>" data-date="<?php echo tribe_get_start_date($event, false, 'Y-m-d'); ?>">
 				<div class="b-event-list__date-tag">
 					<span class="b-event-list__weekday"><?php echo $weekday; ?></span>
 					<span class="b-event-list__day"><?php echo $day; ?></span>

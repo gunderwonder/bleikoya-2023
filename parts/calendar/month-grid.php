@@ -8,11 +8,16 @@
  */
 
 // Build map of dates with events (fetch all events for the year range if needed)
+// Track both regular and featured events
 $event_dates = [];
+$featured_dates = [];
 if (!empty($events)) {
 	foreach ($events as $event) {
 		$date = tribe_get_start_date($event, false, 'Y-m-d');
 		$event_dates[$date] = true;
+		if (get_post_meta($event->ID, '_tribe_featured', true)) {
+			$featured_dates[$date] = true;
+		}
 	}
 }
 
@@ -92,20 +97,23 @@ $base_url = strtok($_SERVER['REQUEST_URI'], '?');
 			<div class="b-month-grid__week"><?php echo $current_day->format('W'); ?></div>
 
 			<?php for ($day = 0; $day < 7; $day++) :
+				$date_str = $current_day->format('Y-m-d');
 				$is_other_month = $current_day->format('m') !== $display_month->format('m');
-				$is_today = $current_day->format('Y-m-d') === $today->format('Y-m-d');
-				$has_event = isset($event_dates[$current_day->format('Y-m-d')]);
+				$is_today = $date_str === $today->format('Y-m-d');
+				$has_event = isset($event_dates[$date_str]);
+				$has_featured = isset($featured_dates[$date_str]);
 				$is_sunday = $day === 6;
 
 				$classes = ['b-month-grid__day'];
 				if ($is_other_month) $classes[] = 'b-month-grid__day--other-month';
 				if ($is_today) $classes[] = 'b-month-grid__day--today';
 				if ($has_event) $classes[] = 'b-month-grid__day--has-event';
+				if ($has_featured) $classes[] = 'b-month-grid__day--has-featured';
 				if ($is_sunday) $classes[] = 'b-month-grid__day--sunday';
 			?>
-				<div class="<?php echo implode(' ', $classes); ?>">
+				<button type="button" class="<?php echo implode(' ', $classes); ?>" data-scroll-date="<?php echo $current_day->format('Y-m-d'); ?>">
 					<?php echo $current_day->format('j'); ?>
-				</div>
+				</button>
 			<?php
 				$current_day->modify('+1 day');
 			endfor;
