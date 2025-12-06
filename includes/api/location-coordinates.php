@@ -384,10 +384,14 @@ function get_location_data( $location_id ) {
 
 	// Fall back to cabin number from connected users if no manual label
 	if ( empty( $label ) ) {
-		foreach ( $connections as $connection_id ) {
-			$user = get_user_by( 'ID', $connection_id );
+		// Connections now have {id, type} format
+		foreach ( $connections as $conn ) {
+			if ( $conn['type'] !== 'user' ) {
+				continue;
+			}
+			$user = get_user_by( 'ID', $conn['id'] );
 			if ( $user ) {
-				$number = get_user_meta( $connection_id, 'user-cabin-number', true );
+				$number = get_user_meta( $conn['id'], 'user-cabin-number', true );
 				if ( ! empty( $number ) ) {
 					$label = $number;
 					break; // Use first cabin number found

@@ -631,11 +631,13 @@ get_location_style($location_id) // color, opacity, weight
 get_location_data($location_id) // All data in one call
 
 // Connections
-get_location_connections($location_id) // Returns array of IDs
+get_location_connections($location_id) // Returns [{id, type}, ...] with explicit types
+get_location_connection_ids($location_id) // Returns array of IDs only (backwards compat)
 add_location_connection($location_id, $post_id, $type = 'post')
 remove_location_connection($location_id, $post_id, $type = 'post')
 get_connected_locations($post_id, $type = 'post') // Reverse lookup
 get_location_connections_full($location_id) // With enriched data
+migrate_connections_format() // Migrate old format to new (run once)
 
 // Shortcodes
 [location_map id="123" height="300px" zoom="15"]

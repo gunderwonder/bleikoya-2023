@@ -412,7 +412,7 @@ function format_location_for_rest( $location_id ) {
 			'names' => $gruppe_names,
 			'slugs' => $gruppe_slugs
 		),
-		'connections' => get_location_connections( $location_id ),
+		'connections' => get_location_connection_ids( $location_id ),
 		'permalink'   => get_permalink( $location_id ),
 		'edit_link'   => get_edit_post_link( $location_id, 'raw' ),
 		'author'      => array(

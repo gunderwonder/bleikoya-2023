@@ -9,12 +9,58 @@
 /**
  * Get all connections for a location
  *
+ * Returns connections in normalized format: [{id, type}, ...]
+ * Supports both old format (plain IDs) and new format (with type)
+ *
  * @param int $location_id Location post ID
- * @return array Array of connected IDs (posts, users, terms)
+ * @return array Array of connection objects [{id, type}, ...]
  */
 function get_location_connections( $location_id ) {
 	$connections = get_post_meta( $location_id, '_connections', true );
-	return is_array( $connections ) ? $connections : array();
+	if ( ! is_array( $connections ) ) {
+		return array();
+	}
+
+	$result = array();
+	foreach ( $connections as $conn ) {
+		if ( is_array( $conn ) && isset( $conn['id'] ) ) {
+			// New format - already has type
+			$result[] = $conn;
+		} else {
+			// Old format - plain ID, need to detect type
+			// Try user first (fewer users than posts, so less likely to have ID collision)
+			$user = get_user_by( 'ID', $conn );
+			if ( $user ) {
+				$result[] = array(
+					'id'   => (int) $conn,
+					'type' => 'user'
+				);
+			} else {
+				$post = get_post( $conn );
+				if ( $post ) {
+					$result[] = array(
+						'id'   => (int) $conn,
+						'type' => $post->post_type
+					);
+				}
+			}
+		}
+	}
+
+	return $result;
+}
+
+/**
+ * Get raw connection IDs (for backwards compatibility)
+ *
+ * @param int $location_id Location post ID
+ * @return array Array of connected IDs
+ */
+function get_location_connection_ids( $location_id ) {
+	$connections = get_location_connections( $location_id );
+	return array_map( function( $conn ) {
+		return $conn['id'];
+	}, $connections );
 }
 
 /**
@@ -48,11 +94,24 @@ function add_location_connection( $location_id, $target_id, $connection_type = '
 		return add_location_term_connection( $location_id, $target_id, $taxonomy );
 	}
 
-	// Add to location's connections
+	// Get current connections (now returns [{id, type}, ...])
 	$connections = get_location_connections( $location_id );
 
-	if ( ! in_array( $target_id, $connections ) ) {
-		$connections[] = $target_id;
+	// Check if connection already exists
+	$exists = false;
+	foreach ( $connections as $conn ) {
+		if ( $conn['id'] == $target_id && $conn['type'] === $connection_type ) {
+			$exists = true;
+			break;
+		}
+	}
+
+	// Add new connection with type
+	if ( ! $exists ) {
+		$connections[] = array(
+			'id'   => (int) $target_id,
+			'type' => $connection_type
+		);
 		update_post_meta( $location_id, '_connections', $connections );
 	}
 
@@ -148,9 +207,11 @@ function remove_location_connection( $location_id, $target_id, $connection_type 
 		return remove_location_term_connection( $location_id, $target_id, $taxonomy );
 	}
 
-	// Remove from location
+	// Remove from location (connections now have {id, type} format)
 	$connections = get_location_connections( $location_id );
-	$connections = array_diff( $connections, array( $target_id ) );
+	$connections = array_filter( $connections, function( $conn ) use ( $target_id, $connection_type ) {
+		return ! ( $conn['id'] == $target_id && $conn['type'] === $connection_type );
+	} );
 	$connections = array_values( $connections ); // Re-index array
 	update_post_meta( $location_id, '_connections', $connections );
 
@@ -225,25 +286,16 @@ function get_connected_locations( $target_id, $type = 'post' ) {
  * @return array Array of connection objects with type and data
  */
 function get_location_connections_full( $location_id ) {
-	$connection_ids = get_location_connections( $location_id );
+	$connection_data = get_location_connections( $location_id );
 	$term_connections = get_location_term_connections( $location_id );
 	$connections = array();
 
-	// Process post/user connections
-	foreach ( $connection_ids as $id ) {
-		// Try to get as post first
-		$post = get_post( $id );
+	// Process post/user connections - now with explicit type
+	foreach ( $connection_data as $conn ) {
+		$id = $conn['id'];
+		$type = $conn['type'];
 
-		if ( $post ) {
-			$connections[] = array(
-				'id'    => $id,
-				'type'  => $post->post_type,
-				'title' => $post->post_title,
-				'link'  => get_permalink( $id ),
-				'data'  => $post
-			);
-		} else {
-			// Try as user
+		if ( $type === 'user' ) {
 			$user = get_user_by( 'ID', $id );
 
 			if ( $user ) {
@@ -255,6 +307,19 @@ function get_location_connections_full( $location_id ) {
 					'link'         => get_author_posts_url( $id ),
 					'cabin_number' => $cabin_number,
 					'data'         => $user
+				);
+			}
+		} else {
+			// Post type (post, page, tribe_events, etc.)
+			$post = get_post( $id );
+
+			if ( $post ) {
+				$connections[] = array(
+					'id'    => $id,
+					'type'  => $post->post_type,
+					'title' => $post->post_title,
+					'link'  => get_permalink( $id ),
+					'data'  => $post
 				);
 			}
 		}
@@ -290,24 +355,28 @@ function cleanup_location_connections_on_delete( $post_id ) {
 		return;
 	}
 
-	// Clean up post/user connections
+	// Clean up post/user connections (now have {id, type} format)
 	$connections = get_location_connections( $post_id );
 
-	foreach ( $connections as $connected_id ) {
-		// Try post first
-		$reverse = get_post_meta( $connected_id, '_connected_locations', true );
+	foreach ( $connections as $conn ) {
+		$connected_id = $conn['id'];
+		$type = $conn['type'];
 
-		if ( is_array( $reverse ) ) {
-			$reverse = array_diff( $reverse, array( $post_id ) );
-			$reverse = array_values( $reverse );
-			update_post_meta( $connected_id, '_connected_locations', $reverse );
-		} else {
-			// Try user
+		if ( $type === 'user' ) {
+			// Remove from user meta
 			$reverse = get_user_meta( $connected_id, '_connected_locations', true );
 			if ( is_array( $reverse ) ) {
 				$reverse = array_diff( $reverse, array( $post_id ) );
 				$reverse = array_values( $reverse );
 				update_user_meta( $connected_id, '_connected_locations', $reverse );
+			}
+		} else {
+			// Remove from post meta
+			$reverse = get_post_meta( $connected_id, '_connected_locations', true );
+			if ( is_array( $reverse ) ) {
+				$reverse = array_diff( $reverse, array( $post_id ) );
+				$reverse = array_values( $reverse );
+				update_post_meta( $connected_id, '_connected_locations', $reverse );
 			}
 		}
 	}
@@ -342,4 +411,76 @@ function get_connectable_taxonomies() {
 	return array_filter( $taxonomies, function( $tax ) use ( $excluded ) {
 		return ! in_array( $tax->name, $excluded );
 	} );
+}
+
+/**
+ * Migrate connections from old format (plain IDs) to new format (with type)
+ *
+ * Old: [44, 123]
+ * New: [{id: 44, type: 'user'}, {id: 123, type: 'post'}]
+ *
+ * Run via WP-CLI: wp eval 'migrate_connections_format();'
+ *
+ * @return array Migration results
+ */
+function migrate_connections_format() {
+	$locations = get_posts( array(
+		'post_type'      => 'kartpunkt',
+		'posts_per_page' => -1,
+		'post_status'    => 'any'
+	) );
+
+	$results = array(
+		'total'     => count( $locations ),
+		'migrated'  => 0,
+		'skipped'   => 0,
+		'details'   => array()
+	);
+
+	foreach ( $locations as $location ) {
+		$raw_connections = get_post_meta( $location->ID, '_connections', true );
+
+		// Skip if no connections
+		if ( ! is_array( $raw_connections ) || empty( $raw_connections ) ) {
+			$results['skipped']++;
+			continue;
+		}
+
+		// Skip if already migrated (first element has 'type' key)
+		if ( isset( $raw_connections[0] ) && is_array( $raw_connections[0] ) && isset( $raw_connections[0]['type'] ) ) {
+			$results['skipped']++;
+			continue;
+		}
+
+		$new_connections = array();
+		foreach ( $raw_connections as $id ) {
+			// Try user first (fewer users than posts, so less likely to have ID collision)
+			$user = get_user_by( 'ID', $id );
+			if ( $user ) {
+				$new_connections[] = array(
+					'id'   => (int) $id,
+					'type' => 'user'
+				);
+			} else {
+				$post = get_post( $id );
+				if ( $post ) {
+					$new_connections[] = array(
+						'id'   => (int) $id,
+						'type' => $post->post_type
+					);
+				}
+			}
+		}
+
+		update_post_meta( $location->ID, '_connections', $new_connections );
+		$results['migrated']++;
+		$results['details'][] = array(
+			'id'    => $location->ID,
+			'title' => $location->post_title,
+			'old'   => $raw_connections,
+			'new'   => $new_connections
+		);
+	}
+
+	return $results;
 }

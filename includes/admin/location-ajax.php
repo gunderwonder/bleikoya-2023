@@ -153,9 +153,12 @@ function ajax_add_location_connection() {
 			}
 		}
 	} else {
+		// get_location_connections now returns [{id, type}, ...] format
 		$existing_connections = get_location_connections( $location_id );
-		if ( in_array( $connection_id, $existing_connections ) ) {
-			wp_send_json_error( 'Connection already exists' );
+		foreach ( $existing_connections as $conn ) {
+			if ( $conn['id'] == $connection_id && $conn['type'] === $connection_type ) {
+				wp_send_json_error( 'Connection already exists' );
+			}
 		}
 	}
 
