@@ -1072,6 +1072,68 @@ a.page-numbers:hover {
 
 /* #region Calendar (custom templates) */
 
+/* Calendar page layout */
+.b-calendar-page__title {
+	margin-bottom: 1.5rem;
+}
+
+.b-calendar-page__layout {
+	display: flex;
+	flex-direction: column;
+}
+
+.b-calendar-page__sidebar {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	order: -1;
+}
+
+.b-calendar-page__sidebar .b-month-grid {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 1rem;
+}
+
+.b-calendar-page__sidebar .b-quicklinks {
+	width: 100%;
+	max-width: 460px;
+}
+
+@media (min-width: 900px) {
+	.b-calendar-page__layout {
+		flex-direction: row;
+		gap: 3rem;
+	}
+
+	.b-calendar-page__events {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.b-calendar-page__sidebar {
+		order: 0;
+		flex-shrink: 0;
+		width: 340px;
+		align-items: flex-start;
+		margin-bottom: 0;
+		position: sticky;
+		top: 1rem;
+		align-self: flex-start;
+	}
+
+	.b-calendar-page__sidebar .b-month-grid {
+		margin: 0;
+		max-width: none;
+		width: 100%;
+	}
+
+	.b-calendar-page__sidebar .b-quicklinks {
+		max-width: none;
+		width: 100%;
+	}
+}
+
 /* Month grid */
 .b-month-grid {
 	margin-bottom: 2rem;
@@ -1249,6 +1311,10 @@ a.page-numbers:hover {
 .b-event-list__month-heading {
 	list-style: none;
 	margin: 2rem 0 1rem 0;
+}
+
+.b-event-list__month-heading:first-child {
+	margin-top: 0;
 }
 
 .b-event-list__month-heading h2 {
