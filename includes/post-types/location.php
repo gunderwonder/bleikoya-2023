@@ -50,6 +50,77 @@ function register_location_post_type() {
 add_action( 'init', 'register_location_post_type' );
 
 /**
+ * Add custom columns to kartpunkt admin list
+ */
+function kartpunkt_admin_columns( $columns ) {
+	$new_columns = array();
+	foreach ( $columns as $key => $value ) {
+		$new_columns[ $key ] = $value;
+		// Insert connections column after title
+		if ( $key === 'title' ) {
+			$new_columns['connections'] = 'Tilkoblinger';
+		}
+	}
+	return $new_columns;
+}
+add_filter( 'manage_kartpunkt_posts_columns', 'kartpunkt_admin_columns' );
+
+/**
+ * Populate kartpunkt admin columns
+ */
+function kartpunkt_admin_column_content( $column, $post_id ) {
+	if ( $column !== 'connections' ) {
+		return;
+	}
+
+	$connections = get_location_connections_full( $post_id );
+	$count = count( $connections );
+
+	if ( $count === 0 ) {
+		echo '<span style="color: #999;">—</span>';
+		return;
+	}
+
+	// Group by type for compact display
+	$grouped = array();
+	foreach ( $connections as $conn ) {
+		$type = $conn['type'];
+		if ( ! isset( $grouped[ $type ] ) ) {
+			$grouped[ $type ] = array();
+		}
+		$grouped[ $type ][] = $conn;
+	}
+
+	// Type labels in Norwegian
+	$type_labels = array(
+		'user'         => 'Bruker',
+		'post'         => 'Innlegg',
+		'page'         => 'Side',
+		'tribe_events' => 'Arrangement',
+		'term'         => 'Kategori',
+	);
+
+	echo '<strong>' . $count . '</strong> ';
+
+	$parts = array();
+	foreach ( $grouped as $type => $items ) {
+		$label = isset( $type_labels[ $type ] ) ? $type_labels[ $type ] : $type;
+		$titles = array_map( function( $item ) {
+			return esc_html( $item['title'] );
+		}, array_slice( $items, 0, 3 ) );
+
+		$text = implode( ', ', $titles );
+		if ( count( $items ) > 3 ) {
+			$text .= ' +' . ( count( $items ) - 3 );
+		}
+		$parts[] = '<span title="' . esc_attr( $label ) . '">' . $text . '</span>';
+	}
+
+	echo '<small style="color: #666;">' . implode( ' · ', $parts ) . '</small>';
+}
+add_action( 'manage_kartpunkt_posts_custom_column', 'kartpunkt_admin_column_content', 10, 2 );
+
+/**
  * Register Group Taxonomy
  */
 function register_location_group_taxonomy() {
