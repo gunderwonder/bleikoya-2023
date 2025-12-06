@@ -20,3 +20,12 @@ jobs:
             cd /www/wp-content/themes/bleikoya-2023
             git pull
             composer install --no-dev --optimize-autoloader
+
+      - name: Send notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            curl -d "Deploy fullfort: ${{ github.event.head_commit.message }}" ntfy.sh/${{ secrets.NTFY_TOPIC }}
+          else
+            curl -H "Priority: high" -H "Tags: warning" -d "Deploy FEILET: ${{ github.event.head_commit.message }}" ntfy.sh/${{ secrets.NTFY_TOPIC }}
+          fi
