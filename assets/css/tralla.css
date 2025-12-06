@@ -834,6 +834,12 @@ aside .b-subject-list {
 	border-bottom: 1px solid var(--b-border-color);
 }
 
+.b-bleikoya-map object {
+	width: 100%;
+	height: auto;
+	display: block;
+}
+
 .b-bleikoya-map #map {
 	width: 100%;
 	height: 40rem
@@ -1391,6 +1397,29 @@ a.page-numbers:hover {
 .b-event-list__featured-marker {
 	color: var(--b-primary-color);
 	margin-right: 0.3rem;
+}
+
+/* Event time */
+.b-event-list__time {
+	font-weight: normal;
+}
+
+/* Event details (venue + description) */
+.b-event-list__details {
+	margin-top: 0.25rem;
+}
+
+.b-event-list__venue {
+	display: block;
+	font-size: 0.875rem;
+	color: #666;
+}
+
+.b-event-list__description {
+	margin: 0.25rem 0 0 0;
+	font-size: 0.875rem;
+	color: #666;
+	line-height: 1.4;
 }
 
 /* Categories */

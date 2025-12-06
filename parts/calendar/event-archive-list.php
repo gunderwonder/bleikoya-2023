@@ -30,6 +30,24 @@ $current_month = '';
 			$day = tribe_get_start_date($event, false, 'j');
 			$date_full = tribe_get_start_date($event, false, 'j. F Y');
 
+			// Get time if not all-day event
+			$is_all_day = tribe_event_is_all_day($event->ID);
+			$time_string = '';
+			if (!$is_all_day) {
+				$time_string = tribe_get_start_date($event, false, 'H:i');
+			}
+
+			// Get venue/location
+			$venue = tribe_get_venue($event->ID);
+
+			// Get description (excerpt or trimmed content)
+			$description = '';
+			if (has_excerpt($event->ID)) {
+				$description = get_the_excerpt($event->ID);
+			} elseif (!empty($event->post_content)) {
+				$description = wp_trim_words(wp_strip_all_tags($event->post_content), 20, '...');
+			}
+
 			// Get categories
 			$category_ids = tribe_get_event_cat_ids($event->ID);
 			$categories = $category_ids ? get_terms([
@@ -48,11 +66,21 @@ $current_month = '';
 							<?php if ($is_featured) : ?>
 								<span class="b-event-list__featured-marker">&#9632;</span>
 							<?php endif; ?>
-							<?php echo strtoupper($date_full); ?>
+							<?php echo strtoupper($date_full); ?><?php if ($time_string) : ?><span class="b-event-list__time">, kl. <?php echo $time_string; ?></span><?php endif; ?>
 						</div>
 						<div class="b-event-list__title">
 							<?php echo esc_html($event->post_title); ?>
 						</div>
+						<?php if ($venue || $description) : ?>
+							<div class="b-event-list__details">
+								<?php if ($venue) : ?>
+									<span class="b-event-list__venue"><?php echo esc_html($venue); ?></span>
+								<?php endif; ?>
+								<?php if ($description) : ?>
+									<p class="b-event-list__description"><?php echo esc_html($description); ?></p>
+								<?php endif; ?>
+							</div>
+						<?php endif; ?>
 					</a>
 				</div>
 				<?php if ($categories && !is_wp_error($categories)) : ?>

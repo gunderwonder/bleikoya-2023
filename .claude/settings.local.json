@@ -30,7 +30,9 @@
       "Bash(done)",
       "Bash(wp post term list:*)",
       "Bash(wp post get:*)",
-      "Bash(wp eval:*)"
+      "Bash(wp eval:*)",
+      "Bash(find:*)",
+      "mcp__chrome-devtools__wait_for"
     ],
     "deny": [],
     "ask": []
