@@ -5,7 +5,12 @@
  *
  * @param array $events Array of event post objects
  * @param DateTime $display_month The month to display
+ * @param string $mode 'calendar' (default) or 'rental' for rental form picker
  */
+
+// Mode: 'calendar' for event archive, 'rental' for rental form date picker
+$mode = $mode ?? 'calendar';
+$is_rental_mode = ($mode === 'rental');
 
 // Build map of dates with events (fetch all events for the year range if needed)
 // Track regular events, featured events, and rental events
@@ -48,6 +53,17 @@ $next_month = clone $display_month;
 $next_month->modify('+1 month');
 $today = new DateTime('today');
 
+// Blocked period for rental mode (Sankt Hansaften to Barnas dag)
+$blocked_start = null;
+$blocked_end = null;
+if ($is_rental_mode) {
+	$year = (int) $display_month->format('Y');
+	// Sankt Hansaften = 23. juni
+	$blocked_start = new DateTime("$year-06-23");
+	// Barnas dag = første lørdag i august
+	$blocked_end = new DateTime("first saturday of august $year");
+}
+
 // Get first and last day of displayed month
 $first_of_month = new DateTime($display_month->format('Y-m-01'));
 $last_of_month = new DateTime($display_month->format('Y-m-t'));
@@ -74,7 +90,7 @@ $month_title = $month_names[(int) $display_month->format('n')] . ' ' . $display_
 $base_url = strtok($_SERVER['REQUEST_URI'], '?');
 ?>
 
-<div class="b-month-grid" data-month="<?php echo $display_month->format('Y-m'); ?>">
+<div class="b-month-grid" data-month="<?php echo $display_month->format('Y-m'); ?>"<?php if ($is_rental_mode): ?> data-mode="rental"<?php endif; ?>>
 	<!-- Header with title and navigation -->
 	<div class="b-month-grid__header-row">
 		<h2 class="b-month-grid__title"><?php echo strtoupper($month_title); ?></h2>
@@ -117,6 +133,12 @@ $base_url = strtok($_SERVER['REQUEST_URI'], '?');
 				$has_rental = isset($rental_dates[$date_str]);
 				$is_sunday = $day === 6;
 
+				// Check if date is in blocked period (rental mode only)
+				$is_blocked = false;
+				if ($is_rental_mode && $blocked_start && $blocked_end) {
+					$is_blocked = ($current_day >= $blocked_start && $current_day <= $blocked_end);
+				}
+
 				$classes = ['b-month-grid__day'];
 				if ($is_other_month) $classes[] = 'b-month-grid__day--other-month';
 				if ($is_today) $classes[] = 'b-month-grid__day--today';
@@ -124,6 +146,7 @@ $base_url = strtok($_SERVER['REQUEST_URI'], '?');
 				if ($has_featured) $classes[] = 'b-month-grid__day--has-featured';
 				if ($has_rental) $classes[] = 'b-month-grid__day--rented';
 				if ($is_sunday) $classes[] = 'b-month-grid__day--sunday';
+				if ($is_blocked) $classes[] = 'b-month-grid__day--blocked';
 			?>
 				<button type="button" class="<?php echo implode(' ', $classes); ?>" data-scroll-date="<?php echo $current_day->format('Y-m-d'); ?>">
 					<?php echo $current_day->format('j'); ?>

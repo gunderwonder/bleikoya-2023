@@ -99,10 +99,11 @@
 		e.preventDefault();
 		const grid = btn.closest('.b-month-grid');
 		const month = btn.dataset.month;
+		const mode = grid.dataset.mode || 'calendar';
 
 		try {
 			grid.style.opacity = '0.5';
-			const response = await fetch(`/wp-json/bleikoya/v1/calendar-grid?month=${encodeURIComponent(month)}`);
+			const response = await fetch(`/wp-json/bleikoya/v1/calendar-grid?month=${encodeURIComponent(month)}&mode=${encodeURIComponent(mode)}`);
 			const data = await response.json();
 
 			// Replace the grid with new content
@@ -122,29 +123,56 @@
 		}
 	});
 
-	// Calendar grid scroll to date
+	// Calendar grid scroll to date (calendar mode) or date picker (rental mode)
 	document.addEventListener('click', (e) => {
 		const dayBtn = e.target.closest('[data-scroll-date]');
 		if (!dayBtn) return;
 
+		const grid = dayBtn.closest('.b-month-grid');
+		const isRentalMode = grid && grid.dataset.mode === 'rental';
 		const targetDate = dayBtn.dataset.scrollDate;
 
-		// Find first event on or after this date
-		const events = document.querySelectorAll('.b-event-list__item[data-date]');
-		let targetEvent = null;
+		if (isRentalMode) {
+			// Rental mode: update date input and show warnings
+			const dateInput = document.querySelector('input[type="date"]');
+			if (dateInput) {
+				dateInput.value = targetDate;
+			}
 
-		for (const event of events) {
-			if (event.dataset.date >= targetDate) {
-				targetEvent = event;
-				break;
+			// Show appropriate warning
+			const warning = document.querySelector('.b-rental-warning');
+			if (warning) {
+				const isRented = dayBtn.classList.contains('b-month-grid__day--rented');
+				const isBlocked = dayBtn.classList.contains('b-month-grid__day--blocked');
+
+				if (isRented) {
+					warning.textContent = 'Denne datoen er allerede reservert. Du kan fortsatt sende forespørselen, men det er lite sannsynlig at den blir godkjent.';
+					warning.classList.add('b-rental-warning--visible');
+				} else if (isBlocked) {
+					warning.textContent = 'Velhuset kan ikke leies ut i perioden fra Sankt Hansaften til Barnas dag.';
+					warning.classList.add('b-rental-warning--visible');
+				} else {
+					warning.classList.remove('b-rental-warning--visible');
+				}
+			}
+		} else {
+			// Calendar mode: scroll to event
+			const events = document.querySelectorAll('.b-event-list__item[data-date]');
+			let targetEvent = null;
+
+			for (const event of events) {
+				if (event.dataset.date >= targetDate) {
+					targetEvent = event;
+					break;
+				}
+			}
+
+			if (targetEvent) {
+				targetEvent.scrollIntoView({ behavior: 'smooth', block: 'start' });
 			}
 		}
 
-		if (targetEvent) {
-			targetEvent.scrollIntoView({ behavior: 'smooth', block: 'start' });
-		}
-
-		// Mark selected date in grid
+		// Mark selected date in grid (both modes)
 		document.querySelectorAll('.b-month-grid__day--selected').forEach(el =>
 			el.classList.remove('b-month-grid__day--selected'));
 		dayBtn.classList.add('b-month-grid__day--selected');

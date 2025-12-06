@@ -1203,7 +1203,7 @@ a.page-numbers:hover {
 .b-month-grid__grid {
 	display: grid;
 	grid-template-columns: auto repeat(7, 1fr);
-	gap: 0.5rem 0.25rem;
+	gap: 0;
 	font-size: var(--font-size-s);
 	font-family: var(--b-font-heading);
 	align-items: center;
@@ -1293,6 +1293,37 @@ a.page-numbers:hover {
 .b-month-grid__day--selected {
 	background: var(--b-yellow-color);
 	border-radius: 4px;
+}
+
+/* Blocked period (rental mode) */
+.b-month-grid__day--blocked {
+	background: var(--b-border-color);
+	color: var(--b-header-color);
+}
+
+.b-month-grid__day--blocked:hover {
+	background: var(--b-border-color);
+}
+
+/* Rental calendar wrapper */
+.b-rental-calendar {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-top: 2rem;
+}
+
+/* Warning message for rental form */
+.b-rental-warning {
+	background: var(--b-yellow-color);
+	padding: 0.75rem 1rem;
+	border-radius: 4px;
+	margin-top: 0.5rem;
+	display: none;
+}
+
+.b-rental-warning--visible {
+	display: block;
 }
 
 /* Calendar archive list */

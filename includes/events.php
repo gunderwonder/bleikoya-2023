@@ -179,12 +179,18 @@ add_action('rest_api_init', function () {
 				'required' => false,
 				'sanitize_callback' => 'sanitize_text_field',
 			],
+			'mode' => [
+				'required' => false,
+				'default' => 'calendar',
+				'sanitize_callback' => 'sanitize_text_field',
+			],
 		],
 	]);
 });
 
 function bleikoya_get_calendar_grid($request) {
 	$month_param = $request->get_param('month');
+	$mode = $request->get_param('mode');
 
 	// Get all upcoming events for dot indicators
 	$events = tribe_get_events([
@@ -212,6 +218,7 @@ function bleikoya_get_calendar_grid($request) {
 	sc_get_template_part('parts/calendar/month-grid', null, [
 		'events' => $events,
 		'display_month' => $display_month,
+		'mode' => $mode,
 	]);
 	$html = ob_get_clean();
 

@@ -32,6 +32,7 @@ require 'includes/admin/location-meta-boxes.php';
 require 'includes/admin/connected-locations-meta-box.php';
 require 'includes/admin/location-ajax.php';
 require 'includes/shortcodes/location-map.php';
+require 'includes/shortcodes/rental-calendar.php';
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
