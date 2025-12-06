@@ -22,6 +22,20 @@ $webcal_url = preg_replace('~^https?~', 'webcal', $ics_url);
 	<main>
 		<h1>Bleik&oslash;yakalenderen</h1>
 
+		<!-- Month Grid -->
+		<?php
+		// Determine which month to display (from URL param or first event month)
+		$display_month = null;
+		if ($events) {
+			$first_event_date = tribe_get_start_date($events[0], false, 'Y-m-01');
+			$display_month = new DateTime($first_event_date);
+		}
+		sc_get_template_part('parts/calendar/month-grid', null, [
+			'events' => $events,
+			'display_month' => $display_month
+		]);
+		?>
+
 		<!-- Quick links -->
 		<div class="b-quicklinks">
 			<a href="<?php echo esc_url($webcal_url); ?>" class="b-button b-button--green">

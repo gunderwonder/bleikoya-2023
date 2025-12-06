@@ -1072,6 +1072,139 @@ a.page-numbers:hover {
 
 /* #region Calendar (custom templates) */
 
+/* Month grid */
+.b-month-grid {
+	margin-bottom: 2rem;
+	max-width: 460px;
+	transition: opacity 0.15s ease;
+}
+
+.b-month-grid__header-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1.5rem;
+}
+
+.b-month-grid__title {
+	font-size: 1rem;
+	margin: 0;
+	font-weight: 600;
+}
+
+.b-month-grid__nav {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.b-month-grid__nav-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	height: 1.5rem;
+	border-radius: 50%;
+	background: none;
+	border: none;
+	color: var(--b-grey-color);
+	text-decoration: none;
+	cursor: pointer;
+	padding: 0;
+}
+
+.b-month-grid__nav-btn .b-icon {
+	width: 1rem;
+	height: 1rem;
+}
+
+.b-month-grid__nav-btn:hover {
+	color: var(--b-text-color);
+}
+
+.b-month-grid__today-btn {
+	font-family: var(--b-font-heading);
+	font-size: 1rem;
+	font-weight: 600;
+	padding: 0;
+	background: none;
+	color: var(--b-grey-color);
+	text-decoration: none;
+	border: none;
+	cursor: pointer;
+}
+
+.b-month-grid__today-btn:hover {
+	color: var(--b-text-color);
+}
+
+.b-month-grid__grid {
+	display: grid;
+	grid-template-columns: auto repeat(7, 1fr);
+	gap: 0.5rem 0.25rem;
+	font-size: var(--font-size-s);
+	font-family: var(--b-font-heading);
+	align-items: center;
+	margin-top: 1rem;
+}
+
+.b-month-grid__header {
+	text-align: center;
+	font-weight: 600;
+	padding: 0.25rem 0.5rem;
+	font-size: 0.7rem;
+	color: var(--b-grey-color);
+}
+
+.b-month-grid__week-header {
+	text-align: right;
+	padding-right: 0.75rem;
+}
+
+.b-month-grid__week {
+	text-align: right;
+	padding-right: 0.75rem;
+	color: var(--b-grey-color);
+	font-size: 0.7rem;
+}
+
+.b-month-grid__day {
+	text-align: center;
+	padding: 0.25rem 0.5rem;
+	position: relative;
+	line-height: 1.6;
+}
+
+.b-month-grid__day--other-month {
+	color: var(--b-grey-color);
+	opacity: 0.5;
+}
+
+.b-month-grid__day--today {
+	background: var(--b-yellow-color);
+	border-radius: 4px;
+}
+
+.b-month-grid__day--has-event::after {
+	content: '';
+	position: absolute;
+	bottom: 2px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 4px;
+	height: 4px;
+	background: var(--b-primary-color);
+	border-radius: 50%;
+}
+
+.b-month-grid__day--sunday {
+	color: var(--b-primary-color);
+}
+
+.b-month-grid__header--sunday {
+	color: var(--b-primary-color);
+}
+
 /* Calendar archive list */
 .b-calendar-archive .b-event-list__item {
 	display: flex;

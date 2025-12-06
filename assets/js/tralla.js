@@ -91,5 +91,35 @@
 		// window.location.href = event.target.value.permalink;
 	})
 
+	// Calendar grid AJAX navigation
+	document.addEventListener('click', async (e) => {
+		const btn = e.target.closest('[data-month]');
+		if (!btn || !btn.closest('.b-month-grid__nav')) return;
+
+		e.preventDefault();
+		const grid = btn.closest('.b-month-grid');
+		const month = btn.dataset.month;
+
+		try {
+			grid.style.opacity = '0.5';
+			const response = await fetch(`/wp-json/bleikoya/v1/calendar-grid?month=${encodeURIComponent(month)}`);
+			const data = await response.json();
+
+			// Replace the grid with new content
+			const temp = document.createElement('div');
+			temp.innerHTML = data.html;
+			const newGrid = temp.firstElementChild;
+
+			grid.replaceWith(newGrid);
+
+			// Re-initialize Lucide icons in the new content
+			if (window.lucide) {
+				window.lucide.createIcons();
+			}
+		} catch (err) {
+			console.error('Calendar navigation error:', err);
+			grid.style.opacity = '1';
+		}
+	});
 
 })();

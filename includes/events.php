@@ -168,3 +168,56 @@ add_action('tribe_template_before_include:events/v2/list/event/venue', function(
 // with native theme styling instead of fighting TEC's CSS.
 add_filter('tribe_events_views_v2_use_wp_template_hierarchy', '__return_true');
 
+// === Calendar Grid AJAX endpoint ===
+add_action('rest_api_init', function () {
+	register_rest_route('bleikoya/v1', '/calendar-grid', [
+		'methods' => 'GET',
+		'callback' => 'bleikoya_get_calendar_grid',
+		'permission_callback' => '__return_true',
+		'args' => [
+			'month' => [
+				'required' => false,
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+		],
+	]);
+});
+
+function bleikoya_get_calendar_grid($request) {
+	$month_param = $request->get_param('month');
+
+	// Get all upcoming events for dot indicators
+	$events = tribe_get_events([
+		'start_date' => 'now',
+		'posts_per_page' => 100,
+		'eventDisplay' => 'list',
+	]);
+
+	// Determine display month
+	if ($month_param === 'today' || empty($month_param)) {
+		// Find first month with events
+		$display_month = null;
+		if ($events) {
+			$first_event_date = tribe_get_start_date($events[0], false, 'Y-m-01');
+			$display_month = new DateTime($first_event_date);
+		}
+	} elseif (preg_match('/^\d{4}-\d{2}$/', $month_param)) {
+		$display_month = new DateTime($month_param . '-01');
+	} else {
+		$display_month = new DateTime('first day of this month');
+	}
+
+	// Capture the template output
+	ob_start();
+	sc_get_template_part('parts/calendar/month-grid', null, [
+		'events' => $events,
+		'display_month' => $display_month,
+	]);
+	$html = ob_get_clean();
+
+	return new WP_REST_Response([
+		'html' => $html,
+		'month' => $display_month->format('Y-m'),
+	]);
+}
+
