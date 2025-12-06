@@ -162,3 +162,9 @@ add_action('tribe_template_before_include:events/v2/list/event/venue', function(
 	echo '</ul>';
 });
 
+// === Custom Calendar Templates ===
+// Bypass TEC's V2 templates and use WordPress template hierarchy instead.
+// This allows us to use archive-tribe_events.php and single-tribe_events.php
+// with native theme styling instead of fighting TEC's CSS.
+add_filter('tribe_events_views_v2_use_wp_template_hierarchy', '__return_true');
+
