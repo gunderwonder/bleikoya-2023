@@ -455,6 +455,17 @@ a {
 	padding: 7px 15px 7px 15px !important;
 }
 
+.b-subject-link--light {
+	background-color: var(--b-blue-transparent-color);
+	color: var(--b-blue-color);
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.b-subject-link--light:hover {
+	background-color: var(--b-blue-color);
+	color: white;
+}
+
 .b-subject-list__item-post {
 	margin-bottom: 1rem;
 }
@@ -478,6 +489,18 @@ a {
 	display: inline-block;
 	margin-bottom: 1rem;
 	margin-right: 1rem;
+}
+
+@media screen and (max-width: 900px) {
+	.b-article-plug .b-inline-list {
+		margin-top: 0.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.b-article-plug .b-inline-list li {
+		margin-bottom: 0.5rem;
+		margin-right: 0.5rem;
+	}
 }
 
 aside .b-subject-list {
@@ -1591,6 +1614,13 @@ a.page-numbers:hover {
 
 .b-toc {
 	display: none;
+}
+
+.b-toc__heading {
+	font-size: 0.9rem;
+	text-transform: uppercase;
+	color: var(--b-header-color);
+	margin: 0 0 0.75rem 0;
 }
 
 .b-toc__nav {

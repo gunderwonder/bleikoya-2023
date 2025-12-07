@@ -727,6 +727,16 @@ map, download, info, user, user-pen, log-out, facebook --&gt;</code></div>
 		</div>
 
 		<div class="sg-component">
+			<div class="sg-label">.b-subject-link--light (lyseblå, hover blir standard)</div>
+			<div class="sg-example">
+				<a href="#" class="b-subject-link b-subject-link--light">Lyseblå emnelenke</a>
+				<a href="#" class="b-subject-link b-subject-link--small b-subject-link--light">Liten lyseblå</a>
+			</div>
+			<div class="sg-code"><code>&lt;a href="#" class="b-subject-link b-subject-link--light"&gt;Emnenavn&lt;/a&gt;
+&lt;a href="#" class="b-subject-link b-subject-link--small b-subject-link--light"&gt;Liten&lt;/a&gt;</code></div>
+		</div>
+
+		<div class="sg-component">
 			<div class="sg-label">.b-inline-list med emnelenker</div>
 			<div class="sg-example">
 				<ul class="b-inline-list">

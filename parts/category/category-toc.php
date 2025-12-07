@@ -12,10 +12,11 @@ usort($categories, function ($a, $b) {
 });
 ?>
 
+<h2 class="b-toc__heading">Innholdsfortegnelse</h2>
 <nav class="b-toc__nav">
 	<?php foreach ($categories as $category) : ?>
 		<?php if ($category->term_id === 1) continue; // Skip "Uncategorized" ?>
-		<a class="b-subject-link b-subject-link--small"
+		<a class="b-subject-link b-subject-link--small b-subject-link--light"
 		   data-alternate-href="/info#category-<?php echo $category->term_id; ?>"
 		   href="<?php echo get_category_link($category->term_id); ?>">
 			<?php echo esc_html($category->name); ?>
