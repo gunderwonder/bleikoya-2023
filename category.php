@@ -13,15 +13,25 @@
 			<?php echo $documentation; ?>
 		</div>
 
-		<?php if (have_posts()) : ?>
-			<?php while (have_posts()) : ?>
-				<?php the_post(); ?>
-				<?php sc_get_template_part('parts/page/content-page', get_post_type(), array()); ?>
-			<?php endwhile; ?>
-		<?php endif; ?>
-
 	</article>
 </div>
+
+<?php
+$posts = get_posts([
+	'category' => $category->term_id,
+	'posts_per_page' => -1,
+	'post_status' => ['publish', 'private'],
+]);
+if ($posts) : ?>
+	<aside class="b-center-wide">
+		<h2>Relatert</h2>
+		<?php foreach ($posts as $post) : ?>
+			<?php setup_postdata($post); ?>
+			<?php sc_get_template_part('parts/post/plug', 'post'); ?>
+		<?php endforeach; ?>
+		<?php wp_reset_postdata(); ?>
+	</aside>
+<?php endif; ?>
 
 <?php if (is_user_logged_in()) : ?>
 	<aside class="b-center-wide">
