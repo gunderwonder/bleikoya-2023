@@ -38,30 +38,20 @@ function hide_images($block_content, $block) {
 
 add_filter('render_block_core/file', 'hide_images', 10, 2);
 
-function inspect_styles() {
-	global $wp_styles;
+/**
+ * Remove The Events Calendar assets since we use custom templates
+ * See: includes/events.php for tribe_events_views_v2_use_wp_template_hierarchy filter
+ *
+ * Using TEC's own filters to completely disable frontend asset loading
+ */
+add_filter('tribe_events_views_v2_assets_should_enqueue_frontend', '__return_false');
+add_filter('tribe_events_views_v2_assets_should_enqueue_full_styles', '__return_false');
+add_filter('tribe_events_views_v2_bootstrap_datepicker_should_enqueue', '__return_false');
 
-	//wp_deregister_style('tec-variables-skeleton');
-	wp_deregister_style('tribe-events-widgets-v2-events-list-skeleton');
-	wp_deregister_style('tribe-common-skeleton-style');
-	wp_deregister_script('tribe-events-views-v2-viewport');
-	//wp_deregister_script('tribe-events-views-v2-accordion');
-	wp_deregister_script('tribe-events-views-v2-navigation-scroll');
-	wp_deregister_script('tribe-events-views-v2-month-mobile-events');
-	wp_deregister_script('tribe-tooltipster-js');
-	//wp_deregister_script('tribe-events-views-v2-tooltip');
-	//wp_deregister_script('tribe-events-views-v2-events-bar');
-	//wp_deregister_script('tribe-events-views-v2-view-selector');
-	//wp_deregister_script('tribe-events-views-v2-events-bar-inputs');
-
-	if (get_post_type() !== 'tribe_events') {
-		wp_deregister_script('hoverintent-js');
-		wp_deregister_script('tribe-common-js');
-
-		wp_deregister_script('tribe-query-string');
-		wp_deregister_script('underscore');
-		wp_deregister_script('tribe-events-views-v2-manager');
-		wp_deregister_script('tribe-events-views-v2-breakpoints');
+// Block individual TEC assets from enqueueing (catches legacy assets)
+add_filter('tribe_asset_enqueue', function ($enqueue, $asset) {
+	if (!is_admin()) {
+		return false; // Block all TEC assets on frontend
 	}
-}
-add_action('wp_footer', 'inspect_styles');
+	return $enqueue;
+}, 10, 2);
