@@ -1,16 +1,16 @@
 <?php get_header(); ?>
 
+<?php $categories = get_categories(array('hide_empty' => false)); ?>
+
 <?php if (is_user_logged_in()) : ?>
 	<aside class="b-center-wide">
-		<?php $categories = get_categories(array('hide_empty' => false)); ?>
-
 		<?php sc_get_template_part('parts/category/category-index', null, array(
 			'categories' => $categories
 		)); ?>
 	</aside>
 <?php endif; ?>
 
-<div class="b-center">
+<div class="b-info-layout">
 	<main class="b-subject-index">
 		<?php usort($categories, function ($a, $b) {
 			return strcmp($a->name, $b->name);
@@ -74,6 +74,25 @@
 
 		<?php endforeach; ?>
 	</main>
+
+	<!-- Desktop: Sticky sidebar TOC -->
+	<aside class="b-toc">
+		<?php sc_get_template_part('parts/category/category-toc', null, array(
+			'categories' => $categories
+		)); ?>
+	</aside>
+</div>
+
+<!-- Mobil: FAB + Popup TOC -->
+<div class="b-toc-mobile">
+	<button class="b-toc__fab" aria-label="Innholdsfortegnelse">
+		<i data-lucide="list" class="b-icon"></i>
+	</button>
+	<div class="b-toc__popup">
+		<?php sc_get_template_part('parts/category/category-toc', null, array(
+			'categories' => $categories
+		)); ?>
+	</div>
 </div>
 
 <?php get_footer();

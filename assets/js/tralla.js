@@ -21,7 +21,7 @@
 						if (!element)
 							return;
 						event.preventDefault();
-						window.scrollTo({ top: element.getBoundingClientRect().top, behavior: 'smooth'});
+						element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 					}
 				} else {
 					link.href = link.getAttribute('data-alternate-href');
@@ -30,6 +30,23 @@
 			}
 		}, false);
 
+		// TOC visibility on scroll (desktop)
+		// Show TOC when the top category index has scrolled out of view
+		const toc = document.querySelector('.b-toc');
+		const topIndex = document.querySelector('.b-center-wide .b-subject-list');
+		if (toc && topIndex) {
+			const observer = new IntersectionObserver((entries) => {
+				entries.forEach(entry => {
+					// Show TOC when top index is NOT visible (scrolled past)
+					if (!entry.isIntersecting) {
+						toc.classList.add('visible');
+					} else {
+						toc.classList.remove('visible');
+					}
+				});
+			});
+			observer.observe(topIndex);
+		}
 
 	}, false);
 
@@ -124,6 +141,24 @@
 		} catch (err) {
 			console.error('Calendar navigation error:', err);
 			grid.style.opacity = '1';
+		}
+	});
+
+	// TOC popup toggle for mobile
+	document.addEventListener('click', (e) => {
+		const fab = e.target.closest('.b-toc__fab');
+		const popup = document.querySelector('.b-toc__popup');
+
+		if (fab && popup) {
+			popup.classList.toggle('visible');
+			return;
+		}
+
+		// Close popup when clicking a link inside it or clicking outside
+		if (popup?.classList.contains('visible')) {
+			if (e.target.closest('.b-toc__popup a') || !e.target.closest('.b-toc-mobile')) {
+				popup.classList.remove('visible');
+			}
 		}
 	});
 

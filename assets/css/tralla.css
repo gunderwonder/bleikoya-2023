@@ -78,7 +78,7 @@ h1 {
 h3 {
 	font-family: var(--b-font-heading);
 	font-weight: normal;
-	font-size: 1rem;
+	font-size: 1.1rem;
 	color: var(--b-black-color);
 }
 
@@ -1578,4 +1578,140 @@ a.page-numbers:hover {
 		margin-bottom: 0.5rem;
 	}
 }
+/* #endregion */
+
+/* #region TOC - Sticky Table of Contents */
+
+.b-info-layout > main {
+	display: flow-root;
+	max-width: 40rem;
+	margin: 0 auto;
+	padding: 0 1rem;
+}
+
+.b-toc {
+	display: none;
+}
+
+.b-toc__nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.b-toc__nav a {
+	border-bottom: none;
+}
+
+/* Desktop: Sticky sidebar TOC */
+@media screen and (min-width: 1080px) {
+	.b-info-layout {
+		display: grid;
+		grid-template-columns: 1fr 200px;
+		gap: 2rem;
+		max-width: calc(40rem + 200px + 2rem + 14rem);
+		margin: 0 auto;
+		padding: 0 1rem;
+	}
+
+	.b-info-layout > main {
+		max-width: 40rem;
+		margin: 0;
+		margin-left: auto;
+		padding: 0;
+	}
+
+	.b-toc {
+		display: block;
+		position: sticky;
+		top: 2rem;
+		align-self: start;
+		max-height: calc(100vh - 4rem);
+		overflow-y: auto;
+		opacity: 0;
+		transition: opacity 0.3s ease;
+		pointer-events: none;
+	}
+
+	.b-toc.visible {
+		opacity: 1;
+		pointer-events: auto;
+	}
+
+	.admin-bar .b-toc {
+		top: calc(2rem + var(--wp-admin--admin-bar--height, 32px));
+	}
+
+	.b-toc__nav {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.b-toc-mobile {
+		display: none;
+	}
+}
+
+/* Mobil: FAB + Popup */
+@media screen and (max-width: 1079px) {
+	.b-toc-mobile {
+		position: fixed;
+		bottom: 2rem;
+		right: 2rem;
+		z-index: 100;
+	}
+
+	.b-toc__fab {
+		width: 56px;
+		height: 56px;
+		border-radius: 50%;
+		background: var(--b-blue-color);
+		color: white;
+		border: none;
+		cursor: pointer;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: transform 0.15s ease, box-shadow 0.15s ease;
+	}
+
+	.b-toc__fab:hover {
+		transform: scale(1.05);
+		box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+	}
+
+	.b-toc__fab:active {
+		transform: scale(0.95);
+	}
+
+	.b-toc__fab .b-icon {
+		width: 24px;
+		height: 24px;
+	}
+
+	.b-toc__popup {
+		position: absolute;
+		bottom: calc(100% + 1rem);
+		right: 0;
+		width: 280px;
+		max-height: 60vh;
+		overflow-y: auto;
+		background: white;
+		border-radius: var(--b-radius-box);
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+		padding: 1rem;
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(10px);
+		transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+	}
+
+	.b-toc__popup.visible {
+		opacity: 1;
+		visibility: visible;
+		transform: translateY(0);
+	}
+}
+
 /* #endregion */
