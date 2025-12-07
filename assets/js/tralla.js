@@ -36,7 +36,11 @@
 	document.addEventListener('click', (e) => {
 		if (e.target.matches('button, button *')) {
 			e.target.closest('button').focus();
+		}
 
+		// Select all text in copy-url inputs on click
+		if (e.target.matches('.b-copy-url')) {
+			e.target.select();
 		}
 
 		if (e.target.matches('[data-href]:not(a), [data-href] *')) {
