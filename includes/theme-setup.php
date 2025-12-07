@@ -55,3 +55,18 @@ add_filter('tribe_asset_enqueue', function ($enqueue, $asset) {
 	}
 	return $enqueue;
 }, 10, 2);
+
+/**
+ * Only load Contact Form 7 assets on pages that have forms
+ */
+function bleikoya_conditional_cf7_assets() {
+	$pages_with_forms = ['kontakt', 'leie-av-velhuset'];
+
+	if (!is_page($pages_with_forms)) {
+		wp_dequeue_style('contact-form-7');
+		wp_dequeue_script('contact-form-7');
+		wp_dequeue_script('wpcf7-recaptcha');
+		wp_dequeue_script('google-recaptcha');
+	}
+}
+add_action('wp_enqueue_scripts', 'bleikoya_conditional_cf7_assets', 100);
