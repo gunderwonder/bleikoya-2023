@@ -1267,6 +1267,7 @@ a.page-numbers:hover {
 	border: none;
 	background: none;
 	font: inherit;
+	color: inherit;
 }
 
 .b-month-grid__day--other-month {
