@@ -1,15 +1,17 @@
 #!/bin/bash
 #
 # Backup-script for bleikoya.net
-# Kjører daglig via cron: 0 4 * * * /www/wp-content/themes/bleikoya-2023/scripts/backup.sh
+# Kjører daglig via cron: 0 4 * * * bash /www/wp-content/themes/bleikoya-2023/scripts/backup.sh >> /home/bleikoya.net/backups/backup.log 2>&1
 #
 
 set -e
 
-WP_PATH="/www"
-BACKUP_DIR="/home/bleikoya.net/backups"
 DATE=$(date +%Y%m%d)
 KEEP_DAYS=30
+
+# Konfigurasjon via miljøvariabler (fallback til prod-verdier)
+WP_PATH="${WP_PATH:-/www}"
+BACKUP_DIR="${BACKUP_DIR:-/home/bleikoya.net/backups}"
 
 mkdir -p "$BACKUP_DIR"
 
