@@ -10,36 +10,36 @@
 /**
  * Register location map shortcode
  */
-function location_map_shortcode( $atts ) {
-	$atts = shortcode_atts( array(
+function location_map_shortcode($atts) {
+	$atts = shortcode_atts(array(
 		'id'     => '',
 		'ids'    => '',
 		'height' => '300px',
 		'zoom'   => '15',
 		'center' => '' // Optional center "lat,lng"
-	), $atts );
+	), $atts);
 
 	// Get location IDs
 	$location_ids = array();
-	if ( ! empty( $atts['id'] ) ) {
-		$location_ids[] = intval( $atts['id'] );
-	} elseif ( ! empty( $atts['ids'] ) ) {
-		$location_ids = array_map( 'intval', explode( ',', $atts['ids'] ) );
+	if (!empty($atts['id'])) {
+		$location_ids[] = intval($atts['id']);
+	} elseif (!empty($atts['ids'])) {
+		$location_ids = array_map('intval', explode(',', $atts['ids']));
 	}
 
-	if ( empty( $location_ids ) ) {
+	if (empty($location_ids)) {
 		return '<p><em>Ingen steder spesifisert</em></p>';
 	}
 
 	// Validate all locations exist and are kartpunkt
 	$valid_locations = array();
-	foreach ( $location_ids as $loc_id ) {
-		if ( get_post_type( $loc_id ) === 'kartpunkt' ) {
+	foreach ($location_ids as $loc_id) {
+		if (get_post_type($loc_id) === 'kartpunkt') {
 			$valid_locations[] = $loc_id;
 		}
 	}
 
-	if ( empty( $valid_locations ) ) {
+	if (empty($valid_locations)) {
 		return '<p><em>Ingen gyldige steder funnet</em></p>';
 	}
 
@@ -50,18 +50,18 @@ function location_map_shortcode( $atts ) {
 
 	// Get location data
 	$locations_data = array();
-	foreach ( $valid_locations as $loc_id ) {
-		$locations_data[] = get_location_data( $loc_id );
+	foreach ($valid_locations as $loc_id) {
+		$locations_data[] = get_location_data($loc_id);
 	}
 
 	// Enqueue Leaflet if not already loaded
-	wp_enqueue_style( 'leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css' );
-	wp_enqueue_script( 'leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', array(), '1.9.4', true );
+	wp_enqueue_style('leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+	wp_enqueue_script('leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', array(), '1.9.4', true);
 
 	// Build output
 	ob_start();
 	?>
-	<div id="<?php echo esc_attr( $map_id ); ?>" class="location-minimap" style="height: <?php echo esc_attr( $atts['height'] ); ?>; width: 100%; margin: 1em 0;"></div>
+	<div id="<?php echo esc_attr($map_id); ?>" class="location-minimap" style="height: <?php echo esc_attr($atts['height']); ?>; width: 100%; margin: 1em 0;"></div>
 	<script>
 	(function() {
 		// Wait for Leaflet to load
@@ -71,14 +71,14 @@ function location_map_shortcode( $atts ) {
 				return;
 			}
 
-			var locationsData = <?php echo json_encode( $locations_data ); ?>;
-			var mapId = '<?php echo esc_js( $map_id ); ?>';
-			var zoom = <?php echo intval( $atts['zoom'] ); ?>;
+			var locationsData = <?php echo json_encode($locations_data); ?>;
+			var mapId = '<?php echo esc_js($map_id); ?>';
+			var zoom = <?php echo intval($atts['zoom']); ?>;
 
 			// Calculate center and bounds
 			var center = null;
-			<?php if ( ! empty( $atts['center'] ) ) : ?>
-				var centerCoords = '<?php echo esc_js( $atts['center'] ); ?>'.split(',');
+			<?php if (!empty($atts['center'])) : ?>
+				var centerCoords = '<?php echo esc_js($atts['center']); ?>'.split(',');
 				center = L.latLng(parseFloat(centerCoords[0]), parseFloat(centerCoords[1]));
 			<?php endif; ?>
 
@@ -165,19 +165,19 @@ function location_map_shortcode( $atts ) {
 
 	return ob_get_clean();
 }
-add_shortcode( 'location_map', 'location_map_shortcode' );
+add_shortcode('location_map', 'location_map_shortcode');
 
 /**
  * Helper function to render miniature map in admin or templates
  */
-function render_location_minimap( $location_id, $height = '200px' ) {
-	if ( get_post_type( $location_id ) !== 'kartpunkt' ) {
+function render_location_minimap($location_id, $height = '200px') {
+	if (get_post_type($location_id) !== 'kartpunkt') {
 		return '<p><em>Ikke et gyldig sted</em></p>';
 	}
 
-	return location_map_shortcode( array(
+	return location_map_shortcode(array(
 		'id'     => $location_id,
 		'height' => $height,
 		'zoom'   => '16'
-	) );
+	));
 }

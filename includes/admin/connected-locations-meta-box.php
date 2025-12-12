@@ -10,9 +10,9 @@
  * Register meta box for connected locations
  */
 function register_connected_locations_meta_box() {
-	$post_types = array( 'post', 'page', 'tribe_events' );
+	$post_types = array('post', 'page', 'tribe_events');
 
-	foreach ( $post_types as $post_type ) {
+	foreach ($post_types as $post_type) {
 		add_meta_box(
 			'connected_locations',
 			'Koblede steder',
@@ -23,39 +23,39 @@ function register_connected_locations_meta_box() {
 		);
 	}
 }
-add_action( 'add_meta_boxes', 'register_connected_locations_meta_box' );
+add_action('add_meta_boxes', 'register_connected_locations_meta_box');
 
 /**
  * Render connected locations meta box
  */
-function render_connected_locations_meta_box( $post ) {
-	$locations = get_connected_locations( $post->ID, 'post' );
+function render_connected_locations_meta_box($post) {
+	$locations = get_connected_locations($post->ID, 'post');
 
 	?>
 	<div id="connected-locations-display">
-		<?php if ( empty( $locations ) ) : ?>
+		<?php if (empty($locations)) : ?>
 			<p class="description">Ingen steder koblet til dette innholdet.</p>
 		<?php else : ?>
 			<ul class="connected-locations-list">
-				<?php foreach ( $locations as $location_id ) : ?>
+				<?php foreach ($locations as $location_id) : ?>
 					<?php
-					$location = get_post( $location_id );
-					if ( ! $location ) {
+					$location = get_post($location_id);
+					if (!$location) {
 						continue;
 					}
 
-					$type = get_location_type( $location_id );
-					$gruppe = wp_get_post_terms( $location_id, 'gruppe', array( 'fields' => 'names' ) );
+					$type = get_location_type($location_id);
+					$gruppe = wp_get_post_terms($location_id, 'gruppe', array('fields' => 'names'));
 					?>
 					<li class="connected-location-item">
 						<span class="location-icon">📍</span>
-						<a href="<?php echo esc_url( get_edit_post_link( $location_id ) ); ?>" target="_blank">
-							<?php echo esc_html( $location->post_title ); ?>
+						<a href="<?php echo esc_url(get_edit_post_link($location_id)); ?>" target="_blank">
+							<?php echo esc_html($location->post_title); ?>
 						</a>
 						<span class="location-meta">
-							<span class="location-type-badge"><?php echo esc_html( $type ); ?></span>
-							<?php if ( ! empty( $gruppe ) ) : ?>
-								<span class="location-group-badge"><?php echo esc_html( $gruppe[0] ); ?></span>
+							<span class="location-type-badge"><?php echo esc_html($type); ?></span>
+							<?php if (!empty($gruppe)) : ?>
+								<span class="location-group-badge"><?php echo esc_html($gruppe[0]); ?></span>
 							<?php endif; ?>
 						</span>
 					</li>
@@ -63,7 +63,7 @@ function render_connected_locations_meta_box( $post ) {
 			</ul>
 
 			<p class="description" style="margin-top: 10px;">
-				<a href="<?php echo esc_url( home_url( '/kart/' ) ); ?>" target="_blank">
+				<a href="<?php echo esc_url(home_url('/kart/')); ?>" target="_blank">
 					Vis på kartet →
 				</a>
 			</p>
@@ -123,12 +123,12 @@ function render_connected_locations_meta_box( $post ) {
 /**
  * Add connected locations section to user profile
  */
-function render_user_connected_locations( $user ) {
-	if ( ! current_user_can( 'edit_users' ) ) {
+function render_user_connected_locations($user) {
+	if (!current_user_can('edit_users')) {
 		return;
 	}
 
-	$locations = get_connected_locations( $user->ID, 'user' );
+	$locations = get_connected_locations($user->ID, 'user');
 
 	?>
 	<h2>Koblede steder</h2>
@@ -136,29 +136,29 @@ function render_user_connected_locations( $user ) {
 		<tr>
 			<th scope="row">Steder på kartet</th>
 			<td>
-				<?php if ( empty( $locations ) ) : ?>
+				<?php if (empty($locations)) : ?>
 					<p class="description">Ingen steder koblet til denne brukeren.</p>
 				<?php else : ?>
 					<ul class="connected-locations-list" style="margin-top: 0;">
-						<?php foreach ( $locations as $location_id ) : ?>
+						<?php foreach ($locations as $location_id) : ?>
 							<?php
-							$location = get_post( $location_id );
-							if ( ! $location ) {
+							$location = get_post($location_id);
+							if (!$location) {
 								continue;
 							}
 
-							$type = get_location_type( $location_id );
-							$gruppe = wp_get_post_terms( $location_id, 'gruppe', array( 'fields' => 'names' ) );
+							$type = get_location_type($location_id);
+							$gruppe = wp_get_post_terms($location_id, 'gruppe', array('fields' => 'names'));
 							?>
 							<li class="connected-location-item">
 								<span class="location-icon">📍</span>
-								<a href="<?php echo esc_url( get_edit_post_link( $location_id ) ); ?>" target="_blank">
-									<?php echo esc_html( $location->post_title ); ?>
+								<a href="<?php echo esc_url(get_edit_post_link($location_id)); ?>" target="_blank">
+									<?php echo esc_html($location->post_title); ?>
 								</a>
 								<span class="location-meta">
-									<span class="location-type-badge"><?php echo esc_html( $type ); ?></span>
-									<?php if ( ! empty( $gruppe ) ) : ?>
-										<span class="location-group-badge"><?php echo esc_html( $gruppe[0] ); ?></span>
+									<span class="location-type-badge"><?php echo esc_html($type); ?></span>
+									<?php if (!empty($gruppe)) : ?>
+										<span class="location-group-badge"><?php echo esc_html($gruppe[0]); ?></span>
 									<?php endif; ?>
 								</span>
 							</li>
@@ -167,7 +167,7 @@ function render_user_connected_locations( $user ) {
 				<?php endif; ?>
 
 				<p style="margin-top: 10px;">
-					<a href="<?php echo esc_url( home_url( '/kart/' ) ); ?>" target="_blank" class="button">
+					<a href="<?php echo esc_url(home_url('/kart/')); ?>" target="_blank" class="button">
 						Vis på kartet
 					</a>
 				</p>
@@ -218,5 +218,5 @@ function render_user_connected_locations( $user ) {
 	</style>
 	<?php
 }
-add_action( 'show_user_profile', 'render_user_connected_locations' );
-add_action( 'edit_user_profile', 'render_user_connected_locations' );
+add_action('show_user_profile', 'render_user_connected_locations');
+add_action('edit_user_profile', 'render_user_connected_locations');

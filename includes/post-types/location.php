@@ -35,60 +35,60 @@ function register_location_post_type() {
 		'show_ui'               => true,
 		'show_in_menu'          => true,
 		'query_var'             => true,
-		'rewrite'               => array( 'slug' => 'kartpunkt' ),
+		'rewrite'               => array('slug' => 'kartpunkt'),
 		'capability_type'       => 'post',
 		'has_archive'           => false,
 		'hierarchical'          => false,
 		'menu_position'         => 20,
 		'menu_icon'             => 'dashicons-location',
-		'supports'              => array( 'title', 'editor', 'author', 'thumbnail', 'revisions' ),
+		'supports'              => array('title', 'editor', 'author', 'thumbnail', 'revisions'),
 		'show_in_rest'          => true, // Enable Gutenberg editor and REST API
 	);
 
-	register_post_type( 'kartpunkt', $args );
+	register_post_type('kartpunkt', $args);
 }
-add_action( 'init', 'register_location_post_type' );
+add_action('init', 'register_location_post_type');
 
 /**
  * Add custom columns to kartpunkt admin list
  */
-function kartpunkt_admin_columns( $columns ) {
+function kartpunkt_admin_columns($columns) {
 	$new_columns = array();
-	foreach ( $columns as $key => $value ) {
-		$new_columns[ $key ] = $value;
+	foreach ($columns as $key => $value) {
+		$new_columns[$key] = $value;
 		// Insert connections column after title
-		if ( $key === 'title' ) {
+		if ($key === 'title') {
 			$new_columns['connections'] = 'Tilkoblinger';
 		}
 	}
 	return $new_columns;
 }
-add_filter( 'manage_kartpunkt_posts_columns', 'kartpunkt_admin_columns' );
+add_filter('manage_kartpunkt_posts_columns', 'kartpunkt_admin_columns');
 
 /**
  * Populate kartpunkt admin columns
  */
-function kartpunkt_admin_column_content( $column, $post_id ) {
-	if ( $column !== 'connections' ) {
+function kartpunkt_admin_column_content($column, $post_id) {
+	if ($column !== 'connections') {
 		return;
 	}
 
-	$connections = get_location_connections_full( $post_id );
-	$count = count( $connections );
+	$connections = get_location_connections_full($post_id);
+	$count = count($connections);
 
-	if ( $count === 0 ) {
+	if ($count === 0) {
 		echo '<span style="color: #999;">—</span>';
 		return;
 	}
 
 	// Group by type for compact display
 	$grouped = array();
-	foreach ( $connections as $conn ) {
+	foreach ($connections as $conn) {
 		$type = $conn['type'];
-		if ( ! isset( $grouped[ $type ] ) ) {
-			$grouped[ $type ] = array();
+		if (!isset($grouped[$type])) {
+			$grouped[$type] = array();
 		}
-		$grouped[ $type ][] = $conn;
+		$grouped[$type][] = $conn;
 	}
 
 	// Type labels in Norwegian
@@ -103,22 +103,22 @@ function kartpunkt_admin_column_content( $column, $post_id ) {
 	echo '<strong>' . $count . '</strong> ';
 
 	$parts = array();
-	foreach ( $grouped as $type => $items ) {
-		$label = isset( $type_labels[ $type ] ) ? $type_labels[ $type ] : $type;
-		$titles = array_map( function( $item ) {
-			return esc_html( $item['title'] );
-		}, array_slice( $items, 0, 3 ) );
+	foreach ($grouped as $type => $items) {
+		$label = isset($type_labels[$type]) ? $type_labels[$type] : $type;
+		$titles = array_map(function($item) {
+			return esc_html($item['title']);
+		}, array_slice($items, 0, 3));
 
-		$text = implode( ', ', $titles );
-		if ( count( $items ) > 3 ) {
-			$text .= ' +' . ( count( $items ) - 3 );
+		$text = implode(', ', $titles);
+		if (count($items) > 3) {
+			$text .= ' +' . (count($items) - 3);
 		}
-		$parts[] = '<span title="' . esc_attr( $label ) . '">' . $text . '</span>';
+		$parts[] = '<span title="' . esc_attr($label) . '">' . $text . '</span>';
 	}
 
-	echo '<small style="color: #666;">' . implode( ' · ', $parts ) . '</small>';
+	echo '<small style="color: #666;">' . implode(' · ', $parts) . '</small>';
 }
-add_action( 'manage_kartpunkt_posts_custom_column', 'kartpunkt_admin_column_content', 10, 2 );
+add_action('manage_kartpunkt_posts_custom_column', 'kartpunkt_admin_column_content', 10, 2);
 
 /**
  * Register Group Taxonomy
@@ -149,30 +149,30 @@ function register_location_group_taxonomy() {
 		'show_ui'               => true,
 		'show_admin_column'     => true,
 		'query_var'             => true,
-		'rewrite'               => array( 'slug' => 'gruppe' ),
+		'rewrite'               => array('slug' => 'gruppe'),
 		'show_in_rest'          => true,
 	);
 
-	register_taxonomy( 'gruppe', array( 'kartpunkt' ), $args );
+	register_taxonomy('gruppe', array('kartpunkt'), $args);
 }
-add_action( 'init', 'register_location_group_taxonomy' );
+add_action('init', 'register_location_group_taxonomy');
 
 /**
  * Redirect kartpunkt single posts to map deep link
  */
 function redirect_kartpunkt_to_map() {
-	if ( is_singular( 'kartpunkt' ) ) {
+	if (is_singular('kartpunkt')) {
 		$post_id = get_the_ID();
-		$gruppe_terms = wp_get_post_terms( $post_id, 'gruppe' );
-		$gruppe_slug = ! empty( $gruppe_terms ) && ! is_wp_error( $gruppe_terms ) ? $gruppe_terms[0]->slug : '';
+		$gruppe_terms = wp_get_post_terms($post_id, 'gruppe');
+		$gruppe_slug = !empty($gruppe_terms) && !is_wp_error($gruppe_terms) ? $gruppe_terms[0]->slug : '';
 
-		$map_url = home_url( '/kart/?poi=' . $post_id );
-		if ( $gruppe_slug ) {
+		$map_url = home_url('/kart/?poi=' . $post_id);
+		if ($gruppe_slug) {
 			$map_url .= '&overlays=' . $gruppe_slug;
 		}
 
-		wp_redirect( $map_url, 301 );
+		wp_redirect($map_url, 301);
 		exit;
 	}
 }
-add_action( 'template_redirect', 'redirect_kartpunkt_to_map' );
+add_action('template_redirect', 'redirect_kartpunkt_to_map');
