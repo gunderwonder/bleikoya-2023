@@ -406,6 +406,22 @@ function format_location_for_rest($location_id) {
 		);
 	}
 
+	// Get label (manual label takes priority, then cabin number from connected user)
+	$label = get_location_label($location_id);
+	if (empty($label)) {
+		$connections = get_location_connections($location_id);
+		foreach ($connections as $conn) {
+			if ($conn['type'] !== 'user') {
+				continue;
+			}
+			$cabin_number = get_user_meta($conn['id'], 'user-cabin-number', true);
+			if (!empty($cabin_number)) {
+				$label = $cabin_number;
+				break;
+			}
+		}
+	}
+
 	return array(
 		'id'          => $location_id,
 		'title'       => $location->post_title,
@@ -419,6 +435,7 @@ function format_location_for_rest($location_id) {
 			'slugs' => $gruppe_slugs
 		),
 		'connections' => get_location_connection_ids($location_id),
+		'label'       => $label,
 		'permalink'   => get_permalink($location_id),
 		'edit_link'   => get_edit_post_link($location_id, 'raw'),
 		'author'      => array(
