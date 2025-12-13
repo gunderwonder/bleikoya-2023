@@ -347,6 +347,7 @@ foreach ($source_locations as $location) {
 		'type' => $location['type'] ?? 'marker',
 		'coordinates' => $location['coordinates'] ?? null,
 		'style' => $location['style'] ?? null,
+		'label' => $location['label'] ?? null,
 	];
 
 	// Use gruppe slug (the API will auto-create if needed)

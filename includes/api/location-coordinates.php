@@ -203,7 +203,12 @@ function get_marker_presets() {
 		'badeplass' => array(
 			'name'  => 'Badeplass',
 			'color' => 'rgb(90, 146, 203)',
-			'icon'  => 'waves'
+			'icon'  => 'umbrella'
+		),
+		'ferge' => array(
+			'name'  => 'Ferge/Kai',
+			'color' => 'rgb(90, 146, 203)',
+			'icon'  => 'ship'
 		),
 		'skog' => array(
 			'name'  => 'Skog/Natur',

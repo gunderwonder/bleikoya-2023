@@ -208,6 +208,11 @@ function rest_create_location($request) {
 		update_location_style($post_id, $params['style']);
 	}
 
+	// Set label
+	if (!empty($params['label'])) {
+		update_location_label($post_id, $params['label']);
+	}
+
 	// Set connections
 	if (!empty($params['connections']) && is_array($params['connections'])) {
 		foreach ($params['connections'] as $connection_id) {

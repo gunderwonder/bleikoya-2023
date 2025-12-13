@@ -104,7 +104,8 @@ function render_location_data_meta_box($post) {
 					<option value="anchor" <?php selected($style['icon'] ?? '', 'anchor'); ?>>Anker (anchor)</option>
 					<option value="waves" <?php selected($style['icon'] ?? '', 'waves'); ?>>Bølger (waves)</option>
 					<option value="droplet" <?php selected($style['icon'] ?? '', 'droplet'); ?>>Dråpe (droplet)</option>
-					<option value="ship" <?php selected($style['icon'] ?? '', 'ship'); ?>>Båt (ship)</option>
+					<option value="ship" <?php selected($style['icon'] ?? '', 'ship'); ?>>Ferge/Båt (ship)</option>
+					<option value="umbrella" <?php selected($style['icon'] ?? '', 'umbrella'); ?>>Parasoll/Badeplass (umbrella)</option>
 				</optgroup>
 				<optgroup label="Natur">
 					<option value="tree-pine" <?php selected($style['icon'] ?? '', 'tree-pine'); ?>>Tre (tree-pine)</option>
