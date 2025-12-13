@@ -617,8 +617,8 @@
 		// ===================
 		// Default visible layers
 		// ===================
-		// Only show Brygger and Fellesområder by default (others can be toggled via chips)
-		var defaultVisibleLayers = ['brygger', 'fellesomrader', 'fellesområder'];
+		// Show Brygger, Fellesområder and Fellesbygg by default (others can be toggled via chips)
+		var defaultVisibleLayers = ['brygger', 'fellesomrader', 'fellesområder', 'fellesbygg'];
 
 		// Add default layers to map
 		Object.keys(locationLayers).forEach(function(gruppeSlug) {
@@ -2382,7 +2382,7 @@
 
 					loading.style.display = 'none';
 
-					// Render location info
+					// Build the new content
 					var infoHtml = '<div class="location-info">';
 
 					if (location.gruppe && location.gruppe.names && location.gruppe.names.length > 0) {

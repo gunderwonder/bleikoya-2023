@@ -141,7 +141,7 @@
 		// window.location.href = event.target.value.permalink;
 	})
 
-	// Calendar grid AJAX navigation
+	// Calendar grid AJAX navigation with View Transitions
 	document.addEventListener('click', async (e) => {
 		const btn = e.target.closest('[data-month]');
 		if (!btn || !btn.closest('.b-month-grid__nav')) return;
@@ -152,16 +152,24 @@
 		const mode = grid.dataset.mode || 'calendar';
 
 		try {
-			grid.style.opacity = '0.5';
 			const response = await fetch(`/wp-json/bleikoya/v1/calendar-grid?month=${encodeURIComponent(month)}&mode=${encodeURIComponent(mode)}`);
 			const data = await response.json();
 
-			// Replace the grid with new content
+			// Parse new grid HTML
 			const temp = document.createElement('div');
 			temp.innerHTML = data.html;
 			const newGrid = temp.firstElementChild;
 
-			grid.replaceWith(newGrid);
+			// Use View Transition API if available
+			if (document.startViewTransition) {
+				await document.startViewTransition(() => {
+					grid.replaceWith(newGrid);
+				}).finished;
+			} else {
+				// Fallback: simple opacity transition
+				grid.style.opacity = '0.5';
+				grid.replaceWith(newGrid);
+			}
 
 			// Re-initialize Lucide icons in the new content
 			if (window.lucide) {

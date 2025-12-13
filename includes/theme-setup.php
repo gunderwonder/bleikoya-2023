@@ -5,6 +5,7 @@ define('UNCATEGORIZED_TAG_ID', 1);
 
 add_theme_support('post-formats');
 add_theme_support('post-thumbnails');
+add_theme_support('title-tag');
 
 add_action('wp', function () {
 	$queried_object = get_queried_object();
@@ -18,6 +19,17 @@ add_action('wp', function () {
 
 add_action('after_setup_theme', function () {
 	show_admin_bar(current_user_can('administrator'));
+});
+
+/**
+ * Custom page titles (using modern title-tag support)
+ */
+add_filter('document_title_parts', function ($title_parts) {
+	// Calendar archive - clean title instead of TEC's default
+	if (function_exists('tribe_is_event') && tribe_is_event() && is_archive()) {
+		$title_parts['title'] = 'Kalender';
+	}
+	return $title_parts;
 });
 
 function hide_images($block_content, $block) {
