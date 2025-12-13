@@ -361,7 +361,7 @@ a {
 	border-bottom: 1px solid var(--b-primary-color);
 }
 
-.b-form input:not([type="radio"]),
+.b-form input:not([type="radio"]):not([type="submit"]),
 .b-form textarea,
 .b-form select {
 	width: 100%;
@@ -369,6 +369,28 @@ a {
 	line-height: 2.5rem;
 	padding: 0 1rem;
 	border-radius: 5px;
+}
+
+.b-form input[type="submit"],
+.b-form .wpcf7-submit {
+	background-color: var(--b-green-color);
+	color: white;
+	padding: 0.5rem 1rem;
+	border-radius: var(--b-radius-pill);
+	border: none;
+	font-family: var(--b-font-heading);
+	font-weight: 500;
+	text-transform: uppercase;
+	font-size: 0.8rem;
+	line-height: 1rem;
+	transition: background-color 0.5s ease, color 0.5s ease;
+	cursor: pointer;
+	float: right;
+}
+
+.b-form input[type="submit"]:hover,
+.b-form .wpcf7-submit:hover {
+	background-color: var(--b-primary-color);
 }
 
 .b-form select {
