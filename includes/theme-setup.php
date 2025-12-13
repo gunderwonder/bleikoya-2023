@@ -70,3 +70,74 @@ function bleikoya_conditional_cf7_assets() {
 	}
 }
 add_action('wp_enqueue_scripts', 'bleikoya_conditional_cf7_assets', 100);
+
+/**
+ * Enqueue map page assets
+ * Loads CSS and JS for the interactive map (page-kart.php)
+ */
+function bleikoya_enqueue_map_assets() {
+	// Check for slug-based template (page-kart.php) or assigned template
+	if (!is_page('kart') && !is_page_template('page-kart.php')) {
+		return;
+	}
+
+	// Get all locations data for the map
+	$locations = get_posts([
+		'post_type'      => 'kartpunkt',
+		'posts_per_page' => -1,
+		'post_status'    => 'publish',
+		'orderby'        => 'title',
+		'order'          => 'ASC'
+	]);
+
+	// Group locations by gruppe taxonomy
+	$locations_by_group = [];
+	foreach ($locations as $location) {
+		$gruppe_terms = wp_get_post_terms($location->ID, 'gruppe');
+		$gruppe_slug = 'default';
+		$gruppe_name = 'Diverse';
+
+		if (!empty($gruppe_terms) && !is_wp_error($gruppe_terms)) {
+			$gruppe_slug = $gruppe_terms[0]->slug;
+			$gruppe_name = $gruppe_terms[0]->name;
+		}
+
+		if (!isset($locations_by_group[$gruppe_slug])) {
+			$locations_by_group[$gruppe_slug] = [
+				'name'      => $gruppe_name,
+				'locations' => []
+			];
+		}
+
+		$locations_by_group[$gruppe_slug]['locations'][] = get_location_data($location->ID);
+	}
+
+	// Enqueue CSS
+	wp_enqueue_style(
+		'bleikoya-map',
+		get_template_directory_uri() . '/assets/css/map-page.css',
+		[],
+		filemtime(get_template_directory() . '/assets/css/map-page.css')
+	);
+
+	// Enqueue JavaScript (in footer)
+	wp_enqueue_script(
+		'bleikoya-map',
+		get_template_directory_uri() . '/assets/js/map-page.js',
+		[],
+		filemtime(get_template_directory() . '/assets/js/map-page.js'),
+		true
+	);
+
+	// Pass data to JavaScript
+	wp_localize_script('bleikoya-map', 'mapPageData', [
+		'locations'     => $locations_by_group,
+		'markerPresets' => get_marker_presets(),
+		'canEdit'       => current_user_can('edit_posts'),
+		'nonce'         => wp_create_nonce('wp_rest'),
+		'restUrl'       => rest_url(),
+		'themeUrl'      => get_template_directory_uri(),
+		'currentUser'   => wp_get_current_user(),
+	]);
+}
+add_action('wp_enqueue_scripts', 'bleikoya_enqueue_map_assets');
