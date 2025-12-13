@@ -411,10 +411,18 @@ a {
 .b-form textarea,
 .b-form select {
 	width: 100%;
+	max-width: 100%;
 	border: 1px solid var(--b-border-color);
 	line-height: 2.5rem;
 	padding: 0 1rem;
 	border-radius: 5px;
+}
+
+/* Fix date input overflow on iOS/mobile */
+.b-form input[type="date"] {
+	-webkit-appearance: none;
+	appearance: none;
+	min-height: 2.5rem;
 }
 
 .b-form input[type="submit"],
