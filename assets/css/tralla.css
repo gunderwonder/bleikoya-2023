@@ -566,6 +566,7 @@ aside .b-subject-list {
 	position: relative;
 	box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
 	min-height: calc(18.8984px + 2rem);
+	z-index: 1000;
 }
 
 .wp-block-image {
@@ -653,6 +654,10 @@ aside .b-subject-list {
 }
 
 @media only screen and (max-width: 700px) {
+	.b-navigation {
+		padding: 0.25rem 0;
+	}
+
 	.b-menu {
 		text-align: left;
 		overflow: auto;
@@ -667,6 +672,10 @@ aside .b-subject-list {
 
 	.b-menu__item {
 		margin-right: 1rem;
+	}
+
+	.b-menu__link {
+		padding: 0.75rem 0;
 	}
 
 	/* Scroll indicator - gradient + chevron */
@@ -717,7 +726,7 @@ aside .b-subject-list {
 	font-weight: bold;
 }
 
-@media only screen and (min-width: 600px) {
+@media only screen and (min-width: 701px) {
 	.b-menu__link--active::after,
 	.b-menu__link:hover::after {
 		display: block;
