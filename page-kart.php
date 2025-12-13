@@ -743,6 +743,63 @@
 		color: white;
 	}
 
+	/* Opacity sliders for overlays */
+	.map-controls__overlay-item {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.map-controls__opacity-slider {
+		display: none;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.25rem 0.5rem;
+		background: #f5f5f5;
+		border-radius: 4px;
+		margin-top: 0.25rem;
+	}
+
+	.map-controls__opacity-slider.visible {
+		display: flex;
+	}
+
+	.map-controls__opacity-slider input[type="range"] {
+		flex: 1;
+		height: 4px;
+		-webkit-appearance: none;
+		appearance: none;
+		background: #ddd;
+		border-radius: 2px;
+		cursor: pointer;
+	}
+
+	.map-controls__opacity-slider input[type="range"]::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 14px;
+		height: 14px;
+		background: var(--b-primary-color);
+		border-radius: 50%;
+		cursor: pointer;
+	}
+
+	.map-controls__opacity-slider input[type="range"]::-moz-range-thumb {
+		width: 14px;
+		height: 14px;
+		background: var(--b-primary-color);
+		border-radius: 50%;
+		cursor: pointer;
+		border: none;
+	}
+
+	.map-controls__opacity-value {
+		font-size: 0.75rem;
+		color: #666;
+		min-width: 2.5rem;
+		text-align: right;
+	}
+
 	/* Onboarding Overlay */
 	.map-onboarding {
 		position: absolute;
@@ -1732,6 +1789,7 @@ foreach ($locations as $location) {
 		// Image Overlay Chips
 		// ===================
 		var imageOverlayLayers = {}; // Will store layer groups for image overlays
+		var overlayOpacities = {}; // Store opacity values per overlay
 
 		function renderImageOverlayChips() {
 			var container = document.getElementById('image-overlay-chips');
@@ -1754,6 +1812,14 @@ foreach ($locations as $location) {
 				}
 
 				var config = distortableImageConfigs[key];
+				var initialOpacity = overlayOpacities[key] !== undefined ? overlayOpacities[key] : (config.opacity || 0.7);
+				overlayOpacities[key] = initialOpacity;
+
+				// Create wrapper for chip + slider
+				var wrapper = document.createElement('div');
+				wrapper.className = 'map-controls__overlay-item';
+
+				// Create chip button
 				var chip = document.createElement('button');
 				chip.className = 'b-button';
 				chip.dataset.overlay = key;
@@ -1768,8 +1834,48 @@ foreach ($locations as $location) {
 					toggleImageOverlay(key);
 				});
 
-				container.appendChild(chip);
+				// Create opacity slider
+				var sliderContainer = document.createElement('div');
+				sliderContainer.className = 'map-controls__opacity-slider';
+				sliderContainer.dataset.overlaySlider = key;
+
+				var slider = document.createElement('input');
+				slider.type = 'range';
+				slider.min = '0';
+				slider.max = '100';
+				slider.value = Math.round(initialOpacity * 100);
+				slider.dataset.overlayKey = key;
+
+				var valueDisplay = document.createElement('span');
+				valueDisplay.className = 'map-controls__opacity-value';
+				valueDisplay.textContent = Math.round(initialOpacity * 100) + '%';
+
+				slider.addEventListener('input', function() {
+					var opacity = parseInt(this.value) / 100;
+					overlayOpacities[key] = opacity;
+					valueDisplay.textContent = this.value + '%';
+					setOverlayOpacity(key, opacity);
+				});
+
+				sliderContainer.appendChild(slider);
+				sliderContainer.appendChild(valueDisplay);
+
+				wrapper.appendChild(chip);
+				wrapper.appendChild(sliderContainer);
+				container.appendChild(wrapper);
 			});
+
+			updateImageOverlayChipsState();
+		}
+
+		function setOverlayOpacity(key, opacity) {
+			// Get the actual overlay from distortableImages
+			if (distortableImages[key] && distortableImages[key].overlay) {
+				var overlay = distortableImages[key].overlay;
+				if (typeof overlay.setOpacity === 'function') {
+					overlay.setOpacity(opacity);
+				}
+			}
 		}
 
 		function toggleImageOverlay(key) {
@@ -1784,6 +1890,12 @@ foreach ($locations as $location) {
 				map.removeLayer(layer);
 			} else {
 				layer.addTo(map);
+				// Apply stored opacity after a short delay (overlay needs to be created first)
+				setTimeout(function() {
+					if (overlayOpacities[key] !== undefined) {
+						setOverlayOpacity(key, overlayOpacities[key]);
+					}
+				}, 100);
 			}
 
 			updateImageOverlayChipsState();
@@ -1792,10 +1904,22 @@ foreach ($locations as $location) {
 		function updateImageOverlayChipsState() {
 			document.querySelectorAll('#image-overlay-chips .b-button[data-overlay]').forEach(function(chip) {
 				var key = chip.dataset.overlay;
-				if (imageOverlayLayers[key] && map.hasLayer(imageOverlayLayers[key])) {
+				var isActive = imageOverlayLayers[key] && map.hasLayer(imageOverlayLayers[key]);
+
+				if (isActive) {
 					chip.classList.add('b-button--active');
 				} else {
 					chip.classList.remove('b-button--active');
+				}
+
+				// Show/hide opacity slider
+				var slider = document.querySelector('.map-controls__opacity-slider[data-overlay-slider="' + key + '"]');
+				if (slider) {
+					if (isActive) {
+						slider.classList.add('visible');
+					} else {
+						slider.classList.remove('visible');
+					}
 				}
 			});
 		}
