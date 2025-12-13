@@ -50,6 +50,21 @@
 
 	}, false);
 
+	// Mobile menu scroll indicator
+	document.addEventListener('DOMContentLoaded', () => {
+		const menu = document.querySelector('.b-menu');
+		const navigation = document.querySelector('.b-navigation');
+		if (!menu || !navigation) return;
+
+		function updateScrollIndicator() {
+			const isAtEnd = menu.scrollLeft + menu.clientWidth >= menu.scrollWidth - 10;
+			navigation.classList.toggle('b-navigation--scrolled-end', isAtEnd);
+		}
+
+		menu.addEventListener('scroll', updateScrollIndicator);
+		updateScrollIndicator(); // Check initial state
+	});
+
 	document.addEventListener('click', (e) => {
 		if (e.target.matches('button, button *')) {
 			e.target.closest('button').focus();

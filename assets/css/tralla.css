@@ -657,6 +657,8 @@ aside .b-subject-list {
 		text-align: left;
 		overflow: auto;
 		white-space: nowrap;
+		/* Space for scroll indicator and login */
+		padding-right: 4.5rem;
 	}
 
 	.b-menu::-webkit-scrollbar {
@@ -665,6 +667,35 @@ aside .b-subject-list {
 
 	.b-menu__item {
 		margin-right: 1rem;
+	}
+
+	/* Scroll indicator - gradient + chevron */
+	.b-navigation::after {
+		content: "›";
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		right: 3rem;
+		width: 2.5rem;
+		background: linear-gradient(
+			90deg,
+			rgba(255, 255, 255, 0) 0%,
+			rgba(255, 255, 255, 1) 50%
+		);
+		pointer-events: none;
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		padding-right: 0.25rem;
+		font-size: 1.2rem;
+		color: var(--b-gray-color, #999);
+		transition: opacity 0.2s ease;
+	}
+
+	/* Hide indicator when scrolled to end */
+	.b-navigation--scrolled-end::after {
+		opacity: 0;
 	}
 }
 

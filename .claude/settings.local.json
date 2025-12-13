@@ -36,7 +36,8 @@
       "mcp__chrome-devtools__list_network_requests",
       "mcp__chrome-devtools__new_page",
       "mcp__chrome-devtools__get_network_request",
-      "Bash(php:*)"
+      "Bash(php:*)",
+      "mcp__chrome-devtools__list_pages"
     ],
     "deny": [],
     "ask": []
