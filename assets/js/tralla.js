@@ -50,11 +50,25 @@
 
 	}, false);
 
-	// Mobile menu scroll indicator
+	// Mobile menu scroll indicator + auto-scroll to active item
 	document.addEventListener('DOMContentLoaded', () => {
 		const menu = document.querySelector('.b-menu');
 		const navigation = document.querySelector('.b-navigation');
 		if (!menu || !navigation) return;
+
+		// Auto-scroll to active menu item so user sees where they are
+		const activeLink = menu.querySelector('.b-menu__link--active');
+		if (activeLink) {
+			const menuItem = activeLink.closest('.b-menu__item');
+			if (menuItem) {
+				// Center the active item in the menu if possible
+				const menuWidth = menu.clientWidth;
+				const itemLeft = menuItem.offsetLeft;
+				const itemWidth = menuItem.offsetWidth;
+				const scrollPos = itemLeft - (menuWidth / 2) + (itemWidth / 2);
+				menu.scrollLeft = Math.max(0, scrollPos);
+			}
+		}
 
 		function updateScrollIndicator() {
 			const isAtEnd = menu.scrollLeft + menu.clientWidth >= menu.scrollWidth - 10;
