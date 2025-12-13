@@ -16,6 +16,7 @@ jobs:
           host: ssh.bleikoya.net
           username: bleikoya.net
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
           script: |
             cd /www/wp-content/themes/bleikoya-2023
             git pull
