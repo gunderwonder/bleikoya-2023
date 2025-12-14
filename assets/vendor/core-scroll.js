@@ -1,1 +1,0 @@
-../../node_modules/@nrk/core-scroll/core-scroll.js
