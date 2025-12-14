@@ -478,11 +478,6 @@
 			}
 		});
 
-		// Re-initialize Lucide icons for dynamically created markers
-		if (typeof lucide !== 'undefined') {
-			lucide.createIcons();
-		}
-
 		// ===================
 		// URL State Management
 		// ===================
@@ -629,6 +624,11 @@
 				locationLayers[gruppeSlug].addTo(map);
 			}
 		});
+
+		// Initialize Lucide icons after layers are added to DOM
+		if (typeof lucide !== 'undefined') {
+			lucide.createIcons();
+		}
 
 		// ===================
 		// Base Layer Segmented Control
