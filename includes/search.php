@@ -7,7 +7,8 @@ function sc_get_human_readable_type($type) {
 		'post_tag' => 'Tagg',
 		'category' => 'Tema',
 		'tribe_events_cat' => 'Kalenderkategori',
-		'tribe_events' => 'Kalenderhendelse'
+		'tribe_events' => 'Kalenderhendelse',
+		'link' => 'Lenke'
 	);
 
 	if (isset($types[$type]))
@@ -70,10 +71,22 @@ function sc_search_autocomplete($query) {
 				$type .= ', ' . $event_date;
 			}
 
+			// For links, use the external URL
+			$permalink = get_permalink($p);
+			$external = false;
+			if ($p->post_type === 'link') {
+				$link_url = get_link_url($p->ID);
+				if ($link_url) {
+					$permalink = $link_url;
+					$external = true;
+				}
+			}
+
 			$results[] = array(
 				'title' => $p->post_title,
-				'permalink' => get_permalink($p),
+				'permalink' => $permalink,
 				'type' => $type,
+				'external' => $external,
 			);
 		}
 	}

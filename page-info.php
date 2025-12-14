@@ -51,6 +51,29 @@
 					<?php wp_reset_postdata(); ?>
 				<?php endif; ?>
 
+				<?php $links = get_posts(array(
+					'post_type' => 'link',
+					'category' => $category->term_id,
+					'post_status' => array('publish', 'private'),
+					'numberposts' => -1
+				)); ?>
+				<?php if (count($links) > 0) : ?>
+					<h3 class="b-subject-list__item-posts-heading">Lenker</h3>
+					<ul class="b-subject-list__item-posts">
+						<?php foreach ($links as $link) : ?>
+							<?php $link_url = get_link_url($link->ID); ?>
+							<?php if ($link_url) : ?>
+								<li class="b-subject-list__item-post">
+									<a href="<?php echo esc_url($link_url); ?>" target="_blank" rel="noopener" class="b-subject-list__item-post-link b-anchor--with-icon">
+										<i data-lucide="external-link" class="b-icon b-icon--small"></i>
+										<?php echo esc_html($link->post_title); ?>
+									</a>
+								</li>
+							<?php endif; ?>
+						<?php endforeach; ?>
+					</ul>
+				<?php endif; ?>
+
 				<?php $connected_locations = get_connected_locations($category->term_id, 'term'); ?>
 				<?php if (!empty($connected_locations)) : ?>
 					<h3 class="b-subject-list__item-posts-heading">På kartet</h3>

@@ -107,9 +107,11 @@
 
 		suggest.innerHTML = `<ul class="b-search-items">${items.length ? items.slice(0, 10)
 			.map((item) => {
+				const externalAttrs = item.external ? ' target="_blank" rel="noopener"' : '';
+				const externalIcon = item.external ? ' ↗' : '';
 				return `<li class="b-search-items__item">
-					<a href="${suggest.escapeHTML(item.permalink)}">
-						${suggest.escapeHTML(item.title)}
+					<a href="${suggest.escapeHTML(item.permalink)}"${externalAttrs}>
+						${suggest.escapeHTML(item.title)}${externalIcon}
 						<span>${suggest.escapeHTML(item.type)}</span>
 					</a>
 				</li>`
