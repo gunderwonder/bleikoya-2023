@@ -545,7 +545,15 @@ a {
 
 .b-subject-list__item-post {
 	margin-bottom: 0.5rem;
-	line-height: 2;
+}
+
+.b-subject-list__item-post .b-wikilink {
+	align-items: flex-start;
+	padding: 0.4rem 0.6rem;
+}
+
+.b-subject-list__item-post .b-wikilink__icon {
+	margin-top: 0.2em;
 }
 
 .b-subject-list__item-posts-heading {
@@ -1888,7 +1896,6 @@ a.page-numbers:hover {
 	font-weight: 500;
 	border-bottom: none;
 	transition: background-color 0.15s ease, color 0.15s ease;
-	white-space: nowrap;
 	text-decoration: none;
 }
 
@@ -1905,7 +1912,7 @@ a.page-numbers:hover {
 }
 
 .b-wikilink__label {
-	white-space: nowrap;
+	white-space: normal;
 }
 
 /* Type-specific colors */
