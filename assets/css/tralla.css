@@ -544,7 +544,8 @@ a {
 }
 
 .b-subject-list__item-post {
-	margin-bottom: 1rem;
+	margin-bottom: 0.5rem;
+	line-height: 2;
 }
 
 .b-subject-list__item-posts-heading {
@@ -1909,12 +1910,12 @@ a.page-numbers:hover {
 
 /* Type-specific colors */
 .b-wikilink--post {
-	background-color: var(--b-green-transparent-color);
-	color: var(--b-green-color);
+	background-color: var(--b-red-transparent-color);
+	color: var(--b-red-color);
 }
 
 .b-wikilink--post:hover {
-	background-color: var(--b-green-color);
+	background-color: var(--b-red-color);
 	color: white;
 }
 
@@ -1965,6 +1966,16 @@ a.page-numbers:hover {
 
 .b-wikilink--category:hover {
 	background-color: #666;
+	color: white;
+}
+
+.b-wikilink--external {
+	background-color: var(--b-blue-transparent-color);
+	color: var(--b-blue-dark-color);
+}
+
+.b-wikilink--external:hover {
+	background-color: var(--b-blue-dark-color);
 	color: white;
 }
 

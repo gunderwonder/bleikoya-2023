@@ -39,13 +39,11 @@
 						<?php foreach ($posts as $post) : ?>
 							<?php setup_postdata($post); ?>
 							<li class="b-subject-list__item-post">
-
-								<a href="<?php the_permalink() ?>" class="b-subject-list__item-post-link b-anchor--with-icon">
-									<i data-lucide="newspaper" class="b-icon b-icon--small"></i>
-									<?php the_title(); ?>
+								<a href="<?php the_permalink() ?>" class="b-wikilink b-wikilink--post">
+									<i data-lucide="newspaper" class="b-wikilink__icon"></i>
+									<span class="b-wikilink__label"><?php the_title(); ?></span>
 								</a>
 							</li>
-
 						<?php endforeach; ?>
 					</ul>
 					<?php wp_reset_postdata(); ?>
@@ -64,9 +62,9 @@
 							<?php $link_url = get_link_url($link->ID); ?>
 							<?php if ($link_url) : ?>
 								<li class="b-subject-list__item-post">
-									<a href="<?php echo esc_url($link_url); ?>" target="_blank" rel="noopener" class="b-subject-list__item-post-link b-anchor--with-icon">
-										<i data-lucide="external-link" class="b-icon b-icon--small"></i>
-										<?php echo esc_html($link->post_title); ?>
+									<a href="<?php echo esc_url($link_url); ?>" target="_blank" rel="noopener" class="b-wikilink b-wikilink--external">
+										<i data-lucide="external-link" class="b-wikilink__icon"></i>
+										<span class="b-wikilink__label"><?php echo esc_html($link->post_title); ?></span>
 									</a>
 								</li>
 							<?php endif; ?>
@@ -84,9 +82,9 @@
 								<?php $gruppe_terms = wp_get_post_terms($location_id, 'gruppe'); ?>
 								<?php $overlay_slug = !empty($gruppe_terms) ? $gruppe_terms[0]->slug : ''; ?>
 								<li class="b-subject-list__item-post">
-									<a href="/kart/?poi=<?php echo $location_id; ?><?php echo $overlay_slug ? '&overlays=' . $overlay_slug : ''; ?>" class="b-subject-list__item-post-link b-anchor--with-icon">
-										<i data-lucide="map-pin" class="b-icon b-icon--small"></i>
-										<?php echo esc_html($location->post_title); ?>
+									<a href="/kart/?poi=<?php echo $location_id; ?><?php echo $overlay_slug ? '&overlays=' . $overlay_slug : ''; ?>" class="b-wikilink b-wikilink--location">
+										<i data-lucide="map-pin" class="b-wikilink__icon"></i>
+										<span class="b-wikilink__label"><?php echo esc_html($location->post_title); ?></span>
 									</a>
 								</li>
 							<?php endif; ?>
