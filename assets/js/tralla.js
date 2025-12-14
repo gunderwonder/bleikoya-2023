@@ -56,17 +56,23 @@
 		const navigation = document.querySelector('.b-navigation');
 		if (!menu || !navigation) return;
 
-		// Auto-scroll to active menu item so user sees where they are
+		// Auto-scroll to active menu item only if not visible
 		const activeLink = menu.querySelector('.b-menu__link--active');
 		if (activeLink) {
 			const menuItem = activeLink.closest('.b-menu__item');
 			if (menuItem) {
-				// Center the active item in the menu if possible
-				const menuWidth = menu.clientWidth;
 				const itemLeft = menuItem.offsetLeft;
-				const itemWidth = menuItem.offsetWidth;
-				const scrollPos = itemLeft - (menuWidth / 2) + (itemWidth / 2);
-				menu.scrollLeft = Math.max(0, scrollPos);
+				const itemRight = itemLeft + menuItem.offsetWidth;
+				const viewLeft = menu.scrollLeft;
+				const viewRight = viewLeft + menu.clientWidth;
+
+				// Only scroll if the active item is not fully visible
+				if (itemLeft < viewLeft || itemRight > viewRight) {
+					menu.scrollTo({
+						left: Math.max(0, itemLeft - 16),
+						behavior: 'smooth'
+					});
+				}
 			}
 		}
 
