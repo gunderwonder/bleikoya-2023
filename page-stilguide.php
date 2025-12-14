@@ -145,6 +145,13 @@ get_header();
 				</div>
 			</div>
 			<div class="sg-color-swatch">
+				<div class="sg-color-swatch__color" style="background-color: var(--b-blue-dark-color);"></div>
+				<div class="sg-color-swatch__info">
+					<div class="sg-color-swatch__name">--b-blue-dark-color</div>
+					<div>rgb(55, 105, 160) — WCAG AA</div>
+				</div>
+			</div>
+			<div class="sg-color-swatch">
 				<div class="sg-color-swatch__color" style="background-color: var(--b-yellow-color);"></div>
 				<div class="sg-color-swatch__info">
 					<div class="sg-color-swatch__name">--b-yellow-color</div>

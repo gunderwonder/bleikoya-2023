@@ -58,6 +58,7 @@
 	--b-red-color: #b93e3c;
 	--b-red-transparent-color: rgba(185, 62, 60, 0.05);
 	--b-blue-color: rgb(90, 146, 203);
+	--b-blue-dark-color: rgb(55, 105, 160);
 	--b-blue-transparent-color: rgba(90, 146, 203, 0.05);
 	--b-yellow-color: rgb(232, 195, 103);
 	--b-yellow-transparent-color: rgba(232, 195, 103, 0.3);
@@ -1859,6 +1860,114 @@ a.page-numbers:hover {
 		visibility: visible;
 		transform: translateY(0);
 	}
+}
+
+/* #endregion */
+
+/* #region Wikilinks */
+
+.b-wikilink {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25em;
+	background-color: var(--b-blue-transparent-color);
+	color: var(--b-blue-dark-color);
+	padding: 0 8px;
+	border-radius: 0;
+	font-weight: 500;
+	border-bottom: none;
+	transition: background-color 0.15s ease, color 0.15s ease;
+	white-space: nowrap;
+	text-decoration: none;
+}
+
+.b-wikilink:hover {
+	background-color: var(--b-blue-dark-color);
+	color: white;
+	border-bottom: none;
+}
+
+.b-wikilink__icon {
+	height: 0.75em;
+	width: 0.75em;
+	flex-shrink: 0;
+}
+
+.b-wikilink__label {
+	white-space: nowrap;
+}
+
+/* Type-specific colors */
+.b-wikilink--post {
+	background-color: var(--b-green-transparent-color);
+	color: var(--b-green-color);
+}
+
+.b-wikilink--post:hover {
+	background-color: var(--b-green-color);
+	color: white;
+}
+
+.b-wikilink--page {
+	background-color: var(--b-blue-transparent-color);
+	color: var(--b-blue-dark-color);
+}
+
+.b-wikilink--page:hover {
+	background-color: var(--b-blue-dark-color);
+	color: white;
+}
+
+.b-wikilink--event {
+	background-color: var(--b-yellow-transparent-color);
+	color: #8b7000;
+}
+
+.b-wikilink--event:hover {
+	background-color: var(--b-yellow-color);
+	color: white;
+}
+
+.b-wikilink--user {
+	background-color: var(--b-red-transparent-color);
+	color: var(--b-red-color);
+}
+
+.b-wikilink--user:hover {
+	background-color: var(--b-red-color);
+	color: white;
+}
+
+.b-wikilink--location {
+	background-color: var(--b-blue-transparent-color);
+	color: var(--b-blue-dark-color);
+}
+
+.b-wikilink--location:hover {
+	background-color: var(--b-blue-dark-color);
+	color: white;
+}
+
+.b-wikilink--category {
+	background-color: rgba(150, 150, 150, 0.1);
+	color: #666;
+}
+
+.b-wikilink--category:hover {
+	background-color: #666;
+	color: white;
+}
+
+/* Missing content state */
+.b-wikilink--missing {
+	background-color: var(--b-border-color);
+	color: #888;
+	cursor: not-allowed;
+}
+
+.b-wikilink--missing:hover {
+	background-color: var(--b-border-color);
+	color: #888;
 }
 
 /* #endregion */

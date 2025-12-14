@@ -1,0 +1,122 @@
+/**
+ * Wikilink Editor Styles
+ *
+ * Styles for the Gutenberg editor wikilink format
+ */
+
+/* Popover container */
+.wikilink-popover .components-popover__content {
+	padding: 0;
+}
+
+.wikilink-popover__content {
+	width: 320px;
+	max-width: 90vw;
+	padding: 12px;
+}
+
+/* Search input */
+.wikilink-popover__content .components-text-control__input {
+	font-size: 14px;
+}
+
+/* Loading state */
+.wikilink-popover__loading {
+	display: flex;
+	justify-content: center;
+	padding: 16px;
+}
+
+/* Results list */
+.wikilink-popover__results {
+	list-style: none;
+	margin: 8px 0 0;
+	padding: 0;
+	max-height: 280px;
+	overflow-y: auto;
+}
+
+/* Individual result */
+.wikilink-popover__result {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 10px;
+	margin: 0;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background-color 0.1s ease;
+}
+
+.wikilink-popover__result:hover,
+.wikilink-popover__result--selected {
+	background-color: #f0f0f0;
+}
+
+/* Result icon */
+.wikilink-popover__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border-radius: 4px;
+	flex-shrink: 0;
+}
+
+.wikilink-popover__icon--post {
+	background-color: rgba(81, 131, 71, 0.15);
+	color: rgb(81, 131, 71);
+}
+
+.wikilink-popover__icon--page {
+	background-color: rgba(90, 146, 203, 0.15);
+	color: rgb(90, 146, 203);
+}
+
+.wikilink-popover__icon--event {
+	background-color: rgba(232, 195, 103, 0.25);
+	color: #8b7000;
+}
+
+.wikilink-popover__icon--user {
+	background-color: rgba(185, 62, 60, 0.15);
+	color: rgb(185, 62, 60);
+}
+
+.wikilink-popover__icon--location {
+	background-color: rgba(90, 146, 203, 0.15);
+	color: rgb(90, 146, 203);
+}
+
+.wikilink-popover__icon--category {
+	background-color: rgba(150, 150, 150, 0.15);
+	color: #666;
+}
+
+/* Result title */
+.wikilink-popover__title {
+	flex: 1;
+	font-size: 13px;
+	font-weight: 500;
+	color: #1e1e1e;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Result subtitle */
+.wikilink-popover__subtitle {
+	font-size: 11px;
+	color: #757575;
+	white-space: nowrap;
+}
+
+/* Empty state */
+.wikilink-popover__empty {
+	padding: 16px;
+	text-align: center;
+	color: #757575;
+	font-size: 13px;
+}
+

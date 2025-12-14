@@ -37,6 +37,12 @@ require 'includes/admin/location-ajax.php';
 require 'includes/shortcodes/location-map.php';
 require 'includes/shortcodes/rental-calendar.php';
 
+// Wikilinks functionality
+require 'includes/wikilinks/shortcode.php';
+require 'includes/wikilinks/rest-endpoints.php';
+require 'includes/wikilinks/gutenberg.php';
+require 'includes/wikilinks/classic-editor.php';
+
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 /**
