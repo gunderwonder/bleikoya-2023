@@ -44,27 +44,25 @@
 	<nav class="b-navigation">
 		<ul class="b-menu">
 			<li class="b-menu__item">
-				<a href="/" class="b-menu__link <?php if (is_front_page()) : ?>b-menu__link--active<?php endif; ?>">
-					<?php if (is_user_logged_in()) : ?>
-						<?php echo "Forside" ?>
-					<?php else : ?>
-						<?php echo "Om øya" ?>
-					<?php endif; ?>
-				</a>
+				<?php if (is_user_logged_in()) : ?>
+					<a href="/" class="b-menu__link <?php if (is_front_page()) : ?>b-menu__link--active<?php endif; ?>" data-text="Forside">Forside</a>
+				<?php else : ?>
+					<a href="/" class="b-menu__link <?php if (is_front_page()) : ?>b-menu__link--active<?php endif; ?>" data-text="Om øya">Om øya</a>
+				<?php endif; ?>
 			</li>
 			<?php global $post; ?>
 
 			<?php if (is_user_logged_in()) : ?>
-				<li class="b-menu__item"><a class="b-menu__link <?php if (is_home() || is_single() || (is_archive() && !tribe_is_event() && !is_category())) : ?>b-menu__link--active<?php endif; ?>" href="/oppslag">Oppslag</a></li>
-				<li class="b-menu__item"><a class="b-menu__link <?php if (($post && $post->post_name === 'info') || is_category()) : ?>b-menu__link--active<?php endif; ?>" href="/info/">Info</a></li>
+				<li class="b-menu__item"><a class="b-menu__link <?php if (is_home() || is_single() || (is_archive() && !tribe_is_event() && !is_category())) : ?>b-menu__link--active<?php endif; ?>" href="/oppslag" data-text="Oppslag">Oppslag</a></li>
+				<li class="b-menu__item"><a class="b-menu__link <?php if (($post && $post->post_name === 'info') || is_category()) : ?>b-menu__link--active<?php endif; ?>" href="/info/" data-text="Info">Info</a></li>
 			<?php endif; ?>
-			<li class="b-menu__item"><a class="b-menu__link <?php if (tribe_is_event()) : ?>b-menu__link--active<?php endif; ?>" href="/kalender/">Kalender</a></li>
+			<li class="b-menu__item"><a class="b-menu__link <?php if (tribe_is_event()) : ?>b-menu__link--active<?php endif; ?>" href="/kalender/" data-text="Kalender">Kalender</a></li>
 			<?php if (is_user_logged_in()) : ?>
-				<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'kart') : ?>b-menu__link--active<?php endif; ?>" href="/kart/">Kart</a></li>
+				<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'kart') : ?>b-menu__link--active<?php endif; ?>" href="/kart/" data-text="Kart">Kart</a></li>
 				<?php $queried_object = get_queried_object() ?>
-				<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'galleri' || (isset($queried_object->taxonomy) && $queried_object->taxonomy === 'gallery')) : ?>b-menu__link--active<?php endif; ?>" href="/galleri/">Bilder</a></li>
+				<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'galleri' || (isset($queried_object->taxonomy) && $queried_object->taxonomy === 'gallery')) : ?>b-menu__link--active<?php endif; ?>" href="/galleri/" data-text="Bilder">Bilder</a></li>
 			<?php endif; ?>
-			<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'kontakt') : ?>b-menu__link--active<?php endif; ?>" href="/kontakt/">Kontakt</a></li>
+			<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'kontakt') : ?>b-menu__link--active<?php endif; ?>" href="/kontakt/" data-text="Kontakt">Kontakt</a></li>
 		</ul>
 
 		<!-- <button class="b-menu-scroll-button"></button> -->

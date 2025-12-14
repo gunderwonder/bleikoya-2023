@@ -772,9 +772,19 @@ aside .b-subject-list {
 	text-transform: uppercase;
 	font-weight: normal;
 	border-bottom: none;
-	display: inline-block;
+	display: inline-grid;
 	height: 100%;
 	position: relative;
+}
+
+/* Invisible bold text to reserve width and prevent layout shift */
+.b-menu__link::before {
+	content: attr(data-text);
+	font-weight: bold;
+	visibility: hidden;
+	height: 0;
+	overflow: hidden;
+	grid-area: 1 / 1;
 }
 
 .b-menu__link--active {
