@@ -96,6 +96,82 @@
 		}
 	});
 
+	// Search placeholder typewriter effect
+	document.addEventListener('DOMContentLoaded', function initSearchPlaceholder() {
+		const input = document.getElementById('b-search');
+		if (!input) return;
+
+		const placeholders = JSON.parse(input.dataset.placeholders || '[]');
+		const prefix = input.dataset.placeholderPrefix || '';
+		if (!placeholders.length) return;
+
+		// Shuffle array (Fisher-Yates)
+		for (let i = placeholders.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[placeholders[i], placeholders[j]] = [placeholders[j], placeholders[i]];
+		}
+
+		let currentIndex = 0;
+		let currentText = '';
+		let isDeleting = false;
+		let isPaused = false;
+		let timeoutId = null;
+
+		function updatePlaceholder() {
+			input.placeholder = prefix + currentText + '...';
+		}
+
+		function tick() {
+			if (isPaused) return;
+
+			const fullText = placeholders[currentIndex];
+
+			if (!isDeleting) {
+				// Typing
+				if (currentText.length < fullText.length) {
+					currentText = fullText.substring(0, currentText.length + 1);
+					updatePlaceholder();
+					timeoutId = setTimeout(tick, 80);
+				} else {
+					// Finished typing, pause before deleting
+					timeoutId = setTimeout(() => {
+						isDeleting = true;
+						tick();
+					}, 2000);
+				}
+			} else {
+				// Deleting
+				if (currentText.length > 0) {
+					currentText = currentText.substring(0, currentText.length - 1);
+					updatePlaceholder();
+					timeoutId = setTimeout(tick, 40);
+				} else {
+					// Finished deleting, move to next word
+					isDeleting = false;
+					currentIndex = (currentIndex + 1) % placeholders.length;
+					timeoutId = setTimeout(tick, 500);
+				}
+			}
+		}
+
+		// Start the animation
+		tick();
+
+		// Pause when input has focus
+		input.addEventListener('focus', () => {
+			isPaused = true;
+			if (timeoutId) clearTimeout(timeoutId);
+		});
+
+		// Resume when focus is lost (if input is empty)
+		input.addEventListener('blur', () => {
+			if (input.value.trim() === '') {
+				isPaused = false;
+				tick();
+			}
+		});
+	});
+
 	// Search autocomplete
 	document.addEventListener('DOMContentLoaded', function initSearchAutocomplete() {
 		const input = document.getElementById('b-search');

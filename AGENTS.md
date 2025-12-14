@@ -103,7 +103,7 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 Run health checks locally:
 ```bash
 cd test
-SITE_URL="http://localhost:8888" php health-check.php
+SITE_URL="https://bleikoya.test" php health-check.php
 ```
 
 Tests verify:
@@ -121,7 +121,7 @@ Tests verify:
 - **Path**: `/www/wp-content/themes/bleikoya-2023`
 
 ## Local Development
-- **Local URL**: http://localhost:8888
+- **Local URL**: https://bleikoya.test
 
 ## Style Guide
 There is a style guide at `/stilguide` (template: `page-stilguide.php`).
@@ -177,7 +177,7 @@ This project has Chrome DevTools MCP configured for browser-based debugging and 
 
 ### Starting Chrome with Remote Debugging
 ```bash
-/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 http://localhost:8888/kart/
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 https://bleikoya.test/kart/
 ```
 
 ### Capabilities

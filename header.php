@@ -29,6 +29,7 @@
 
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/normalize.css?v=<?php echo bleikoya_asset_version('/assets/css/normalize.css'); ?>">
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/tralla.css?v=<?php echo bleikoya_asset_version('/assets/css/tralla.css'); ?>">
+	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/print.css?v=<?php echo bleikoya_asset_version('/assets/css/print.css'); ?>" media="print">
 
 	<script src="<?php echo ASSETS_DIR ?>/js/tralla.js?v=<?php echo bleikoya_asset_version('/assets/js/tralla.js'); ?>"></script>
 
@@ -38,7 +39,7 @@
 <body <?php body_class(); ?>>
 	<?php wp_body_open(); ?>
 
-	<div style="height: 1rem; background-color: var(--b-red-color)"></div>
+	<div class="b-header-stripe" style="height: 1rem; background-color: var(--b-red-color)"></div>
 
 	<nav class="b-navigation">
 		<ul class="b-menu">

@@ -14,7 +14,9 @@
 	<label for="b-search"></label>
 	<input class="b-search-field"
 		name="s" id="b-search"
-		type="text" placeholder="Søk i oppslag, info og arrangementer..."
+		type="text" placeholder="Søk etter..."
+		data-placeholder-prefix="Søk etter "
+		data-placeholders='["vann og avløp", "barnas dag", "dugnad", "strandrydding", "styremøte", "generalforsamling", "båt", "brannsikkerhet"]'
 		value="<?php echo get_search_query() ?>"
 		autocomplete="off"
 		aria-autocomplete="list"

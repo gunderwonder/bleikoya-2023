@@ -1,0 +1,425 @@
+/**
+ * Print Stylesheet for Bleikøya Velforening
+ *
+ * Minimalistisk stilark for utskrift og PDF-eksport.
+ * Særlig optimalisert for temasider (kategorier).
+ */
+
+@page {
+	size: A4;
+	margin: 2cm 2.5cm;
+}
+
+@media print {
+	/* ===== Skjul ikke-essensielle elementer ===== */
+	.b-navigation,
+	.b-login,
+	.b-search-form,
+	.b-footer,
+	.b-bleikoya-map,
+	.b-cabin-gallery,
+	.b-quicklinks,
+	.b-toc,
+	.b-toc-mobile,
+	.grecaptcha-badge,
+	.sg-nav,
+	.sg-code,
+	.wp-block-lazyblock-b-calendar,
+	#wpadminbar,
+	/* Skjul innholdsfortegnelse (alfabetisk kategori-indeks) */
+	.b-subject-list,
+	/* Skjul relaterte oppslag, lenker, på kartet */
+	.b-subject-list__item-posts-heading,
+	.b-subject-list__item-posts,
+	/* Skjul aside-elementer */
+	aside,
+	/* Skjul "Siste oppslag" og lignende seksjoner */
+	.b-center + section,
+	.b-center ~ section,
+	/* Skjul kategori-tagger på oppslag */
+	.b-article > .b-inline-list,
+	.b-event-single__categories,
+	/* Skjul navigasjonselementer */
+	.b-event-single__nav,
+	.nav-links,
+	/* Skjul "tilbake"-lenker */
+	.b-article > .b-article-permalink[href="/kalender/"],
+	/* Skjul artikkel-plugger (relaterte oppslag) */
+	.b-article-plug {
+		display: none !important;
+	}
+
+	/* ===== Reset bakgrunner og skygger ===== */
+	body {
+		background: white !important;
+		color: black !important;
+		font-size: 11pt;
+		line-height: 1.5;
+	}
+
+	* {
+		box-shadow: none !important;
+		text-shadow: none !important;
+	}
+
+	/* ===== Brevhode med logo ===== */
+	.b-header {
+		padding: 0 0 0.75cm 0;
+		margin-bottom: 0.75cm;
+		text-align: left;
+	}
+
+	.b-header-link {
+		display: block;
+		width: auto;
+		margin: 0;
+		border: none !important;
+	}
+
+	.b-header-link::after {
+		display: none !important;
+	}
+
+	.b-header-link img {
+		width: 5cm;
+		height: auto;
+	}
+
+	.b-header-link__extra {
+		display: block;
+		margin: 0.15cm 0 0 0;
+		font-size: 8pt;
+		color: #666;
+	}
+
+	/* ===== Rød stripe øverst - fjern ===== */
+	.b-header-stripe {
+		display: none !important;
+	}
+
+	/* ===== Typografi ===== */
+	h1 {
+		font-family: Futura, "Jost", sans-serif;
+		font-size: 18pt;
+		font-weight: normal;
+		text-transform: uppercase;
+		color: black !important;
+		margin-top: 0;
+		page-break-after: avoid;
+	}
+
+	h2 {
+		font-family: Futura, "Jost", sans-serif;
+		font-size: 12pt;
+		font-weight: 600;
+		text-transform: uppercase;
+		color: black !important;
+		margin-top: 1cm;
+		page-break-after: avoid;
+	}
+
+	h3 {
+		font-family: Futura, "Jost", sans-serif;
+		font-size: 11pt;
+		font-weight: normal;
+		color: black !important;
+		margin-top: 0.75cm;
+		page-break-after: avoid;
+	}
+
+	p, li, dd, dt {
+		font-family: "Libre Franklin", sans-serif;
+		font-size: 11pt;
+		line-height: 1.6;
+		color: black !important;
+		orphans: 3;
+		widows: 3;
+	}
+
+	/* ===== Lenker ===== */
+	a {
+		color: black !important;
+		text-decoration: none !important;
+		border-bottom: none !important;
+	}
+
+	/* Ikke vis URL-er ved utskrift */
+	a::after {
+		content: none !important;
+	}
+
+	/* ===== Layout ===== */
+	.b-center,
+	.b-center-wide {
+		max-width: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.b-article {
+		margin-bottom: 1cm;
+	}
+
+	/* ===== Bokser ===== */
+	.b-box {
+		background: none !important;
+		border: 1pt solid #e6e6e9;
+		padding: 0.5cm;
+		margin-bottom: 0.5cm;
+		page-break-inside: avoid;
+	}
+
+	.b-box--red,
+	.b-box--yellow,
+	.b-box--green {
+		border-left: 3pt solid;
+	}
+
+	.b-box--red {
+		border-left-color: #b93e3c;
+	}
+
+	.b-box--yellow {
+		border-left-color: rgb(232, 195, 103);
+	}
+
+	.b-box--green {
+		border-left-color: rgb(81, 131, 71);
+	}
+
+	/* ===== Brødtekst ===== */
+	.b-body-text,
+	.b-body-text p {
+		color: black !important;
+	}
+
+	.b-body-text p {
+		margin-bottom: 0.4cm;
+	}
+
+	.b-body-text ul,
+	.b-body-text ol {
+		margin: 0.3cm 0 0.3cm 1cm;
+	}
+
+	.b-body-text li {
+		margin-bottom: 0.15cm;
+	}
+
+	/* ===== Lister ===== */
+	.b-inline-list {
+		padding: 0;
+	}
+
+	.b-inline-list li {
+		display: inline;
+		margin-right: 0.5cm;
+	}
+
+	/* ===== Emnelenker (subject links) ===== */
+	.b-subject-link {
+		background: none !important;
+		color: black !important;
+		padding: 0 !important;
+		font-size: 10pt;
+		border-radius: 0;
+	}
+
+	/* ===== Emneoverskrifter ===== */
+	.b-subject-heading,
+	.b-subject-heading a {
+		color: black !important;
+	}
+
+	/* ===== Tabeller ===== */
+	table {
+		border-collapse: collapse;
+		width: 100%;
+		margin: 0.5cm 0;
+		page-break-inside: avoid;
+	}
+
+	th, td {
+		border: 1pt solid #e6e6e9;
+		padding: 0.2cm 0.4cm;
+		text-align: left;
+	}
+
+	th {
+		background: #f5f5f5 !important;
+		font-weight: bold;
+	}
+
+	/* ===== Bilder ===== */
+	img {
+		max-width: 100% !important;
+		height: auto !important;
+		page-break-inside: avoid;
+	}
+
+	.wp-block-image {
+		margin: 0.5cm 0;
+		page-break-inside: avoid;
+	}
+
+	figure {
+		margin: 0.5cm 0;
+		page-break-inside: avoid;
+	}
+
+	figcaption {
+		font-size: 9pt;
+		font-style: italic;
+		color: #666;
+		margin-top: 0.2cm;
+	}
+
+	/* ===== Sitater ===== */
+	blockquote {
+		margin: 0.5cm 0 0.5cm 1cm;
+		padding-left: 0.5cm;
+		border-left: 2pt solid #b93e3c;
+		font-style: italic;
+		color: #464646;
+		page-break-inside: avoid;
+	}
+
+	/* ===== Definisjonslister ===== */
+	dl {
+		margin: 0.5cm 0;
+	}
+
+	dt {
+		font-weight: bold;
+		margin-top: 0.3cm;
+	}
+
+	dd {
+		margin-left: 1cm;
+		margin-bottom: 0.2cm;
+	}
+
+	/* ===== Kodeblokker ===== */
+	pre, code {
+		font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+		font-size: 9pt;
+		background: #f5f5f5 !important;
+		border: 1pt solid #e6e6e9;
+		page-break-inside: avoid;
+	}
+
+	pre {
+		padding: 0.3cm;
+		overflow: visible;
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
+
+	code {
+		padding: 0.05cm 0.15cm;
+	}
+
+	/* ===== Skillelinje ===== */
+	hr {
+		border: none;
+		border-top: 1pt solid #e6e6e9;
+		margin: 0.75cm 0;
+	}
+
+	/* ===== Artikkel-plugger ===== */
+	.b-article-plug {
+		page-break-inside: avoid;
+		border: 1pt solid #e6e6e9;
+		padding: 0.4cm !important;
+		margin-bottom: 0.4cm;
+	}
+
+	.b-article-plug--has-image {
+		padding-left: 3.5cm !important;
+	}
+
+	.b-article-plug__thumbnail {
+		position: absolute;
+		left: 0.4cm;
+		top: 0.4cm;
+		width: 2.5cm;
+	}
+
+	.b-article-plug__thumbnail img {
+		width: 2.5cm !important;
+		height: 2.5cm !important;
+		object-fit: cover;
+	}
+
+	.b-article-heading--small {
+		font-size: 12pt;
+		margin-top: 0.2cm;
+	}
+
+	.b-article-permalink {
+		font-size: 9pt;
+		color: #666;
+	}
+
+	/* ===== Forfattersider ===== */
+	.b-author-header {
+		page-break-after: avoid;
+	}
+
+	.b-author-avatar img {
+		width: 2cm !important;
+		height: 2cm !important;
+	}
+
+	.b-author-contact-list {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 0.1cm 0.5cm;
+	}
+
+	.b-author-cabin-badge {
+		background: none !important;
+		color: rgb(81, 131, 71) !important;
+		border: 1pt solid rgb(81, 131, 71);
+		padding: 0.1cm 0.3cm !important;
+	}
+
+	/* ===== Hendelseslister ===== */
+	.b-event-list__timeline {
+		border-left: 1pt solid #e6e6e9;
+	}
+
+	.b-event-list__item {
+		background: none !important;
+		border: 1pt solid #e6e6e9;
+		page-break-inside: avoid;
+	}
+
+	.b-event-list__item::before {
+		background: #e6e6e9 !important;
+	}
+
+	/* ===== Sidetall ===== */
+	@page {
+		@bottom-center {
+			content: counter(page);
+			font-family: "Libre Franklin", sans-serif;
+			font-size: 9pt;
+			color: #666;
+		}
+	}
+
+	/* ===== Unngå sideskift ===== */
+	h1, h2, h3 {
+		page-break-after: avoid;
+	}
+
+	.b-box,
+	.b-article-plug,
+	blockquote,
+	figure,
+	table,
+	pre {
+		page-break-inside: avoid;
+	}
+}
