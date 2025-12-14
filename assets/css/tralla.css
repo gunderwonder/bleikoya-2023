@@ -772,7 +772,7 @@ aside .b-subject-list {
 	text-transform: uppercase;
 	font-weight: normal;
 	border-bottom: none;
-	display: inline-grid;
+	display: inline-block;
 	height: 100%;
 	position: relative;
 }
@@ -781,10 +781,10 @@ aside .b-subject-list {
 .b-menu__link::before {
 	content: attr(data-text);
 	font-weight: bold;
-	visibility: hidden;
+	display: block;
 	height: 0;
 	overflow: hidden;
-	grid-area: 1 / 1;
+	visibility: hidden;
 }
 
 .b-menu__link--active {
