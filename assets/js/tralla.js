@@ -96,52 +96,94 @@
 		}
 	});
 
-	document.addEventListener('suggest.ajax', (event) => {
+	// Search autocomplete
+	document.addEventListener('DOMContentLoaded', function initSearchAutocomplete() {
+		const input = document.getElementById('b-search');
+		const suggest = document.getElementById('b-search-suggest');
+		if (!input || !suggest) return;
 
-		const suggest = event.target
-		const input = suggest.input
-		if (input.id !== 'b-search')
-			return;
+		let debounceTimer;
+		let activeIndex = -1;
 
-		const items = event.detail.responseJSON;
+		function escapeHTML(str) {
+			const div = document.createElement('div');
+			div.textContent = str;
+			return div.innerHTML;
+		}
 
-		suggest.innerHTML = `<ul class="b-search-items">${items.length ? items.slice(0, 10)
-			.map((item) => {
+		input.addEventListener('input', () => {
+			clearTimeout(debounceTimer);
+			const query = input.value.trim();
+
+			if (!query) {
+				suggest.innerHTML = '';
+				return;
+			}
+
+			suggest.innerHTML = `<ul class="b-search-items">
+				<li class="b-search-items__item"><button>Søker etter ${escapeHTML(query)}...<span>&nbsp;</span></button></li>
+			</ul>`;
+
+			debounceTimer = setTimeout(() => fetchResults(query), 200);
+		});
+
+		async function fetchResults(query) {
+			try {
+				const response = await fetch(`/search/${encodeURIComponent(query)}?ajax`);
+				const items = await response.json();
+				renderResults(items);
+			} catch (err) {
+				console.error('Search error:', err);
+				suggest.innerHTML = '';
+			}
+		}
+
+		function renderResults(items) {
+			activeIndex = -1;
+			if (!items.length) {
+				suggest.innerHTML = `<ul class="b-search-items">
+					<li class="b-search-items__item"><button>Ingen treff. Sorry!<span>&nbsp;</span></button></li>
+				</ul>`;
+				return;
+			}
+
+			suggest.innerHTML = `<ul class="b-search-items">${items.slice(0, 10).map((item, i) => {
 				const externalAttrs = item.external ? ' target="_blank" rel="noopener"' : '';
 				const externalIcon = item.external ? ' ↗' : '';
 				return `<li class="b-search-items__item">
-					<a href="${suggest.escapeHTML(item.permalink)}"${externalAttrs}>
-						${suggest.escapeHTML(item.title)}${externalIcon}
-						<span>${suggest.escapeHTML(item.type)}</span>
+					<a href="${escapeHTML(item.permalink)}" id="suggest-${i}"${externalAttrs}>
+						${escapeHTML(item.title)}${externalIcon}
+						<span>${escapeHTML(item.type)}</span>
 					</a>
-				</li>`
-			})
-			.join('') : '<ul class="b-search-items"><li class="b-search-items__item"><button>Ingen treff. Sorry!<span>&nbsp;</span></button></li>'}</ul>`
+				</li>`;
+			}).join('')}</ul>`;
+		}
+
+		input.addEventListener('keydown', (e) => {
+			const links = suggest.querySelectorAll('a');
+			if (!links.length) return;
+
+			if (e.key === 'ArrowDown') {
+				e.preventDefault();
+				activeIndex = Math.min(activeIndex + 1, links.length - 1);
+				links[activeIndex]?.focus();
+			} else if (e.key === 'ArrowUp') {
+				e.preventDefault();
+				activeIndex = Math.max(activeIndex - 1, -1);
+				if (activeIndex === -1) input.focus();
+				else links[activeIndex]?.focus();
+			} else if (e.key === 'Escape') {
+				suggest.innerHTML = '';
+				input.focus();
+			}
+		});
+
+		document.addEventListener('click', (e) => {
+			if (!e.target.closest('.b-search-form')) {
+				suggest.innerHTML = '';
+			}
+		});
 	});
-
-	document.addEventListener('suggest.filter', (event) => {
-		const suggest = event.target;
-		const input = suggest.input;
-		const value = input.value.trim()
-
-		if (input.id !== 'b-search')
-			return
-
-		suggest.innerHTML = value ? `<ul class="b-search-items"><li class="b-search-items__item"><button>Søker etter ${value}...<span>&nbsp;</span></button></li></ul>` : ''
-	})
-
-	document.addEventListener('suggest.select', (event) => {
-		// const suggest = event.target;
-		// const input = suggest.input;
-		// console.log(event.target.value);
-		//
-		// if (input.id !== 'nrkmusikk-search')
-		// 	return;
-		//
-		//
-		//
-		// window.location.href = event.target.value.permalink;
-	})
 
 	// Calendar grid AJAX navigation with View Transitions
 	document.addEventListener('click', async (e) => {

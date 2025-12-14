@@ -30,7 +30,6 @@
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/normalize.css?v=<?php echo bleikoya_asset_version('/assets/css/normalize.css'); ?>">
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/tralla.css?v=<?php echo bleikoya_asset_version('/assets/css/tralla.css'); ?>">
 
-	<script src="https://static.nrk.no/core-components/major/7/core-suggest/core-suggest.min.js"></script>
 	<script src="<?php echo ASSETS_DIR ?>/js/tralla.js?v=<?php echo bleikoya_asset_version('/assets/js/tralla.js'); ?>"></script>
 
 	<?php wp_head(); ?>
