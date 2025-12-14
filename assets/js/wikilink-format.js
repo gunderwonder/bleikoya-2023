@@ -107,11 +107,27 @@
 
 		// Handle selection from LinkControl
 		function handleLinkChange(nextValue) {
-			if (nextValue && nextValue.url) {
-				// Extract reference from our prefixed URL or id
-				var reference = nextValue.id;
-				if (nextValue.url && nextValue.url.startsWith("#wikilink:")) {
-					reference = nextValue.url.substring(10); // Remove "#wikilink:" prefix
+			if (nextValue && nextValue.id) {
+				// Build reference from type and id
+				var reference = null;
+
+				// Map WordPress post types to our wikilink types
+				var typeMap = {
+					'kartpunkt': 'location',
+					'tribe_events': 'event',
+					'post': 'post',
+					'page': 'page',
+					'user': 'user',
+					'category': 'category'
+				};
+
+				var type = nextValue.type ? typeMap[nextValue.type] || nextValue.type : null;
+
+				if (type && nextValue.id) {
+					reference = type + ':' + nextValue.id;
+				} else if (nextValue.id) {
+					// Fallback to just id if no type
+					reference = String(nextValue.id);
 				}
 
 				if (reference) {
