@@ -32,7 +32,8 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 │   ├── templating.php     # Template helpers
 │   ├── utilities.php      # Utility functions
 │   ├── post-types/        # Custom post types
-│   │   └── location.php   # Kartpunkt post type & gruppe taxonomy
+│   │   ├── location.php   # Kartpunkt post type & gruppe taxonomy
+│   │   └── link.php       # External links/bookmarks post type
 │   ├── api/               # REST API endpoints
 │   │   ├── location-connections.php  # Bidirectional connections
 │   │   ├── location-coordinates.php  # Coordinate helpers
@@ -47,12 +48,14 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 │   └── post/              # Post templates (content.php, plug.php)
 ├── test/                  # Integration tests
 │   └── health-check.php   # HTTP endpoint health checks
+├── acf-json/              # ACF field groups (auto-synced JSON)
 ├── vendor/                # Composer dependencies (currently committed)
 ├── composer.json          # Composer dependencies
 ├── author.php             # Author page template (cabin owner info)
 ├── page-kart.php          # Interactive map page template
 ├── page-stilguide.php     # Style guide template
 ├── MAP_DESIGN.md          # Map system documentation
+├── MIGRATIONS.md          # Manual deploy steps per commit
 ├── TODO.md                # Project TODO list
 ├── functions.php          # Theme initialization
 └── style.css              # Theme metadata
@@ -73,7 +76,9 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 - **The Events Calendar** - Event functionality
   - Functions: `tribe_get_events()`, `tribe_get_venue()`, `tribe_get_event_cat_ids()`, etc.
   - Custom meta fields: `_EventAllDay`, `_EventStartDate`, `_EventEndDate`
-- **Advanced Custom Fields** - Custom fields
+- **Advanced Custom Fields** - Custom fields (synced to `acf-json/`)
+  - Field groups: Personalia (users), Kategori (categories), Media
+  - To sync: edit field group in admin → save → JSON auto-exported
 - **Contact Form 7** - Contact forms
 - **Error Log Monitor** - Error monitoring
 - **F4 Media Taxonomies** - Media taxonomy support

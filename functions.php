@@ -40,6 +40,17 @@ require 'includes/shortcodes/rental-calendar.php';
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 /**
+ * ACF Local JSON - sync field groups to version control
+ */
+add_filter('acf/settings/save_json', function() {
+    return get_stylesheet_directory() . '/acf-json';
+});
+add_filter('acf/settings/load_json', function($paths) {
+    $paths[] = get_stylesheet_directory() . '/acf-json';
+    return $paths;
+});
+
+/**
  * Extend login session to 1 year
  * This is a members-only site with non-sensitive content
  */
