@@ -731,19 +731,6 @@ aside .b-subject-list {
 
 	.b-menu__link {
 		padding: 0.75rem 0;
-		display: inline-flex;
-		flex-direction: column;
-		align-items: center;
-	}
-
-	/* Reserve width for bold text to prevent layout shift on mobile */
-	.b-menu__link::before {
-		content: attr(data-text);
-		font-weight: bold;
-		height: 0;
-		overflow: hidden;
-		visibility: hidden;
-		pointer-events: none;
 	}
 
 	/* Scroll indicator - gradient + chevron */
