@@ -76,3 +76,22 @@ add_action('admin_menu', function() {
 		}
 	);
 });
+
+/**
+ * Custom admin menu order
+ */
+add_filter('custom_menu_order', '__return_true');
+add_filter('menu_order', function($menu_order) {
+	return array(
+		'index.php',                           // Dashbord
+		'edit.php',                            // Innlegg
+		'edit.php?post_type=page',             // Sider
+		'edit.php?post_type=tribe_events',     // Arrangementer
+		'edit.php?post_type=kartpunkt',        // Kart
+		'edit.php?post_type=link',             // Lenker
+		'edit-category',                       // Kategorier
+		'upload.php',                          // Media
+		'edit-comments.php',                   // Kommentarer
+		'wpcf7',                               // Kontakt (Contact Form 7)
+	);
+});
