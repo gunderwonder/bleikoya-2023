@@ -71,6 +71,7 @@ add_action('wp_enqueue_scripts', function() {
     // jQuery is only needed in admin (for meta boxes)
     if (!is_admin()) {
         wp_dequeue_script('jquery');
+        wp_dequeue_script('jquery-core');
         wp_dequeue_script('jquery-migrate');
     }
 
@@ -80,6 +81,6 @@ add_action('wp_enqueue_scripts', function() {
     wp_dequeue_script('jetpack-carousel');
 
     // Event Tickets RSVP - not used on frontend
-    wp_dequeue_style('event-tickets-rsvp-css');
-    wp_dequeue_script('event-tickets-rsvp-js');
+    wp_dequeue_style('event-tickets-rsvp');
+    wp_dequeue_script('event-tickets-rsvp');
 }, 100); // High priority to run after plugins enqueue
