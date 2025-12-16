@@ -77,7 +77,7 @@ add_action('wp_enqueue_scripts', function() {
 
     // Jetpack carousel - not used
     wp_dequeue_style('jetpack-carousel');
-    wp_dequeue_style('jetpack-carousel-swiper-css');
+    wp_dequeue_style('jetpack-swiper-library');
     wp_dequeue_script('jetpack-carousel');
 
     // Event Tickets RSVP - not used on frontend
