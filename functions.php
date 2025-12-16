@@ -75,11 +75,6 @@ add_action('wp_enqueue_scripts', function() {
         wp_dequeue_script('jquery-migrate');
     }
 
-    // Jetpack carousel - not used
-    wp_dequeue_style('jetpack-carousel');
-    wp_dequeue_style('jetpack-swiper-library');
-    wp_dequeue_script('jetpack-carousel');
-
     // Event Tickets RSVP - not used on frontend
     wp_dequeue_style('event-tickets-rsvp');
     wp_dequeue_script('event-tickets-rsvp');
