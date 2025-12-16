@@ -31,7 +31,7 @@
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/tralla.css?v=<?php echo bleikoya_asset_version('/assets/css/tralla.css'); ?>">
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/css/print.css?v=<?php echo bleikoya_asset_version('/assets/css/print.css'); ?>" media="print">
 
-	<script src="<?php echo ASSETS_DIR ?>/js/tralla.js?v=<?php echo bleikoya_asset_version('/assets/js/tralla.js'); ?>"></script>
+	<script src="<?php echo ASSETS_DIR ?>/js/tralla.js?v=<?php echo bleikoya_asset_version('/assets/js/tralla.js'); ?>" defer></script>
 
 	<?php wp_head(); ?>
 </head>

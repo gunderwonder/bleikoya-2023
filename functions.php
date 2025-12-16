@@ -63,3 +63,23 @@ add_filter('acf/settings/load_json', function($paths) {
 add_filter('auth_cookie_expiration', function($expiration, $user_id, $remember) {
     return YEAR_IN_SECONDS;
 }, 10, 3);
+
+/**
+ * Remove unnecessary scripts and styles from frontend
+ */
+add_action('wp_enqueue_scripts', function() {
+    // jQuery is only needed in admin (for meta boxes)
+    if (!is_admin()) {
+        wp_dequeue_script('jquery');
+        wp_dequeue_script('jquery-migrate');
+    }
+
+    // Jetpack carousel - not used
+    wp_dequeue_style('jetpack-carousel');
+    wp_dequeue_style('jetpack-carousel-swiper-css');
+    wp_dequeue_script('jetpack-carousel');
+
+    // Event Tickets RSVP - not used on frontend
+    wp_dequeue_style('event-tickets-rsvp-css');
+    wp_dequeue_script('event-tickets-rsvp-js');
+}, 100); // High priority to run after plugins enqueue
