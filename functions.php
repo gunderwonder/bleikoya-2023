@@ -63,22 +63,3 @@ add_filter('acf/settings/load_json', function($paths) {
 add_filter('auth_cookie_expiration', function($expiration, $user_id, $remember) {
     return YEAR_IN_SECONDS;
 }, 10, 3);
-
-/**
- * Cache-Control headers for Varnish
- * - Anonymous users: cache publicly for 5 minutes
- * - Logged-in users: never cache (private content)
- */
-add_action('send_headers', function() {
-    // Don't mess with admin, AJAX, or REST API requests
-    if (is_admin() || wp_doing_ajax() || defined('REST_REQUEST')) {
-        return;
-    }
-
-    if (is_user_logged_in()) {
-        header('Cache-Control: private, no-cache, no-store, must-revalidate');
-    } else {
-        // s-maxage for shared caches (Varnish), max-age for browsers
-        header('Cache-Control: public, s-maxage=300, max-age=60');
-    }
-});
