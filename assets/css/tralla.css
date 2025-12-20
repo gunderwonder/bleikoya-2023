@@ -950,6 +950,23 @@ aside .b-subject-list {
 }
 /* #endregion */
 
+/* #region Cabin Divider */
+.b-cabin-divider {
+	display: flex;
+	justify-content: center;
+	gap: 0;
+	margin: 1.5rem auto;
+	height: 2rem;
+}
+
+.b-cabin-divider img {
+	height: 100%;
+	width: auto;
+	aspect-ratio: 1;
+	object-fit: cover;
+}
+/* #endregion */
+
 /* #region Footer */
 .b-cabin-gallery {
 	display: grid;

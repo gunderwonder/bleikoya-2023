@@ -36,6 +36,7 @@ require 'includes/admin/connected-locations-meta-box.php';
 require 'includes/admin/location-ajax.php';
 require 'includes/shortcodes/location-map.php';
 require 'includes/shortcodes/rental-calendar.php';
+require 'includes/shortcodes/cabin-divider.php';
 
 // Wikilinks functionality
 require 'includes/wikilinks/shortcode.php';
@@ -63,6 +64,17 @@ add_filter('acf/settings/load_json', function($paths) {
 add_filter('auth_cookie_expiration', function($expiration, $user_id, $remember) {
     return YEAR_IN_SECONDS;
 }, 10, 3);
+
+/**
+ * Check "Remember Me" by default on login form
+ */
+add_filter('login_footer', function() {
+    ?>
+    <script>
+    document.getElementById('rememberme').checked = true;
+    </script>
+    <?php
+});
 
 /**
  * Remove unnecessary scripts and styles from frontend

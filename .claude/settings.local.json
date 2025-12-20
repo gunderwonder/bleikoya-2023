@@ -42,7 +42,10 @@
       "WebFetch(domain:u-elements.github.io)",
       "mcp__chrome-devtools__fill",
       "mcp__chrome-devtools__handle_dialog",
-      "mcp__chrome-devtools__get_console_message"
+      "mcp__chrome-devtools__get_console_message",
+      "Bash(curl:*)",
+      "mcp__chrome-devtools__performance_start_trace",
+      "mcp__chrome-devtools__performance_analyze_insight"
     ],
     "deny": [],
     "ask": []
