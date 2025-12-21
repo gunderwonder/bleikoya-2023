@@ -175,10 +175,12 @@ GOOGLE_SHARED_DRIVE_ID=<drive-id-from-url>
 
 This project has Chrome DevTools MCP configured for browser-based debugging and testing.
 
-### Starting Chrome with Remote Debugging
+### Starting Chrome Canary with Remote Debugging
 ```bash
-/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 https://bleikoya.test/kart/
+/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary --remote-debugging-port=9222 https://bleikoya.test/kart/
 ```
+
+**Note:** Always use Chrome Canary (not regular Chrome) for debugging.
 
 ### Capabilities
 - **Screenshots**: Visual verification of page state
