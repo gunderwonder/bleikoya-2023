@@ -58,6 +58,21 @@ function b_get_attachments_by_gallery_slug($gallery_slug) {
 	if (!$term)
 		return array();
 
+	// Sjekk om det finnes sorterte bilder i ACF Relationship-felt
+	$sorted_ids = get_field('sorted_images', 'gallery_' . $term->term_id);
+
+	if (!empty($sorted_ids)) {
+		$attachments = array();
+		foreach ($sorted_ids as $id) {
+			$attachment = get_post($id);
+			if ($attachment) {
+				$attachments[] = $attachment;
+			}
+		}
+		return $attachments;
+	}
+
+	// Fallback til taksonomi-spørring
 	return get_posts(array(
 		'post_type' => 'attachment',
 		'posts_per_page' => -1,

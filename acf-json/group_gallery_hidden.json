@@ -3,8 +3,33 @@
     "title": "Galleri-innstillinger",
     "fields": [
         {
+            "key": "field_gallery_sorted_images",
+            "label": "Bilder (sortert)",
+            "name": "sorted_images",
+            "aria-label": "",
+            "type": "relationship",
+            "instructions": "Velg og sorter bilder. Dra for \u00e5 endre rekkef\u00f8lge.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "post_type": ["attachment"],
+            "post_status": ["inherit"],
+            "taxonomy": [],
+            "filters": ["search"],
+            "elements": ["featured_image"],
+            "min": 0,
+            "max": 0,
+            "return_format": "id",
+            "bidirectional": 0,
+            "bidirectional_target": []
+        },
+        {
             "key": "field_gallery_hidden_on_page",
-            "label": "Skjult på galleriside",
+            "label": "Skjult p\u00e5 galleriside",
             "name": "hidden_on_gallery_page",
             "aria-label": "",
             "type": "true_false",
@@ -42,5 +67,5 @@
     "description": "Innstillinger for galleri-taksonomien",
     "show_in_rest": 0,
     "display_title": "",
-    "modified": 1766333844
+    "modified": 1766335000
 }
