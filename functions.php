@@ -5,8 +5,8 @@ require 'vendor/autoload.php';
 // Load environment variables from .env file if it exists
 $dotenvPath = __DIR__;
 if (file_exists($dotenvPath . '/.env')) {
-    $dotenv = Dotenv\Dotenv::createImmutable($dotenvPath);
-    $dotenv->safeLoad();
+   $dotenv = Dotenv\Dotenv::createImmutable($dotenvPath);
+   $dotenv->safeLoad();
 }
 
 // Initialize error logging to Sentry and Grafana Cloud
@@ -50,11 +50,11 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
  * ACF Local JSON - sync field groups to version control
  */
 add_filter('acf/settings/save_json', function() {
-    return get_stylesheet_directory() . '/acf-json';
+   return get_stylesheet_directory() . '/acf-json';
 });
 add_filter('acf/settings/load_json', function($paths) {
-    $paths[] = get_stylesheet_directory() . '/acf-json';
-    return $paths;
+   $paths[] = get_stylesheet_directory() . '/acf-json';
+   return $paths;
 });
 
 /**
@@ -62,32 +62,32 @@ add_filter('acf/settings/load_json', function($paths) {
  * This is a members-only site with non-sensitive content
  */
 add_filter('auth_cookie_expiration', function($expiration, $user_id, $remember) {
-    return YEAR_IN_SECONDS;
+   return YEAR_IN_SECONDS;
 }, 10, 3);
 
 /**
  * Check "Remember Me" by default on login form
  */
 add_filter('login_footer', function() {
-    ?>
-    <script>
-    document.getElementById('rememberme').checked = true;
-    </script>
-    <?php
+   ?>
+   <script>
+   document.getElementById('rememberme').checked = true;
+   </script>
+   <?php
 });
 
 /**
  * Remove unnecessary scripts and styles from frontend
  */
 add_action('wp_enqueue_scripts', function() {
-    // jQuery is only needed in admin (for meta boxes)
-    if (!is_admin()) {
-        wp_dequeue_script('jquery');
-        wp_dequeue_script('jquery-core');
-        wp_dequeue_script('jquery-migrate');
-    }
+   // jQuery is only needed in admin (for meta boxes)
+   if (!is_admin()) {
+      wp_dequeue_script('jquery');
+      wp_dequeue_script('jquery-core');
+      wp_dequeue_script('jquery-migrate');
+   }
 
-    // Event Tickets RSVP - not used on frontend
-    wp_dequeue_style('event-tickets-rsvp');
-    wp_dequeue_script('event-tickets-rsvp');
+   // Event Tickets RSVP - not used on frontend
+   wp_dequeue_style('event-tickets-rsvp');
+   wp_dequeue_script('event-tickets-rsvp');
 }, 100); // High priority to run after plugins enqueue
