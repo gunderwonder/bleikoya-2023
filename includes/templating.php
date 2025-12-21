@@ -66,7 +66,6 @@ function b_get_attachments_by_gallery_slug($gallery_slug) {
 				'taxonomy' => 'gallery',
 				'field' => 'term_id',
 				'terms' => $term->term_id
-
 			)
 		)
 	));

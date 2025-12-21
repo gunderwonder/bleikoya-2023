@@ -41,5 +41,6 @@
     "active": true,
     "description": "Innstillinger for galleri-taksonomien",
     "show_in_rest": 0,
-    "modified": 1734789600
+    "display_title": "",
+    "modified": 1766333844
 }
