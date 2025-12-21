@@ -77,6 +77,13 @@
 
 <?php endif; ?>
 
+<?php $gallery_attachments = b_get_attachments_by_gallery_slug('forsida'); ?>
+<?php if (!empty($gallery_attachments)) : ?>
+	<?php sc_get_template_part('parts/gallery/hero-gallery', null, array(
+		'attachments' => $gallery_attachments
+	)); ?>
+<?php endif; ?>
+
 <div class="b-center">
 
 	<main>

@@ -1,0 +1,45 @@
+{
+    "key": "group_gallery_hidden",
+    "title": "Galleri-innstillinger",
+    "fields": [
+        {
+            "key": "field_gallery_hidden_on_page",
+            "label": "Skjult på galleriside",
+            "name": "hidden_on_gallery_page",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Skjul dette galleriet fra oversikten på gallerisiden.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "Skjult",
+            "ui_off_text": "Synlig"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "taxonomy",
+                "operator": "==",
+                "value": "gallery"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Innstillinger for galleri-taksonomien",
+    "show_in_rest": 0,
+    "modified": 1734789600
+}

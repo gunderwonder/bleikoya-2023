@@ -1,7 +1,7 @@
 <nav class="b-image-gallery__index">
 	<?php $terms = get_terms(array('taxonomy' => 'gallery', 'hide_empty' => false)); ?>
 	<?php $terms = array_filter($terms, function($term) {
-		return $term->slug != '91-hytter';
+		return !get_field('hidden_on_gallery_page', 'gallery_' . $term->term_id);
 	}); ?>
 	<ul class="b-inline-list">
 		<?php foreach ($terms as $term) : ?>

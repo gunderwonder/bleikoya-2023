@@ -1900,6 +1900,69 @@ a.page-numbers:hover {
 
 /* #endregion */
 
+/* #region Hero Gallery */
+.b-hero-gallery {
+	display: flex;
+	width: 100vw;
+	margin-left: calc(-50vw + 50%);
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+	overflow: hidden;
+	height: 619px;
+}
+
+.b-hero-gallery__side {
+	flex: 1;
+	display: flex;
+	overflow: hidden;
+	min-width: 0;
+}
+
+.b-hero-gallery__side--left {
+	justify-content: flex-end;
+}
+
+.b-hero-gallery__side--right {
+	justify-content: flex-start;
+}
+
+.b-hero-gallery__main {
+	flex-shrink: 0;
+	width: 600px;
+	max-width: 50vw;
+}
+
+.b-hero-gallery__main img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.b-hero-gallery__side img {
+	height: 100%;
+	width: auto;
+	object-fit: cover;
+	display: block;
+	flex-shrink: 0;
+}
+
+@media screen and (max-width: 900px) {
+	.b-hero-gallery {
+		height: auto;
+	}
+
+	.b-hero-gallery__main {
+		width: 100%;
+		max-width: none;
+	}
+
+	.b-hero-gallery__side {
+		display: none;
+	}
+}
+/* #endregion */
+
 /* #region Wikilinks */
 
 .b-wikilink {
