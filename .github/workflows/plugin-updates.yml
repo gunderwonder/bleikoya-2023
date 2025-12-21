@@ -17,6 +17,7 @@ jobs:
           host: ssh.bleikoya.net
           username: bleikoya.net
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          capture_stdout: true
           script: |
             cd /www
             wp plugin list --update=available --format=csv --fields=name,version,update_version
