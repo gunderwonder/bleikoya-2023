@@ -10,25 +10,24 @@ jobs:
   check-updates:
     runs-on: ubuntu-latest
     steps:
-      - name: Check for plugin updates
-        id: check
+      - name: Check for plugin updates and notify
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ssh.bleikoya.net
           username: bleikoya.net
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          capture_stdout: true
+          envs: NTFY_TOPIC
           script: |
             cd /www
-            wp plugin list --update=available --format=csv --fields=name,version,update_version
+            UPDATES=$(wp plugin list --update=available --format=csv --fields=name,version,update_version)
 
-      - name: Send notification if updates available
-        if: steps.check.outputs.stdout != ''
-        run: |
-          UPDATES="${{ steps.check.outputs.stdout }}"
-          if [ -n "$UPDATES" ] && [ "$UPDATES" != "name,version,update_version" ]; then
-            curl -H "Title: Plugin-oppdateringer tilgjengelig" \
-                 -H "Tags: package" \
-                 -d "$UPDATES" \
-                 ntfy.sh/${{ secrets.NTFY_TOPIC }}
-          fi
+            # Sjekk om det finnes oppdateringer (mer enn bare header-linjen)
+            LINE_COUNT=$(echo "$UPDATES" | wc -l)
+            if [ "$LINE_COUNT" -gt 1 ]; then
+              curl -H "Title: Plugin-oppdateringer tilgjengelig" \
+                   -H "Tags: package" \
+                   -d "$UPDATES" \
+                   ntfy.sh/$NTFY_TOPIC
+            fi
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
