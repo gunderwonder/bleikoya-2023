@@ -6,12 +6,12 @@
 
 function cabin_divider_shortcode($atts) {
     $attachments = b_get_attachments_by_gallery_slug('91-hytter');
-    if (count($attachments) < 8) {
+    if (count($attachments) < 3) {
         return '';
     }
 
-    // Velg 8 tilfeldige
-    $random_keys = array_rand($attachments, 8);
+    // Velg 3 tilfeldige
+    $random_keys = array_rand($attachments, 3);
 
     ob_start();
     ?>

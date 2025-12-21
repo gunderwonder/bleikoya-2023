@@ -954,7 +954,7 @@ aside .b-subject-list {
 .b-cabin-divider {
 	display: flex;
 	justify-content: center;
-	gap: 0;
+	gap: 1rem;
 	margin: 1.5rem auto;
 	height: 2rem;
 }
