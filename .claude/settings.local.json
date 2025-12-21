@@ -45,7 +45,8 @@
       "mcp__chrome-devtools__get_console_message",
       "Bash(curl:*)",
       "mcp__chrome-devtools__performance_start_trace",
-      "mcp__chrome-devtools__performance_analyze_insight"
+      "mcp__chrome-devtools__performance_analyze_insight",
+      "Bash(magick:*)"
     ],
     "deny": [],
     "ask": []

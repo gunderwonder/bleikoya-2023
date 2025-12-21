@@ -7,8 +7,12 @@
 		<?php sc_get_template_part('parts/category/category-index', null, array(
 			'categories' => $categories
 		)); ?>
+
+		<?php echo do_shortcode('[hyttenummer]'); ?>
 	</aside>
 <?php endif; ?>
+
+
 
 <div class="b-info-layout">
 	<main class="b-subject-index">
@@ -26,7 +30,7 @@
 				</h2>
 				<div class="b-body-text">
 					<?php $documentation = sc_get_field('category-documentation', $category) ?>
-					<?php $documentation = apply_filters('the_content', $documentation) ; ?>
+					<?php $documentation = apply_filters('the_content', $documentation); ?>
 					<?php echo $documentation; ?>
 				</div>
 

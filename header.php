@@ -18,9 +18,10 @@
 	<meta property="og:image" content="">
 	<meta name="theme-color" content="#b93e3c">
 
+	<?php $favicon_suffix = wp_get_environment_type() === 'local' ? '-dev' : ''; ?>
 	<link rel="apple-touch-icon" sizes="180x180" href="<?php echo ASSETS_DIR ?>/favicon/apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="<?php echo ASSETS_DIR ?>/favicon/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="<?php echo ASSETS_DIR ?>/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="<?php echo ASSETS_DIR ?>/favicon/favicon-32x32<?php echo $favicon_suffix ?>.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="<?php echo ASSETS_DIR ?>/favicon/favicon-16x16<?php echo $favicon_suffix ?>.png">
 	<link rel="manifest" href="<?php echo ASSETS_DIR ?>/site.webmanifest">
 
 	<link rel="preconnect" href="https://fonts.googleapis.com">
