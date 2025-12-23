@@ -15,6 +15,7 @@ function bleikoya_admin_bar_color() {
 	$color = $is_local ? '#3769a0' : '#b93e3c';
 	?>
 	<style>
+		/* Admin bar */
 		#wpadminbar {
 			background: <?php echo $color; ?>;
 		}
@@ -29,6 +30,23 @@ function bleikoya_admin_bar_color() {
 		#wpadminbar .ab-top-menu > li > .ab-item:focus {
 			background: rgba(0, 0, 0, 0.1);
 			color: #fff;
+		}
+
+		/* Gutenberg editor - WP logo button */
+		.edit-post-fullscreen-mode-close.components-button,
+		.edit-site-layout__view-mode-toggle.components-button {
+			background: <?php echo $color; ?>;
+		}
+		.edit-post-fullscreen-mode-close.components-button:hover,
+		.edit-site-layout__view-mode-toggle.components-button:hover {
+			background: <?php echo $color; ?>;
+			filter: brightness(1.1);
+		}
+		/* WP logo SVG icon background */
+		.edit-post-fullscreen-mode-close svg,
+		.edit-post-fullscreen-mode-close .edit-post-fullscreen-mode-close-site-icon svg,
+		.edit-site-layout__view-mode-toggle svg {
+			background: <?php echo $color; ?> !important;
 		}
 	</style>
 	<?php

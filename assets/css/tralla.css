@@ -73,6 +73,9 @@
 	/* Border radius */
 	--b-radius-pill: 20px;
 	--b-radius-box: 10px;
+
+	/* Layout */
+	--b-nav-height: calc(18.8984px + 4rem); /* nav min-height + padding */
 }
 
 [data-href] {
@@ -503,7 +506,7 @@ a {
 @media screen and (min-width: 1080px) {
 	.b-subject-index__entry .b-subject-heading {
 		position: sticky;
-		top: 1rem;
+		top: var(--b-nav-height);
 		float: left;
 		margin-left: -14rem;
 		width: 12rem;
@@ -511,7 +514,7 @@ a {
 	}
 
 	.admin-bar .b-subject-index__entry .b-subject-heading {
-		top: calc(1rem + var(--wp-admin--admin-bar--height, 32px));
+		top: calc(var(--b-nav-height) + var(--wp-admin--admin-bar--height, 32px));
 	}
 }
 
@@ -627,10 +630,17 @@ aside .b-subject-list {
 .b-navigation {
 	padding: 1rem 0;
 	border-bottom: 1px solid var(--b-border-color);
-	position: relative;
+	position: sticky;
+	top: 0;
+	background-color: white;
 	box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
 	min-height: calc(18.8984px + 2rem);
 	z-index: 1000;
+}
+
+/* Adjust sticky nav for WordPress admin bar */
+.admin-bar .b-navigation {
+	top: var(--wp-admin--admin-bar--height, 32px);
 }
 
 .wp-block-image {
@@ -1300,8 +1310,12 @@ a.page-numbers:hover {
 		align-items: flex-start;
 		margin-bottom: 0;
 		position: sticky;
-		top: 1rem;
+		top: var(--b-nav-height);
 		align-self: flex-start;
+	}
+
+	.admin-bar .b-calendar-page__sidebar {
+		top: calc(var(--b-nav-height) + var(--wp-admin--admin-bar--height, 32px));
 	}
 
 	.b-calendar-page__sidebar .b-month-grid {
@@ -1808,9 +1822,9 @@ a.page-numbers:hover {
 	.b-toc {
 		display: block;
 		position: sticky;
-		top: 2rem;
+		top: calc(1rem + var(--b-nav-height));
 		align-self: start;
-		max-height: calc(100vh - 4rem);
+		max-height: calc(100vh - 2rem - var(--b-nav-height));
 		overflow-y: auto;
 		opacity: 0;
 		transition: opacity 0.3s ease;
@@ -1823,7 +1837,8 @@ a.page-numbers:hover {
 	}
 
 	.admin-bar .b-toc {
-		top: calc(2rem + var(--wp-admin--admin-bar--height, 32px));
+		top: calc(1rem + var(--b-nav-height) + var(--wp-admin--admin-bar--height, 32px));
+		max-height: calc(100vh - 2rem - var(--b-nav-height) - var(--wp-admin--admin-bar--height, 32px));
 	}
 
 	.b-toc__nav {
