@@ -1,5 +1,39 @@
 <?php
 
+/**
+ * Environment-based admin bar color
+ * Production: red (#b93e3c), Development: blue (#3769a0)
+ */
+add_action('admin_head', 'bleikoya_admin_bar_color');
+add_action('wp_head', 'bleikoya_admin_bar_color');
+function bleikoya_admin_bar_color() {
+	if (!is_admin_bar_showing()) {
+		return;
+	}
+
+	$is_local = wp_get_environment_type() === 'local';
+	$color = $is_local ? '#3769a0' : '#b93e3c';
+	?>
+	<style>
+		#wpadminbar {
+			background: <?php echo $color; ?>;
+		}
+		#wpadminbar .ab-empty-item,
+		#wpadminbar a.ab-item,
+		#wpadminbar > #wp-toolbar span.ab-label,
+		#wpadminbar > #wp-toolbar span.noticon {
+			color: #fff;
+		}
+		#wpadminbar .ab-top-menu > li.hover > .ab-item,
+		#wpadminbar .ab-top-menu > li:hover > .ab-item,
+		#wpadminbar .ab-top-menu > li > .ab-item:focus {
+			background: rgba(0, 0, 0, 0.1);
+			color: #fff;
+		}
+	</style>
+	<?php
+}
+
 add_action('wp_dashboard_setup', function() {
 	wp_add_dashboard_widget(
 		'custom_category_links_widget',
