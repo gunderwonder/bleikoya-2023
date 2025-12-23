@@ -75,7 +75,7 @@
 	--b-radius-box: 10px;
 
 	/* Layout */
-	--b-nav-height: calc(18.8984px + 4rem); /* nav min-height + padding */
+	--b-nav-height: calc(18.8984px + 4rem + 1rem); /* nav min-height + padding + stripe */
 }
 
 [data-href] {
@@ -627,11 +627,22 @@ aside .b-subject-list {
 	margin-bottom: 1rem;
 }
 
+/* Sticky header stripe */
+.b-header-stripe {
+	position: sticky;
+	top: 0;
+	z-index: 1001;
+}
+
+.admin-bar .b-header-stripe {
+	top: var(--wp-admin--admin-bar--height, 32px);
+}
+
 .b-navigation {
 	padding: 1rem 0;
 	border-bottom: 1px solid var(--b-border-color);
 	position: sticky;
-	top: 0;
+	top: 1rem; /* Height of stripe */
 	background-color: white;
 	box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
 	min-height: calc(18.8984px + 2rem);
@@ -640,7 +651,7 @@ aside .b-subject-list {
 
 /* Adjust sticky nav for WordPress admin bar */
 .admin-bar .b-navigation {
-	top: var(--wp-admin--admin-bar--height, 32px);
+	top: calc(1rem + var(--wp-admin--admin-bar--height, 32px));
 }
 
 .wp-block-image {

@@ -16,9 +16,10 @@
 	<meta property="og:type" content="">
 	<meta property="og:url" content="">
 	<meta property="og:image" content="">
-	<meta name="theme-color" content="#b93e3c">
-
-	<?php $favicon_suffix = wp_get_environment_type() === 'local' ? '-dev' : ''; ?>
+	<?php $is_local = wp_get_environment_type() === 'local'; ?>
+	<?php $theme_color = $is_local ? '#3769a0' : '#b93e3c'; ?>
+	<?php $favicon_suffix = $is_local ? '-dev' : ''; ?>
+	<meta name="theme-color" content="<?php echo $theme_color; ?>">
 	<link rel="apple-touch-icon" sizes="180x180" href="<?php echo ASSETS_DIR ?>/favicon/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="<?php echo ASSETS_DIR ?>/favicon/favicon-32x32<?php echo $favicon_suffix ?>.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="<?php echo ASSETS_DIR ?>/favicon/favicon-16x16<?php echo $favicon_suffix ?>.png">
@@ -40,7 +41,7 @@
 <body <?php body_class(); ?>>
 	<?php wp_body_open(); ?>
 
-	<div class="b-header-stripe" style="height: 1rem; background-color: var(--b-red-color)"></div>
+	<div class="b-header-stripe" style="height: 1rem; background-color: <?php echo $theme_color; ?>"></div>
 
 	<nav class="b-navigation">
 		<ul class="b-menu">
