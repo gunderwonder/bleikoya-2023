@@ -1,8 +1,13 @@
 <!doctype html>
-<html class="no-js" lang="no-nb">
-
+<?php $is_local = wp_get_environment_type() === 'local'; ?>
+<?php $theme_color = $is_local ? '#3769a0' : '#b93e3c'; ?>
+<?php $favicon_suffix = $is_local ? '-dev' : ''; ?>
+<html class="no-js" lang="no-nb" style="background-color: <?php echo $theme_color; ?>">
 <head>
 	<meta charset="utf-8">
+	<meta name="theme-color" content="<?php echo $theme_color; ?>">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<meta name="description" content="<?php if (is_single()) {
@@ -16,10 +21,6 @@
 	<meta property="og:type" content="">
 	<meta property="og:url" content="">
 	<meta property="og:image" content="">
-	<?php $is_local = wp_get_environment_type() === 'local'; ?>
-	<?php $theme_color = $is_local ? '#3769a0' : '#b93e3c'; ?>
-	<?php $favicon_suffix = $is_local ? '-dev' : ''; ?>
-	<meta name="theme-color" content="<?php echo $theme_color; ?>">
 	<link rel="apple-touch-icon" sizes="180x180" href="<?php echo ASSETS_DIR ?>/favicon/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="<?php echo ASSETS_DIR ?>/favicon/favicon-32x32<?php echo $favicon_suffix ?>.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="<?php echo ASSETS_DIR ?>/favicon/favicon-16x16<?php echo $favicon_suffix ?>.png">
