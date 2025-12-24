@@ -1,13 +1,10 @@
 <!doctype html>
 <?php $is_local = wp_get_environment_type() === 'local'; ?>
-<?php $theme_color = $is_local ? '#3769a0' : '#b93e3c'; ?>
+<?php $env_color = $is_local ? '#3769a0' : '#b93e3c'; ?>
 <?php $favicon_suffix = $is_local ? '-dev' : ''; ?>
-<html class="no-js" lang="no-nb" style="background-color: <?php echo $theme_color; ?>">
+<html class="no-js" lang="no-nb">
 <head>
 	<meta charset="utf-8">
-	<meta name="theme-color" content="<?php echo $theme_color; ?>">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="default">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<meta name="description" content="<?php if (is_single()) {
@@ -42,7 +39,7 @@
 <body <?php body_class(); ?>>
 	<?php wp_body_open(); ?>
 
-	<div class="b-header-stripe" style="height: 1rem; background-color: <?php echo $theme_color; ?>"></div>
+	<div class="b-header-stripe" style="height: 1rem; background-color: <?php echo $env_color; ?>"></div>
 
 	<nav class="b-navigation">
 		<ul class="b-menu">
