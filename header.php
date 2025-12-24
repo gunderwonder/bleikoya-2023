@@ -5,6 +5,7 @@
 <html class="no-js" lang="no-nb">
 <head>
 	<meta charset="utf-8">
+	<meta name="theme-color" content="<?php echo $env_color; ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<meta name="description" content="<?php if (is_single()) {

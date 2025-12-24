@@ -3,9 +3,9 @@
 	navigation: auto;
 }
 
-::view-transition-old(root),
-::view-transition-new(root) {
-	animation-duration: 0.25s;
+/* Exclude html, body and header from transitions to prevent Safari theme-color flash */
+html, body, .b-header-stripe, .b-navigation {
+	view-transition-name: none;
 }
 
 /* Named view transitions for specific elements */
