@@ -28,7 +28,12 @@ get_header();
 </style>
 <?php endif; ?>
 
-<div class="b-bleikoya-map" data-terrain-tiles="<?php echo esc_url(get_template_directory_uri() . '/assets/tiles/terrain'); ?>">
+<div class="b-bleikoya-map"
+	data-terrain-tiles="<?php echo esc_url(get_template_directory_uri() . '/assets/tiles/terrain'); ?>"
+	data-3d-center="10.7373,59.8883"
+	data-3d-zoom="17.2"
+	data-3d-pitch="78"
+	data-3d-bearing="85">
 	<div id="map-wrapper">
 		<div id="map"></div>
 		<div id="map-3d" style="display: none;"></div>

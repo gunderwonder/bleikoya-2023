@@ -126,16 +126,47 @@
 		var is3DMode = false;
 		var map3dContainer = document.getElementById('map-3d');
 
-		// Get local terrain tiles URL (Kartverket high-res for Bleikøya)
-		var terrainTilesUrl = document.querySelector('.b-bleikoya-map').dataset.terrainTiles;
+		// Get map container and config
+		var mapContainer = document.querySelector('.b-bleikoya-map');
+		var terrainTilesUrl = mapContainer.dataset.terrainTiles;
+
+		// Default 3D view from data attributes
+		var default3DView = {
+			center: mapContainer.dataset['3dCenter'] ? mapContainer.dataset['3dCenter'].split(',').map(Number) : null,
+			zoom: mapContainer.dataset['3dZoom'] ? parseFloat(mapContainer.dataset['3dZoom']) : null,
+			pitch: mapContainer.dataset['3dPitch'] ? parseFloat(mapContainer.dataset['3dPitch']) : 60,
+			bearing: mapContainer.dataset['3dBearing'] ? parseFloat(mapContainer.dataset['3dBearing']) : 0
+		};
 
 		// Initialize MapLibre 3D map
 		function initMap3D() {
 			if (map3d) return; // Already initialized
 
-			// Get current 2D map position
-			var center = map.getCenter();
-			var zoom = map.getZoom();
+			// Check URL params for 3D view overrides
+			var params = new URLSearchParams(window.location.search);
+			var urlPitch = params.get('pitch') ? parseFloat(params.get('pitch')) : null;
+			var urlBearing = params.get('bearing') ? parseFloat(params.get('bearing')) : null;
+
+			// Determine initial view: URL params > data attributes > 2D map position
+			var initialCenter, initialZoom, initialPitch, initialBearing;
+
+			if (params.get('lat') && params.get('lng')) {
+				// URL has explicit position
+				initialCenter = [parseFloat(params.get('lng')), parseFloat(params.get('lat'))];
+				initialZoom = params.get('zoom') ? parseFloat(params.get('zoom')) - 1 : 16;
+			} else if (default3DView.center) {
+				// Use data attribute defaults
+				initialCenter = default3DView.center;
+				initialZoom = default3DView.zoom || 16;
+			} else {
+				// Fall back to current 2D map position
+				var center2d = map.getCenter();
+				initialCenter = [center2d.lng, center2d.lat];
+				initialZoom = map.getZoom() - 1;
+			}
+
+			initialPitch = urlPitch !== null ? urlPitch : default3DView.pitch;
+			initialBearing = urlBearing !== null ? urlBearing : default3DView.bearing;
 
 			map3d = new maplibregl.Map({
 				container: 'map-3d',
@@ -189,10 +220,10 @@
 					},
 					sky: {}
 				},
-				center: [center.lng, center.lat],
-				zoom: zoom - 1, // MapLibre zoom is slightly different
-				pitch: 60,
-				bearing: 0,
+				center: initialCenter,
+				zoom: initialZoom,
+				pitch: initialPitch,
+				bearing: initialBearing,
 				maxPitch: 85
 			});
 
@@ -213,6 +244,28 @@
 				update3DMarkersVisibility(); // Sync with current 2D layer visibility
 				console.log('Using Kartverket high-res terrain (1m resolution) for Bleikøya');
 			});
+
+			// Expose for debugging (editors only)
+			if (wpApiSettings.canEdit) {
+				window.map3d = map3d;
+				window.get3DView = function() {
+					var c = map3d.getCenter();
+					var view = {
+						center: c.lng.toFixed(4) + ',' + c.lat.toFixed(4),
+						zoom: map3d.getZoom().toFixed(1),
+						pitch: map3d.getPitch().toFixed(0),
+						bearing: map3d.getBearing().toFixed(0)
+					};
+					console.log('3D View:', view);
+					console.log('Data attributes:',
+						'data-3d-center="' + view.center + '"',
+						'data-3d-zoom="' + view.zoom + '"',
+						'data-3d-pitch="' + view.pitch + '"',
+						'data-3d-bearing="' + view.bearing + '"'
+					);
+					return view;
+				};
+			}
 
 			console.log('MapLibre 3D map initialized');
 		}
@@ -348,19 +401,22 @@
 		function enable3DMode() {
 			if (is3DMode) return;
 
-			// Get current 2D position before switching
-			var center = map.getCenter();
-			var zoom = map.getZoom();
+			var isFirstInit = !map3d;
 
-			// Initialize 3D map if needed
+			// Initialize 3D map if needed (uses data attribute defaults)
 			initMap3D();
 
-			// Sync position to 3D map
-			map3d.jumpTo({
-				center: [center.lng, center.lat],
-				zoom: zoom - 1,
-				pitch: 60
-			});
+			// If switching from 2D (not first load), sync position from 2D map
+			if (!isFirstInit) {
+				var center = map.getCenter();
+				var zoom = map.getZoom();
+				map3d.jumpTo({
+					center: [center.lng, center.lat],
+					zoom: zoom - 1,
+					pitch: default3DView.pitch,
+					bearing: default3DView.bearing
+				});
+			}
 
 			// Show 3D, hide 2D
 			document.getElementById('map').style.display = 'none';
