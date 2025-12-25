@@ -2543,12 +2543,11 @@
 			// Snap points as percentage of viewport height (0 = fully visible, 100 = hidden)
 			var snapPoints = {
 				closed: 100,   // Fully hidden
-				peek: 75,      // 25% visible - show title/gruppe
-				half: 45,      // 55% visible - default open
+				peek: 65,      // 35% visible - default open
 				full: 10       // 90% visible - almost fullscreen
 			};
 
-			var currentSnapPoint = 'half'; // Track current position
+			var currentSnapPoint = 'peek'; // Track current position
 			var isDragging = false;
 			var startY = 0;
 			var startTranslateY = 0;
@@ -2582,7 +2581,7 @@
 				var sidebarContent = document.getElementById('sidebar-content');
 				var visiblePercent = 100 - percent;
 				var visibleHeight = (visiblePercent / 100) * 0.9 * window.innerHeight; // 90vh * visible%
-				var handleHeight = 36; // drag handle height
+				var handleHeight = 41; // drag handle height (20px + 16px padding + 5px bar)
 				sidebarContent.style.maxHeight = (visibleHeight - handleHeight) + 'px';
 			}
 
@@ -2598,7 +2597,7 @@
 				}
 
 				// Find closest snap point
-				var closest = 'half';
+				var closest = 'peek';
 				var closestDist = Infinity;
 
 				for (var point in snapPoints) {
@@ -2715,8 +2714,8 @@
 
 					if (isVisible && isMobile() && !isSettingPosition) {
 						isSettingPosition = true;
-						currentSnapPoint = 'half';
-						setPosition(snapPoints.half, true);
+						currentSnapPoint = 'peek';
+						setPosition(snapPoints.peek, true);
 						// Lock body scroll
 						document.body.classList.add('bottom-sheet-open');
 						setTimeout(function() {

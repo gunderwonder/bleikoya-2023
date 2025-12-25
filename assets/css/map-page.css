@@ -260,7 +260,7 @@
 	.sidebar-drag-handle {
 		display: block;
 		width: 100%;
-		padding: 12px 0 8px;
+		padding: 20px 0 16px;
 		cursor: grab;
 		touch-action: none;
 		user-select: none;
@@ -273,10 +273,10 @@
 	.sidebar-drag-handle::before {
 		content: '';
 		display: block;
-		width: 40px;
-		height: 4px;
+		width: 48px;
+		height: 5px;
 		background: #ccc;
-		border-radius: 2px;
+		border-radius: 2.5px;
 		margin: 0 auto;
 	}
 
