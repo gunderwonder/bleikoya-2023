@@ -231,6 +231,13 @@ a.b-anchor--with-icon::after {
 	cursor: pointer;
 }
 
+.b-button--disabled,
+.b-button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
 .b-button--yellow {
 	background-color: var(--b-yellow-transparent-color);
 }

@@ -449,6 +449,15 @@ fetch('/wp-json/bleikoya/v1/locations')
 		</div>
 
 		<div class="sg-component">
+			<div class="sg-label">.b-button--disabled</div>
+			<div class="sg-example">
+				<button class="b-button b-button--disabled">Deaktivert</button>
+				<button class="b-button" disabled>Deaktivert (native)</button>
+			</div>
+			<div class="sg-code"><code>.b-button--disabled</code> eller <code>disabled</code>-attributt</div>
+		</div>
+
+		<div class="sg-component">
 			<div class="sg-label">Knapper med ikoner (Lucide)</div>
 			<div class="sg-example">
 				<a href="#" class="b-button b-button--yellow"><i data-lucide="calendar" class="b-icon"></i> Kalender</a>

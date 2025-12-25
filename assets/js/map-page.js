@@ -119,6 +119,304 @@
 			topographic.addTo(map);
 		}
 
+		// ===================
+		// 3D Map (MapLibre GL JS)
+		// ===================
+		var map3d = null;
+		var is3DMode = false;
+		var map3dContainer = document.getElementById('map-3d');
+
+		// Get local terrain tiles URL (Kartverket high-res for Bleikøya)
+		var terrainTilesUrl = document.querySelector('.b-bleikoya-map').dataset.terrainTiles;
+
+		// Initialize MapLibre 3D map
+		function initMap3D() {
+			if (map3d) return; // Already initialized
+
+			// Get current 2D map position
+			var center = map.getCenter();
+			var zoom = map.getZoom();
+
+			map3d = new maplibregl.Map({
+				container: 'map-3d',
+				style: {
+					version: 8,
+					sources: {
+						'satellite': {
+							type: 'raster',
+							tiles: [
+								'https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/{z}/{x}/{y}?access_token=' + mapboxToken
+							],
+							tileSize: 512,
+							attribution: '&copy; <a href="https://www.mapbox.com/">Mapbox</a>'
+						},
+						// Mapbox global terrain (covers all of Oslo, lower resolution)
+						'mapbox-terrain': {
+							type: 'raster-dem',
+							tiles: [
+								'https://api.mapbox.com/v4/mapbox.mapbox-terrain-dem-v1/{z}/{x}/{y}.pngraw?access_token=' + mapboxToken
+							],
+							tileSize: 256,
+							maxzoom: 14,
+							encoding: 'mapbox'
+						},
+						// Kartverket high-res terrain (Bleikøya only, zoom 14-18)
+						'kartverket-terrain': {
+							type: 'raster-dem',
+							tiles: [
+								terrainTilesUrl + '/{z}/{x}/{y}.png'
+							],
+							tileSize: 256,
+							minzoom: 14,
+							maxzoom: 18,
+							encoding: 'mapbox',
+							bounds: [10.715, 59.875, 10.76, 59.90] // Bleikøya bounding box
+						}
+					},
+					layers: [
+						{
+							id: 'satellite-layer',
+							type: 'raster',
+							source: 'satellite',
+							minzoom: 0,
+							maxzoom: 22
+						}
+					],
+					terrain: {
+						// Use Kartverket high-res terrain (Bleikøya only, surrounding areas flat)
+						source: 'kartverket-terrain',
+						exaggeration: 1
+					},
+					sky: {}
+				},
+				center: [center.lng, center.lat],
+				zoom: zoom - 1, // MapLibre zoom is slightly different
+				pitch: 60,
+				bearing: 0,
+				maxPitch: 85
+			});
+
+			// Add navigation controls
+			map3d.addControl(new maplibregl.NavigationControl({
+				visualizePitch: true
+			}), 'bottom-left');
+
+			// Add terrain control toggle
+			map3d.addControl(new maplibregl.TerrainControl({
+				source: 'kartverket-terrain',
+				exaggeration: 1
+			}));
+
+			// Add kartpunkter as markers when map loads
+			map3d.on('load', function() {
+				addMarkersTo3DMap();
+				update3DMarkersVisibility(); // Sync with current 2D layer visibility
+				console.log('Using Kartverket high-res terrain (1m resolution) for Bleikøya');
+			});
+
+			console.log('MapLibre 3D map initialized');
+		}
+
+		// Helper to get marker color from location style
+		function getMarkerColor(location) {
+			var style = location.style || {};
+			if (style.preset && markerPresets && markerPresets[style.preset]) {
+				return markerPresets[style.preset].color;
+			}
+			return style.color || '#518347'; // Default green
+		}
+
+		// Add location markers to 3D map
+		function addMarkersTo3DMap() {
+			if (!map3d) return;
+
+			// Collect all marker locations as GeoJSON features
+			var features = [];
+			Object.keys(locationsData).forEach(function(gruppeSlug) {
+				var gruppe = locationsData[gruppeSlug];
+				gruppe.locations.forEach(function(location) {
+					if (location.type === 'marker' && location.coordinates && location.coordinates.lat && location.coordinates.lng) {
+						features.push({
+							type: 'Feature',
+							geometry: {
+								type: 'Point',
+								coordinates: [location.coordinates.lng, location.coordinates.lat]
+							},
+							properties: {
+								id: location.id,
+								title: location.title,
+								gruppe: gruppe.name,
+								gruppeSlug: gruppeSlug,
+								color: getMarkerColor(location),
+								label: location.label || ''
+							}
+						});
+					}
+				});
+			});
+
+			if (features.length === 0) return;
+
+			// Add GeoJSON source
+			map3d.addSource('kartpunkter', {
+				type: 'geojson',
+				data: {
+					type: 'FeatureCollection',
+					features: features
+				}
+			});
+
+			// Add circle layer for markers with data-driven color
+			map3d.addLayer({
+				id: 'kartpunkter-circles',
+				type: 'circle',
+				source: 'kartpunkter',
+				paint: {
+					'circle-radius': 8,
+					'circle-color': ['get', 'color'],
+					'circle-stroke-width': 2,
+					'circle-stroke-color': '#ffffff'
+				}
+			});
+
+			// Add labels
+			map3d.addLayer({
+				id: 'kartpunkter-labels',
+				type: 'symbol',
+				source: 'kartpunkter',
+				layout: {
+					'text-field': ['get', 'title'],
+					'text-size': 12,
+					'text-offset': [0, 1.5],
+					'text-anchor': 'top'
+				},
+				paint: {
+					'text-color': '#333',
+					'text-halo-color': '#fff',
+					'text-halo-width': 1
+				}
+			});
+
+			// Add click handler for markers
+			map3d.on('click', 'kartpunkter-circles', function(e) {
+				if (e.features && e.features.length > 0) {
+					var feature = e.features[0];
+					var locationId = feature.properties.id;
+
+					// Show sidebar
+					showConnectionsSidebar(locationId);
+					updateUrlState({ poi: locationId });
+
+					// Show popup
+					new maplibregl.Popup()
+						.setLngLat(e.lngLat)
+						.setHTML('<strong>' + feature.properties.title + '</strong><br><small>' + feature.properties.gruppe + '</small>')
+						.addTo(map3d);
+				}
+			});
+
+			// Change cursor on hover
+			map3d.on('mouseenter', 'kartpunkter-circles', function() {
+				map3d.getCanvas().style.cursor = 'pointer';
+			});
+			map3d.on('mouseleave', 'kartpunkter-circles', function() {
+				map3d.getCanvas().style.cursor = '';
+			});
+
+			console.log('Added', features.length, 'markers to 3D map');
+		}
+
+		// Update 3D marker visibility based on which gruppe layers are visible
+		function update3DMarkersVisibility() {
+			if (!map3d || !map3d.getLayer('kartpunkter-circles')) return;
+
+			// Build filter based on visible layers
+			var visibleGrupper = [];
+			Object.keys(locationLayers).forEach(function(gruppeSlug) {
+				if (map.hasLayer(locationLayers[gruppeSlug])) {
+					visibleGrupper.push(gruppeSlug);
+				}
+			});
+
+			if (visibleGrupper.length === 0) {
+				// Hide all markers
+				map3d.setFilter('kartpunkter-circles', ['==', 'gruppeSlug', '']);
+				map3d.setFilter('kartpunkter-labels', ['==', 'gruppeSlug', '']);
+			} else if (visibleGrupper.length === Object.keys(locationLayers).length) {
+				// Show all markers (no filter)
+				map3d.setFilter('kartpunkter-circles', null);
+				map3d.setFilter('kartpunkter-labels', null);
+			} else {
+				// Filter to only visible grupper
+				var filter = ['in', 'gruppeSlug'].concat(visibleGrupper);
+				map3d.setFilter('kartpunkter-circles', filter);
+				map3d.setFilter('kartpunkter-labels', filter);
+			}
+		}
+
+		// Switch to 3D mode
+		function enable3DMode() {
+			if (is3DMode) return;
+
+			// Get current 2D position before switching
+			var center = map.getCenter();
+			var zoom = map.getZoom();
+
+			// Initialize 3D map if needed
+			initMap3D();
+
+			// Sync position to 3D map
+			map3d.jumpTo({
+				center: [center.lng, center.lat],
+				zoom: zoom - 1,
+				pitch: 60
+			});
+
+			// Show 3D, hide 2D
+			document.getElementById('map').style.display = 'none';
+			map3dContainer.style.display = 'block';
+			is3DMode = true;
+
+			// Disable image overlays (not available in 3D)
+			document.querySelectorAll('#image-overlay-chips .b-button')
+				.forEach(function(btn) { btn.classList.add('b-button--disabled'); });
+
+			// Update URL
+			updateUrlState({ mode: '3d' });
+
+			// Trigger resize to ensure proper rendering
+			setTimeout(function() {
+				map3d.resize();
+			}, 100);
+		}
+
+		// Switch back to 2D mode
+		function disable3DMode() {
+			if (!is3DMode || !map3d) return;
+
+			// Get current 3D position
+			var center3d = map3d.getCenter();
+			var zoom3d = map3d.getZoom();
+
+			// Show 2D, hide 3D
+			document.getElementById('map').style.display = 'block';
+			map3dContainer.style.display = 'none';
+			is3DMode = false;
+
+			// Re-enable image overlays
+			document.querySelectorAll('#image-overlay-chips .b-button')
+				.forEach(function(btn) { btn.classList.remove('b-button--disabled'); });
+
+			// Update URL
+			updateUrlState({ mode: null });
+
+			// Sync position to 2D map
+			map.setView([center3d.lat, center3d.lng], zoom3d + 1);
+
+			// Trigger resize
+			map.invalidateSize();
+		}
+
 		// Registry for distortable images with configurations
 		// This stores the config, not the overlay instance
 		var distortableImageConfigs = {
@@ -495,7 +793,8 @@
 				lng: params.get('lng') ? parseFloat(params.get('lng')) : null,
 				zoom: params.get('zoom') ? parseInt(params.get('zoom')) : null,
 				base: params.get('base') || null,
-				overlays: params.get('overlays') ? params.get('overlays').split(',') : []
+				overlays: params.get('overlays') ? params.get('overlays').split(',') : [],
+				mode: params.get('mode') || null
 			};
 		}
 
@@ -569,6 +868,7 @@
 		// Populate base layer keys
 		baseLayerKeys['topo'] = topographic;
 		baseLayerKeys['svg'] = svgOverlay;
+		baseLayerKeys['3d'] = null; // Special handling for 3D mode
 
 		// Add Mapbox satellite if token is configured
 		if (mapboxSatellite) {
@@ -636,7 +936,8 @@
 		var baseLayerNames = {
 			'topo': 'Topografisk',
 			'satellite': 'Satellitt',
-			'svg': 'Bleikøyakart'
+			'svg': 'Bleikøyakart',
+			'3d': '3D'
 		};
 
 		function renderBaseLayerSelector() {
@@ -646,12 +947,22 @@
 			container.innerHTML = '';
 
 			Object.keys(baseLayerKeys).forEach(function(key) {
+				// Only show 3D option if Mapbox token is available
+				if (key === '3d' && (!mapboxToken || mapboxToken === 'YOUR_MAPBOX_TOKEN_HERE')) {
+					return;
+				}
+
 				var btn = document.createElement('button');
 				btn.className = 'b-segmented__item';
 				btn.dataset.layer = key;
 				btn.textContent = baseLayerNames[key] || key;
 
-				if (map.hasLayer(baseLayerKeys[key])) {
+				// Check active state - special handling for 3D
+				if (key === '3d') {
+					if (is3DMode) {
+						btn.classList.add('b-segmented__item--active');
+					}
+				} else if (map.hasLayer(baseLayerKeys[key])) {
 					btn.classList.add('b-segmented__item--active');
 				}
 
@@ -671,9 +982,21 @@
 		};
 
 		function switchBaseLayer(key) {
+			// Handle 3D mode specially
+			if (key === '3d') {
+				enable3DMode();
+				updateBaseLayerState();
+				return;
+			}
+
+			// If switching away from 3D, disable it
+			if (is3DMode) {
+				disable3DMode();
+			}
+
 			// Remove all base layers
 			Object.values(baseLayerKeys).forEach(function(layer) {
-				if (map.hasLayer(layer)) {
+				if (layer && map.hasLayer(layer)) {
 					map.removeLayer(layer);
 				}
 			});
@@ -698,10 +1021,23 @@
 		function updateBaseLayerState() {
 			document.querySelectorAll('.b-segmented__item[data-layer]').forEach(function(btn) {
 				var key = btn.dataset.layer;
-				if (map.hasLayer(baseLayerKeys[key])) {
-					btn.classList.add('b-segmented__item--active');
+
+				if (is3DMode) {
+					// In 3D mode, only the 3D button should be active
+					if (key === '3d') {
+						btn.classList.add('b-segmented__item--active');
+					} else {
+						btn.classList.remove('b-segmented__item--active');
+					}
 				} else {
-					btn.classList.remove('b-segmented__item--active');
+					// In 2D mode, check which layer is active on the map
+					if (key === '3d') {
+						btn.classList.remove('b-segmented__item--active');
+					} else if (baseLayerKeys[key] && map.hasLayer(baseLayerKeys[key])) {
+						btn.classList.add('b-segmented__item--active');
+					} else {
+						btn.classList.remove('b-segmented__item--active');
+					}
 				}
 			});
 		}
@@ -795,6 +1131,9 @@
 			});
 
 			updateAllChipState();
+
+			// Also update 3D markers visibility
+			update3DMarkersVisibility();
 		}
 
 		function updateAllChipState() {
@@ -1056,11 +1395,26 @@
 
 			urlStateEnabled = false; // Prevent URL updates while applying state
 
+			// Apply 3D mode if requested
+			if (state.mode === '3d') {
+				// Apply position first, then enable 3D
+				if (state.lat !== null && state.lng !== null) {
+					var zoom = state.zoom || map.getZoom();
+					map.setView([state.lat, state.lng], zoom);
+				}
+				setTimeout(function() {
+					enable3DMode();
+					updateBaseLayerState();
+					urlStateEnabled = true;
+				}, 100);
+				return;
+			}
+
 			// Apply base layer
 			if (state.base && baseLayerKeys[state.base]) {
 				// Remove current base layers
 				Object.values(baseLayerKeys).forEach(function(layer) {
-					if (map.hasLayer(layer)) {
+					if (layer && map.hasLayer(layer)) {
 						map.removeLayer(layer);
 					}
 				});
@@ -2514,5 +2868,16 @@
 			};
 			return labels[type] || type;
 		}
+
+		// Expose 3D functions to window for all users
+		if (!window.bleikoyaMap) {
+			window.bleikoyaMap = {};
+		}
+		window.bleikoyaMap.map = map;
+		window.bleikoyaMap.map3d = function() { return map3d; };
+		window.bleikoyaMap.is3DMode = function() { return is3DMode; };
+		window.bleikoyaMap.enable3DMode = enable3DMode;
+		window.bleikoyaMap.disable3DMode = disable3DMode;
+		window.bleikoyaMap.locationsData = locationsData;
 	});
 })();

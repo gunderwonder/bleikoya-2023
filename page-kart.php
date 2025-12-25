@@ -16,6 +16,9 @@ get_header();
 <link rel="stylesheet" href="https://unpkg.com/leaflet-toolbar@latest/dist/leaflet.toolbar.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet-distortableimage@0.21.9/dist/leaflet.distortableimage.css" />
 
+<!-- MapLibre GL JS for 3D terrain -->
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+
 <?php if (!current_user_can('edit_posts')): ?>
 <style>
 /* Hide layer controls for non-editors */
@@ -25,9 +28,10 @@ get_header();
 </style>
 <?php endif; ?>
 
-<div class="b-bleikoya-map">
+<div class="b-bleikoya-map" data-terrain-tiles="<?php echo esc_url(get_template_directory_uri() . '/assets/tiles/terrain'); ?>">
 	<div id="map-wrapper">
 		<div id="map"></div>
+		<div id="map-3d" style="display: none;"></div>
 
 		<!-- Map Controls -->
 		<div class="map-controls">
@@ -90,5 +94,8 @@ get_header();
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-toolbar@latest/dist/leaflet.toolbar.js"></script>
 <script src="https://unpkg.com/leaflet-distortableimage@0.21.9/dist/leaflet.distortableimage.js"></script>
+
+<!-- MapLibre GL JS for 3D terrain -->
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 
 <?php get_footer();
