@@ -226,132 +226,122 @@
 			return style.color || '#518347'; // Default green
 		}
 
+		// Store 3D markers by gruppeSlug for visibility control
+		var map3dMarkers = {};
+
+		/**
+		 * Create HTML element for 3D marker (slightly larger than 2D)
+		 * @param {Object} location - Location data
+		 * @returns {HTMLElement} Marker element
+		 */
+		function create3DMarkerElement(location) {
+			var style = location.style || {};
+			var color = style.color || '#3388ff';
+			var icon = style.icon || null;
+			var preset = style.preset || null;
+			var label = location.label || null;
+
+			// If using preset, get color and icon from preset
+			if (preset && markerPresets && markerPresets[preset]) {
+				color = markerPresets[preset].color;
+				icon = markerPresets[preset].icon;
+			}
+
+			// Determine if marker needs dark icons/labels
+			var isLight = isLightColor(color);
+			var markerClass = 'b-custom-marker b-custom-marker--3d' + (isLight ? ' b-custom-marker--light' : '');
+
+			// SVG teardrop pin shape
+			var svgPath = 'M17 2 C8.716 2 2 8.716 2 17 C2 23.5 6 29 17 42 C28 29 32 23.5 32 17 C32 8.716 25.284 2 17 2 Z';
+
+			var html = '<div class="' + markerClass + '">' +
+				'<svg class="b-custom-marker__svg" viewBox="0 0 34 44" xmlns="http://www.w3.org/2000/svg">' +
+				'<path d="' + svgPath + '" fill="' + color + '" stroke="white" stroke-width="2.5"/>' +
+				'</svg>' +
+				'<div class="b-custom-marker__content">';
+
+			// If label is provided, show label instead of icon
+			if (label) {
+				html += '<span class="b-custom-marker__label">' + label + '</span>';
+			} else if (icon) {
+				html += '<i data-lucide="' + icon + '" class="b-custom-marker__icon"></i>';
+			}
+
+			html += '</div></div>';
+
+			var el = document.createElement('div');
+			el.className = 'b-custom-marker-container b-custom-marker-container--3d';
+			el.innerHTML = html;
+
+			return el;
+		}
+
 		// Add location markers to 3D map
 		function addMarkersTo3DMap() {
 			if (!map3d) return;
 
-			// Collect all marker locations as GeoJSON features
-			var features = [];
+			// Clear existing markers
+			Object.keys(map3dMarkers).forEach(function(gruppeSlug) {
+				map3dMarkers[gruppeSlug].forEach(function(marker) {
+					marker.remove();
+				});
+			});
+			map3dMarkers = {};
+
+			// Create markers for each location
 			Object.keys(locationsData).forEach(function(gruppeSlug) {
 				var gruppe = locationsData[gruppeSlug];
+				map3dMarkers[gruppeSlug] = [];
+
 				gruppe.locations.forEach(function(location) {
 					if (location.type === 'marker' && location.coordinates && location.coordinates.lat && location.coordinates.lng) {
-						features.push({
-							type: 'Feature',
-							geometry: {
-								type: 'Point',
-								coordinates: [location.coordinates.lng, location.coordinates.lat]
-							},
-							properties: {
-								id: location.id,
-								title: location.title,
-								gruppe: gruppe.name,
-								gruppeSlug: gruppeSlug,
-								color: getMarkerColor(location),
-								label: location.label || ''
-							}
+						var el = create3DMarkerElement(location);
+
+						var marker = new maplibregl.Marker({
+							element: el,
+							anchor: 'bottom'
+						})
+						.setLngLat([location.coordinates.lng, location.coordinates.lat])
+						.addTo(map3d);
+
+						// Add click handler
+						el.addEventListener('click', function() {
+							showConnectionsSidebar(location.id);
+							updateUrlState({ poi: location.id });
+
+							new maplibregl.Popup({ offset: [0, -52] })
+								.setLngLat([location.coordinates.lng, location.coordinates.lat])
+								.setHTML('<strong>' + location.title + '</strong><br><small>' + gruppe.name + '</small>')
+								.addTo(map3d);
 						});
+
+						map3dMarkers[gruppeSlug].push(marker);
 					}
 				});
 			});
 
-			if (features.length === 0) return;
+			// Initialize Lucide icons in 3D markers
+			if (typeof lucide !== 'undefined') {
+				lucide.createIcons();
+			}
 
-			// Add GeoJSON source
-			map3d.addSource('kartpunkter', {
-				type: 'geojson',
-				data: {
-					type: 'FeatureCollection',
-					features: features
-				}
-			});
-
-			// Add circle layer for markers with data-driven color
-			map3d.addLayer({
-				id: 'kartpunkter-circles',
-				type: 'circle',
-				source: 'kartpunkter',
-				paint: {
-					'circle-radius': 8,
-					'circle-color': ['get', 'color'],
-					'circle-stroke-width': 2,
-					'circle-stroke-color': '#ffffff'
-				}
-			});
-
-			// Add labels
-			map3d.addLayer({
-				id: 'kartpunkter-labels',
-				type: 'symbol',
-				source: 'kartpunkter',
-				layout: {
-					'text-field': ['get', 'title'],
-					'text-size': 12,
-					'text-offset': [0, 1.5],
-					'text-anchor': 'top'
-				},
-				paint: {
-					'text-color': '#333',
-					'text-halo-color': '#fff',
-					'text-halo-width': 1
-				}
-			});
-
-			// Add click handler for markers
-			map3d.on('click', 'kartpunkter-circles', function(e) {
-				if (e.features && e.features.length > 0) {
-					var feature = e.features[0];
-					var locationId = feature.properties.id;
-
-					// Show sidebar
-					showConnectionsSidebar(locationId);
-					updateUrlState({ poi: locationId });
-
-					// Show popup
-					new maplibregl.Popup()
-						.setLngLat(e.lngLat)
-						.setHTML('<strong>' + feature.properties.title + '</strong><br><small>' + feature.properties.gruppe + '</small>')
-						.addTo(map3d);
-				}
-			});
-
-			// Change cursor on hover
-			map3d.on('mouseenter', 'kartpunkter-circles', function() {
-				map3d.getCanvas().style.cursor = 'pointer';
-			});
-			map3d.on('mouseleave', 'kartpunkter-circles', function() {
-				map3d.getCanvas().style.cursor = '';
-			});
-
-			console.log('Added', features.length, 'markers to 3D map');
+			console.log('Added markers to 3D map');
 		}
 
 		// Update 3D marker visibility based on which gruppe layers are visible
 		function update3DMarkersVisibility() {
-			if (!map3d || !map3d.getLayer('kartpunkter-circles')) return;
+			if (!map3d || Object.keys(map3dMarkers).length === 0) return;
 
-			// Build filter based on visible layers
-			var visibleGrupper = [];
-			Object.keys(locationLayers).forEach(function(gruppeSlug) {
-				if (map.hasLayer(locationLayers[gruppeSlug])) {
-					visibleGrupper.push(gruppeSlug);
-				}
+			// Toggle visibility for each gruppe's markers
+			Object.keys(map3dMarkers).forEach(function(gruppeSlug) {
+				var isVisible = locationLayers[gruppeSlug] && map.hasLayer(locationLayers[gruppeSlug]);
+				map3dMarkers[gruppeSlug].forEach(function(marker) {
+					var el = marker.getElement();
+					if (el) {
+						el.style.display = isVisible ? '' : 'none';
+					}
+				});
 			});
-
-			if (visibleGrupper.length === 0) {
-				// Hide all markers
-				map3d.setFilter('kartpunkter-circles', ['==', 'gruppeSlug', '']);
-				map3d.setFilter('kartpunkter-labels', ['==', 'gruppeSlug', '']);
-			} else if (visibleGrupper.length === Object.keys(locationLayers).length) {
-				// Show all markers (no filter)
-				map3d.setFilter('kartpunkter-circles', null);
-				map3d.setFilter('kartpunkter-labels', null);
-			} else {
-				// Filter to only visible grupper
-				var filter = ['in', 'gruppeSlug'].concat(visibleGrupper);
-				map3d.setFilter('kartpunkter-circles', filter);
-				map3d.setFilter('kartpunkter-labels', filter);
-			}
 		}
 
 		// Switch to 3D mode
