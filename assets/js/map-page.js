@@ -150,14 +150,18 @@
 			// Determine initial view: URL params > data attributes > 2D map position
 			var initialCenter, initialZoom, initialPitch, initialBearing;
 
+			// Mobile devices need a wider view (lower zoom) to see more context
+			var isMobileView = window.innerWidth < 768;
+			var defaultZoom = isMobileView ? 14.5 : 16;
+
 			if (params.get('lat') && params.get('lng')) {
 				// URL has explicit position
 				initialCenter = [parseFloat(params.get('lng')), parseFloat(params.get('lat'))];
-				initialZoom = params.get('zoom') ? parseFloat(params.get('zoom')) - 1 : 16;
+				initialZoom = params.get('zoom') ? parseFloat(params.get('zoom')) - 1 : defaultZoom;
 			} else if (default3DView.center) {
-				// Use data attribute defaults
+				// Use data attribute defaults (but adjust for mobile if no explicit zoom)
 				initialCenter = default3DView.center;
-				initialZoom = default3DView.zoom || 16;
+				initialZoom = default3DView.zoom || defaultZoom;
 			} else {
 				// Fall back to current 2D map position
 				var center2d = map.getCenter();
