@@ -244,6 +244,31 @@
 
 			// Add kartpunkter as markers when map loads
 			map3d.on('load', function() {
+				// Add naturkart image overlay
+				map3d.addSource('naturkart', {
+					type: 'image',
+					url: themeUrl + '/assets/img/bleikoya-bym-kart.png',
+					coordinates: [
+						[10.7321834564209, 59.89304881015519],     // top-left
+						[10.750529766082764, 59.892833539355635],  // top-right
+						[10.750293731689455, 59.88636400105369],   // bottom-right
+						[10.731765031814577, 59.88660622776372]    // bottom-left
+					]
+				});
+
+				map3d.addLayer({
+					id: 'naturkart-layer',
+					type: 'raster',
+					source: 'naturkart',
+					paint: {
+						'raster-opacity': 0.7,
+						'raster-fade-duration': 0
+					}
+				});
+
+				// Initially hidden - will be toggled via button
+				map3d.setLayoutProperty('naturkart-layer', 'visibility', 'none');
+
 				addMarkersTo3DMap();
 				update3DMarkersVisibility(); // Sync with current 2D layer visibility
 				console.log('Using Kartverket high-res terrain (1m resolution) for Bleikøya');
@@ -427,9 +452,13 @@
 			map3dContainer.style.display = 'block';
 			is3DMode = true;
 
-			// Disable image overlays (not available in 3D)
-			document.querySelectorAll('#image-overlay-chips .b-button')
-				.forEach(function(btn) { btn.classList.add('b-button--disabled'); });
+			// Disable bleikoyakart overlay (not available in 3D), but keep naturkart enabled
+			document.querySelectorAll('#image-overlay-chips .b-button').forEach(function(btn) {
+				if (btn.dataset.overlay === 'bleikoyakart') {
+					btn.classList.add('b-button--disabled');
+				}
+			});
+			updateImageOverlayChipsState();
 
 			// Update URL
 			updateUrlState({ mode: '3d' });
@@ -456,6 +485,7 @@
 			// Re-enable image overlays
 			document.querySelectorAll('#image-overlay-chips .b-button')
 				.forEach(function(btn) { btn.classList.remove('b-button--disabled'); });
+			updateImageOverlayChipsState();
 
 			// Update URL
 			updateUrlState({ mode: null });
@@ -1289,7 +1319,13 @@
 		}
 
 		function setOverlayOpacity(key, opacity) {
-			// Get the actual overlay from distortableImages
+			// Handle 3D mode for naturkart
+			if (is3DMode && key === 'bym' && map3d) {
+				map3d.setPaintProperty('naturkart-layer', 'raster-opacity', opacity);
+				return;
+			}
+
+			// 2D mode: Get the actual overlay from distortableImages
 			if (distortableImages[key] && distortableImages[key].overlay) {
 				var overlay = distortableImages[key].overlay;
 				if (typeof overlay.setOpacity === 'function') {
@@ -1299,7 +1335,16 @@
 		}
 
 		function toggleImageOverlay(key) {
-			// Create layer group if not exists
+			// Handle 3D mode for naturkart (bym)
+			if (is3DMode && key === 'bym' && map3d) {
+				var visibility = map3d.getLayoutProperty('naturkart-layer', 'visibility');
+				var newVisibility = visibility === 'visible' ? 'none' : 'visible';
+				map3d.setLayoutProperty('naturkart-layer', 'visibility', newVisibility);
+				updateImageOverlayChipsState();
+				return;
+			}
+
+			// 2D mode: Create layer group if not exists
 			if (!imageOverlayLayers[key]) {
 				imageOverlayLayers[key] = createDistortableLayerGroup(key);
 			}
@@ -1324,7 +1369,14 @@
 		function updateImageOverlayChipsState() {
 			document.querySelectorAll('#image-overlay-chips .b-button[data-overlay]').forEach(function(chip) {
 				var key = chip.dataset.overlay;
-				var isActive = imageOverlayLayers[key] && map.hasLayer(imageOverlayLayers[key]);
+				var isActive = false;
+
+				// Check 3D mode for naturkart
+				if (is3DMode && key === 'bym' && map3d) {
+					isActive = map3d.getLayoutProperty('naturkart-layer', 'visibility') === 'visible';
+				} else {
+					isActive = imageOverlayLayers[key] && map.hasLayer(imageOverlayLayers[key]);
+				}
 
 				if (isActive) {
 					chip.classList.add('b-button--active');

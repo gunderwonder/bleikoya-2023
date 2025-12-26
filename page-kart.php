@@ -17,7 +17,7 @@ get_header();
 <link rel="stylesheet" href="https://unpkg.com/leaflet-distortableimage@0.21.9/dist/leaflet.distortableimage.css" />
 
 <!-- MapLibre GL JS for 3D terrain -->
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.css" />
 
 <?php if (!current_user_can('edit_posts')): ?>
 <style>
@@ -101,6 +101,6 @@ get_header();
 <script src="https://unpkg.com/leaflet-distortableimage@0.21.9/dist/leaflet.distortableimage.js"></script>
 
 <!-- MapLibre GL JS for 3D terrain -->
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.js"></script>
 
 <?php get_footer();
