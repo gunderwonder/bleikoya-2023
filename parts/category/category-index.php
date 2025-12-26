@@ -3,7 +3,7 @@
 $all_entries = array();
 
 foreach ($categories as $category) {
-	if ($category->term_id === 1)
+	if ($category->term_id === UNCATEGORIZED_TAG_ID)
 		continue;
 
 	// Add the category itself

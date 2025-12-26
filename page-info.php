@@ -21,6 +21,7 @@
 		}); ?>
 
 		<?php foreach ($categories as $category) : ?>
+			<?php if ($category->term_id === UNCATEGORIZED_TAG_ID) continue; ?>
 
 			<div class="b-subject-index__entry" id="category-<?php echo $category->term_id ?>">
 				<h2 class="b-subject-heading">
