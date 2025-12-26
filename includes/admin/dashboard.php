@@ -55,7 +55,7 @@ function bleikoya_admin_bar_color() {
 add_action('wp_dashboard_setup', function() {
 	wp_add_dashboard_widget(
 		'custom_category_links_widget',
-		'Kategorier',
+		'Tema',
 		function () {
 			$categories = get_categories(array('hide_empty' => false));
 
@@ -96,10 +96,10 @@ add_action('wp_dashboard_setup', function () {
 });
 
 add_action('admin_menu', function () {
-
+	// Add "Tema" (categories) as top-level menu item
 	$hook = add_menu_page(
-		'Kategorier',
-		'Kategorier',
+		'Tema',
+		'Tema',
 		'manage_categories',
 		'edit-category',
 		'redirect_to_category_edit_page',
@@ -108,11 +108,15 @@ add_action('admin_menu', function () {
 	);
 
 	add_action('load-' . $hook, function() {
-
 		$edit_link = admin_url('edit-tags.php?taxonomy=category');
 		wp_redirect($edit_link);
 		exit;
 	});
+
+	// Hide unwanted menu items
+	remove_menu_page('link-manager.php');      // Built-in Links (deprecated)
+	remove_menu_page('edit-comments.php');     // Comments
+	remove_menu_page('edit.php?post_type=tec_tc_ticket'); // Tickets
 });
 
 add_action('admin_menu', function() {
@@ -130,20 +134,36 @@ add_action('admin_menu', function() {
 });
 
 /**
+ * Rename "Innlegg" to "Oppslag" in admin menu
+ */
+add_action('admin_menu', function() {
+	global $menu, $submenu;
+
+	// Rename Posts to "Oppslag"
+	if (isset($menu[5])) {
+		$menu[5][0] = 'Oppslag';
+	}
+	if (isset($submenu['edit.php'])) {
+		$submenu['edit.php'][5][0] = 'Alle oppslag';
+		$submenu['edit.php'][10][0] = 'Legg til nytt';
+	}
+});
+
+/**
  * Custom admin menu order
  */
 add_filter('custom_menu_order', '__return_true');
 add_filter('menu_order', function($menu_order) {
 	return array(
-		'index.php',                           // Dashbord
-		'edit.php',                            // Innlegg
-		'edit.php?post_type=page',             // Sider
-		'edit.php?post_type=tribe_events',     // Arrangementer
-		'edit.php?post_type=kartpunkt',        // Kart
-		'edit.php?post_type=link',             // Lenker
-		'edit-category',                       // Kategorier
+		'index.php',                           // Dashboard
+		'edit.php',                            // Oppslag
 		'upload.php',                          // Media
-		'edit-comments.php',                   // Kommentarer
+		'edit-category',                       // Tema
+		'edit.php?post_type=kartpunkt',        // Kart
+		'edit.php?post_type=tribe_events',     // Arrangementer
+		'edit.php?post_type=link',             // Lenker
+		'edit.php?post_type=page',             // Sider
+		'separator1',
 		'wpcf7',                               // Kontakt (Contact Form 7)
 	);
 });
