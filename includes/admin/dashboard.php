@@ -112,12 +112,15 @@ add_action('admin_menu', function () {
 		wp_redirect($edit_link);
 		exit;
 	});
+});
 
-	// Hide unwanted menu items
+// Hide unwanted menu items (run late to ensure plugins have registered their menus)
+add_action('admin_menu', function() {
 	remove_menu_page('link-manager.php');      // Built-in Links (deprecated)
 	remove_menu_page('edit-comments.php');     // Comments
-	remove_menu_page('edit.php?post_type=tec_tc_ticket'); // Tickets
-});
+	remove_menu_page('tec-tickets');           // Event Tickets
+	remove_menu_page('tec-tickets-settings');  // Event Tickets Settings
+}, 999);
 
 add_action('admin_menu', function() {
 	add_submenu_page(
