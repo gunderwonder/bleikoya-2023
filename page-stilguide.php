@@ -355,6 +355,19 @@ fetch('/wp-json/bleikoya/v1/locations')
 						<dd>En kategori for kartpunkter, f.eks. "Hytter" eller "Brygger".</dd>
 					</dl>
 
+					<h3>Wikilenker</h3>
+					<p>Wikilenker brukes for å lenke til internt innhold med fargekodede typer:</p>
+					<p>
+						<a href="#" class="b-wikilink b-wikilink--post"><i data-lucide="newspaper" class="b-wikilink__icon"></i><span class="b-wikilink__label">Oppslag</span></a>
+						<a href="#" class="b-wikilink b-wikilink--page"><i data-lucide="file-text" class="b-wikilink__icon"></i><span class="b-wikilink__label">Side</span></a>
+						<a href="#" class="b-wikilink b-wikilink--event"><i data-lucide="calendar" class="b-wikilink__icon"></i><span class="b-wikilink__label">Hendelse</span></a>
+						<a href="#" class="b-wikilink b-wikilink--user"><i data-lucide="user" class="b-wikilink__icon"></i><span class="b-wikilink__label">Hytteeier</span></a>
+						<a href="#" class="b-wikilink b-wikilink--location"><i data-lucide="map-pin" class="b-wikilink__icon"></i><span class="b-wikilink__label">Kartpunkt</span></a>
+						<a href="#" class="b-wikilink b-wikilink--category"><i data-lucide="tag" class="b-wikilink__icon"></i><span class="b-wikilink__label">Kategori</span></a>
+						<a href="#" class="b-wikilink b-wikilink--external"><i data-lucide="external-link" class="b-wikilink__icon"></i><span class="b-wikilink__label">Ekstern lenke</span></a>
+						<span class="b-wikilink b-wikilink--missing"><i data-lucide="circle-help" class="b-wikilink__icon"></i><span class="b-wikilink__label">Mangler</span></span>
+					</p>
+
 					<hr>
 
 					<p>For mer informasjon, ta kontakt med velforeningen.</p>
@@ -374,6 +387,14 @@ fetch('/wp-json/bleikoya/v1/locations')
   &lt;pre&gt;&lt;code&gt;Kodeblokk&lt;/code&gt;&lt;/pre&gt;
   &lt;dl&gt;&lt;dt&gt;Term&lt;/dt&gt;&lt;dd&gt;Definisjon&lt;/dd&gt;&lt;/dl&gt;
   &lt;hr&gt;
+
+  &lt;!-- Wikilenker --&gt;
+  &lt;a href="#" class="b-wikilink b-wikilink--post"&gt;
+    &lt;i data-lucide="newspaper" class="b-wikilink__icon"&gt;&lt;/i&gt;
+    &lt;span class="b-wikilink__label"&gt;Oppslag&lt;/span&gt;
+  &lt;/a&gt;
+  &lt;!-- Varianter: --post, --page, --event, --user,
+       --location, --category, --external, --missing --&gt;
 &lt;/div&gt;</code></div>
 		</div>
 	</section>
@@ -455,6 +476,17 @@ fetch('/wp-json/bleikoya/v1/locations')
 				<button class="b-button" disabled>Deaktivert (native)</button>
 			</div>
 			<div class="sg-code"><code>.b-button--disabled</code> eller <code>disabled</code>-attributt</div>
+		</div>
+
+		<div class="sg-component">
+			<div class="sg-label">.b-button--sm (kompakt)</div>
+			<div class="sg-example">
+				<a href="#" class="b-button b-button--sm">Liten knapp</a>
+				<a href="#" class="b-button b-button--sm b-button--yellow">Liten gul</a>
+				<a href="#" class="b-button b-button--sm b-button--green">Liten grønn</a>
+				<a href="#" class="b-button b-button--sm b-button--blue">Liten blå</a>
+			</div>
+			<div class="sg-code"><code>&lt;a href="#" class="b-button b-button--sm"&gt;Liten knapp&lt;/a&gt;</code></div>
 		</div>
 
 		<div class="sg-component">
