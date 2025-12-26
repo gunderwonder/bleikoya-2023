@@ -21,6 +21,23 @@ function sc_get_field($field, $post = null) {
 	return get_post_meta($post->ID, $field, true);
 }
 
+/**
+ * Get aliases for a category term.
+ *
+ * @param WP_Term|int $category Category term object or term ID.
+ * @return array Array of alias strings (may be empty).
+ */
+function sc_get_category_aliases( $category ) {
+	$term_id = is_object( $category ) ? $category->term_id : (int) $category;
+	$aliases = get_term_meta( $term_id, 'category-aliases', true );
+
+	if ( empty( $aliases ) || ! is_array( $aliases ) ) {
+		return array();
+	}
+
+	return $aliases;
+}
+
 function sc_get_json($url) {
 	$json = wp_cache_get($url);
 

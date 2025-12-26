@@ -38,6 +38,9 @@ function sc_search_autocomplete($query) {
 			WHERE t.name LIKE %s
 			ORDER BY name ASC", $search));
 
+	// Track term IDs already added to avoid duplicates
+	$added_term_ids = array();
+
 	if ($terms) {
 		foreach ($terms as $term) {
 
@@ -52,7 +55,53 @@ function sc_search_autocomplete($query) {
 					'permalink' => get_term_link((int)$term->term_id, $term->taxonomy),
 					'type' => sc_get_human_readable_type($taxonomy->name),
 				);
+				$added_term_ids[] = (int)$term->term_id;
 			}
+		}
+	}
+
+	// Search category aliases in term meta (stored as serialized array)
+	$alias_results = $wpdb->get_results($wpdb->prepare(
+		"SELECT tm.term_id, tm.meta_value as aliases, t.name
+			FROM $wpdb->termmeta tm
+			INNER JOIN $wpdb->terms t ON tm.term_id = t.term_id
+			INNER JOIN $wpdb->term_taxonomy tt ON t.term_id = tt.term_id
+			WHERE tm.meta_key = 'category-aliases'
+			AND tm.meta_value LIKE %s
+			AND tt.taxonomy = 'category'
+			ORDER BY t.name ASC",
+		$search
+	));
+
+	if ($alias_results) {
+		foreach ($alias_results as $alias_row) {
+			$term_id = (int)$alias_row->term_id;
+
+			// Skip if already added via name match or if uncategorized
+			if (in_array($term_id, $added_term_ids, true) || $term_id === UNCATEGORIZED_TAG_ID)
+				continue;
+
+			// Unserialize and find the matching alias
+			$aliases = maybe_unserialize($alias_row->aliases);
+			if (!is_array($aliases)) continue;
+
+			$matched_alias = '';
+			foreach ($aliases as $alias) {
+				if (stripos($alias, $query) !== false) {
+					$matched_alias = $alias;
+					break;
+				}
+			}
+
+			if (!$matched_alias) continue;
+
+			// Format: "Category Name (alias)"
+			$results[] = array(
+				'title' => sprintf('%s (%s)', $alias_row->name, $matched_alias),
+				'permalink' => get_term_link($term_id, 'category'),
+				'type' => sc_get_human_readable_type('category'),
+			);
+			$added_term_ids[] = $term_id;
 		}
 	}
 

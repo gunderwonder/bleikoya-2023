@@ -22,6 +22,7 @@ require 'includes/templating.php';
 require 'includes/events.php';
 require 'includes/admin/dashboard.php';
 require 'includes/admin/users.php';
+require 'includes/admin/category-aliases.php';
 
 // Location (kartpunkt) custom post type and related functionality
 require 'includes/post-types/location.php';

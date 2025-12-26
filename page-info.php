@@ -22,8 +22,8 @@
 
 		<?php foreach ($categories as $category) : ?>
 
-			<div class="b-subject-index__entry">
-				<h2 class="b-subject-heading" id="category-<?php echo $category->term_id ?>">
+			<div class="b-subject-index__entry" id="category-<?php echo $category->term_id ?>">
+				<h2 class="b-subject-heading">
 					<a href="<?php echo get_category_link($category->term_id) ?>">
 						<?php echo $category->name ?>
 					</a>

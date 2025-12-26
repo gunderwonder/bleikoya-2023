@@ -59,6 +59,7 @@ html, body, .b-header-stripe, .b-navigation {
 	--b-red-transparent-color: rgba(185, 62, 60, 0.05);
 	--b-blue-color: rgb(90, 146, 203);
 	--b-blue-dark-color: rgb(55, 105, 160);
+	--b-blue-muted-color: rgb(155, 184, 211);
 	--b-blue-transparent-color: rgba(90, 146, 203, 0.05);
 	--b-yellow-color: rgb(232, 195, 103);
 	--b-yellow-transparent-color: rgba(232, 195, 103, 0.3);
@@ -260,6 +261,11 @@ a.b-anchor--with-icon::after {
 
 .b-button--blue.b-button--active, .b-button--blue:hover {
 	background-color: var(--b-blue-color);
+}
+
+.b-button--sm {
+	padding: 0.3rem 0.6rem !important;
+	font-size: 0.7rem;
 }
 
 .b-quicklinks {
@@ -485,6 +491,16 @@ a {
 	line-height: 1.6rem;
 }
 
+.b-subject-index__entry {
+	scroll-margin-top: var(--b-nav-height);
+}
+
+@media screen and (min-width: 783px) {
+	.admin-bar .b-subject-index__entry {
+		scroll-margin-top: calc(var(--b-nav-height) + var(--wp-admin--admin-bar--height, 32px));
+	}
+}
+
 .b-subject-heading a {
 	color: inherit;
 	text-decoration: none;
@@ -551,6 +567,10 @@ a {
 .b-subject-link--light:hover {
 	background-color: var(--b-blue-color);
 	color: white;
+}
+
+.b-subject-link--alias {
+	background-color: var(--b-blue-muted-color);
 }
 
 .b-subject-list__item-post {
