@@ -157,7 +157,8 @@ add_action('admin_menu', function() {
  */
 add_filter('custom_menu_order', '__return_true');
 add_filter('menu_order', function($menu_order) {
-	return array(
+	// Define our preferred order for top items
+	$preferred_order = array(
 		'index.php',                           // Dashboard
 		'edit.php',                            // Oppslag
 		'upload.php',                          // Media
@@ -169,4 +170,23 @@ add_filter('menu_order', function($menu_order) {
 		'separator1',
 		'wpcf7',                               // Kontakt (Contact Form 7)
 	);
+
+	// Build new order: preferred items first, then remaining items
+	$new_order = array();
+
+	// Add preferred items that exist in the menu
+	foreach ($preferred_order as $item) {
+		if (in_array($item, $menu_order)) {
+			$new_order[] = $item;
+		}
+	}
+
+	// Add remaining items that weren't in our preferred list
+	foreach ($menu_order as $item) {
+		if (!in_array($item, $new_order)) {
+			$new_order[] = $item;
+		}
+	}
+
+	return $new_order;
 });
