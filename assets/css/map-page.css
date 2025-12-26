@@ -731,6 +731,11 @@ body.bottom-sheet-open {
 	.map-controls__section:last-child {
 		border-bottom: none;
 	}
+
+	.map-controls__row .b-button {
+		padding: 0.3rem 0.6rem !important;
+		font-size: 0.7rem;
+	}
 }
 
 .map-controls__label {
