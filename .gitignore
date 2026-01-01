@@ -6,3 +6,4 @@ secrets/
 *-credentials.json
 *.credentials.json
 vendor/
+.phpunit.cache/
