@@ -15,7 +15,7 @@ use Google\Service\Drive;
  * @return Client|WP_Error Google Client or error
  */
 function get_google_client() {
-	$credentials_path = $_ENV['GOOGLE_APPLICATION_CREDENTIALS'] ?? '';
+	$credentials_path = $_ENV['GOOGLE_APPLICATION_CREDENTIALS'] ?? getenv('GOOGLE_APPLICATION_CREDENTIALS') ?: '';
 
 	// If path is relative, resolve from theme directory
 	if (!empty($credentials_path) && !str_starts_with($credentials_path, '/')) {
@@ -104,7 +104,7 @@ function export_users_to_sheets() {
 		return $client;
 	}
 
-	$shared_drive_id = $_ENV['GOOGLE_SHARED_DRIVE_ID'] ?? '';
+	$shared_drive_id = $_ENV['GOOGLE_SHARED_DRIVE_ID'] ?? getenv('GOOGLE_SHARED_DRIVE_ID') ?: '';
 
 	if (empty($shared_drive_id)) {
 		return new WP_Error(
@@ -346,7 +346,7 @@ function export_dugnad_sheet() {
 		return $client;
 	}
 
-	$shared_drive_id = $_ENV['GOOGLE_SHARED_DRIVE_ID'] ?? '';
+	$shared_drive_id = $_ENV['GOOGLE_SHARED_DRIVE_ID'] ?? getenv('GOOGLE_SHARED_DRIVE_ID') ?: '';
 
 	if (empty($shared_drive_id)) {
 		return new WP_Error(
