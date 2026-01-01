@@ -111,6 +111,7 @@ add_action('admin_notices', function() {
 		<div class="wrap">
 			<button id="export-users-button" class="button button-primary">Last ned medlemsliste</button>
 			<button id="export-users-google-button" class="button button-primary" style="margin-left: 10px;">Eksporter til Google Sheets</button>
+			<button id="export-dugnad-google-button" class="button button-secondary" style="margin-left: 10px;">Opprett dugnadsoversikt</button>
 			<a href="<?php echo esc_attr($mailto_link); ?>" class="button button-primary" style="margin-left: 10px;">Send e-post til alle</a>
 			<span id="google-export-status" style="margin-left: 10px;"></span>
 		</div>
@@ -144,6 +145,39 @@ add_action('admin_notices', function() {
 			.catch(error => {
 				button.disabled = false;
 				button.textContent = 'Eksporter til Google Sheets';
+				status.innerHTML = '<span style="color: red;">Feil: ' + error.message + '</span>';
+			});
+		});
+
+		document.getElementById('export-dugnad-google-button').addEventListener('click', function() {
+			const button = this;
+			const status = document.getElementById('google-export-status');
+
+			button.disabled = true;
+			button.textContent = 'Oppretter...';
+			status.innerHTML = '';
+
+			fetch('<?php echo get_stylesheet_directory_uri(); ?>/admin/export-dugnad-google.php', {
+				credentials: 'same-origin'
+			})
+			.then(response => response.json())
+			.then(data => {
+				button.disabled = false;
+				button.textContent = 'Opprett dugnadsoversikt';
+
+				if (data.success) {
+					let msg = '<span style="color: green;">Opprettet!</span> <a href="' + data.url + '" target="_blank">Åpne ' + data.title + '</a>';
+					if (data.carryover_count > 0) {
+						msg += ' <em>(' + data.carryover_count + ' hytter med overførte timer)</em>';
+					}
+					status.innerHTML = msg;
+				} else {
+					status.innerHTML = '<span style="color: red;">Feil: ' + data.error + '</span>';
+				}
+			})
+			.catch(error => {
+				button.disabled = false;
+				button.textContent = 'Opprett dugnadsoversikt';
 				status.innerHTML = '<span style="color: red;">Feil: ' + error.message + '</span>';
 			});
 		});
