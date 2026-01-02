@@ -718,7 +718,26 @@ function export_dugnad_sheet() {
 			],
 		]);
 
-		// Aktivitetslogg: Date format for Dato column (A) with date picker
+		// Aktivitetslogg: Date validation for Dato column (A) - ensures date picker
+		$requests[] = new Sheets\Request([
+			'setDataValidation' => [
+				'range' => [
+					'sheetId' => $aktivitetslogg_sheet_id,
+					'startRowIndex' => 1,
+					'endRowIndex' => 500,
+					'startColumnIndex' => 0, // Column A (Dato)
+					'endColumnIndex' => 1,
+				],
+				'rule' => [
+					'condition' => [
+						'type' => 'DATE_IS_VALID',
+					],
+					'showCustomUi' => true,
+				],
+			],
+		]);
+
+		// Aktivitetslogg: Date format for Dato column (A)
 		$requests[] = new Sheets\Request([
 			'repeatCell' => [
 				'range' => [
