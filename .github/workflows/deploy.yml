@@ -24,10 +24,15 @@ jobs:
 
       - name: Send notification
         if: always()
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: |
+          # Use only first line of commit message
+          SUBJECT=$(echo "$COMMIT_MSG" | head -n 1)
           if [ "${{ job.status }}" = "success" ]; then
-            curl -d "Deploy fullfort: ${{ github.event.head_commit.message }}" ntfy.sh/${{ secrets.NTFY_TOPIC }}
+            curl -d "Deploy fullført: $SUBJECT" "ntfy.sh/$NTFY_TOPIC"
           else
-            curl -H "Priority: high" -H "Tags: warning" -d "Deploy FEILET: ${{ github.event.head_commit.message }}" ntfy.sh/${{ secrets.NTFY_TOPIC }}
+            curl -H "Priority: high" -H "Tags: warning" -d "Deploy FEILET: $SUBJECT" "ntfy.sh/$NTFY_TOPIC"
           fi
 # Test 1765052211
