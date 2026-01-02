@@ -371,15 +371,36 @@ function export_dugnad_sheet() {
 	// Get carryover from previous year
 	$carryover = get_dugnad_carryover($drive_service, $sheets_service, $shared_drive_id, $previous_year);
 
-	// Create spreadsheet title with year
-	$title = 'Dugnadsoversikt ' . $current_year;
+	// Create spreadsheet title with year (format: "000 YYYY Dugnadsoversikt")
+	$title = '000 ' . $current_year . ' Dugnadsoversikt';
+
+	// Find the "240 Dugnad" folder in Shared Drive
+	$folder_id = $shared_drive_id; // Default to root
+	try {
+		$folder_query = "name = '240 Dugnad' and mimeType = 'application/vnd.google-apps.folder'";
+		$folder_results = $drive_service->files->listFiles([
+			'q' => $folder_query,
+			'driveId' => $shared_drive_id,
+			'corpora' => 'drive',
+			'includeItemsFromAllDrives' => true,
+			'supportsAllDrives' => true,
+			'fields' => 'files(id, name)',
+		]);
+		$folders = $folder_results->getFiles();
+		if (!empty($folders)) {
+			$folder_id = $folders[0]->getId();
+		}
+	} catch (Exception $e) {
+		// Fall back to Shared Drive root
+		error_log('Could not find 240 Dugnad folder: ' . $e->getMessage());
+	}
 
 	try {
-		// Create file directly in Shared Drive using Drive API (same pattern as export_users_to_sheets)
+		// Create file in the target folder
 		$file_metadata = new Drive\DriveFile([
 			'name' => $title,
 			'mimeType' => 'application/vnd.google-apps.spreadsheet',
-			'parents' => [$shared_drive_id],
+			'parents' => [$folder_id],
 		]);
 
 		$file = $drive_service->files->create($file_metadata, [
