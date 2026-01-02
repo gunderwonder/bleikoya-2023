@@ -497,7 +497,8 @@ function export_dugnad_sheet() {
 		);
 
 		// === Sheet 3: Aktivitetslogg ===
-		$log_headers = ['Dato', 'Hytte', 'Navn', 'Aktivitet', 'Timer', 'Merknad'];
+		// Columns: Dato, Hytte, Aktivitet, Timer, Merknad
+		$log_headers = ['Dato', 'Hytte', 'Aktivitet', 'Timer', 'Merknad'];
 		$log_rows = [$log_headers];
 
 		$sheets_service->spreadsheets_values->update(
@@ -559,7 +560,6 @@ function export_dugnad_sheet() {
 						'userEnteredFormat' => [
 							'textFormat' => [
 								'bold' => true,
-								'fontSize' => 12,
 							],
 							'backgroundColor' => [
 								'red' => 0.9,
@@ -702,8 +702,8 @@ function export_dugnad_sheet() {
 					'sheetId' => $aktivitetslogg_sheet_id,
 					'startRowIndex' => 1,
 					'endRowIndex' => 500,
-					'startColumnIndex' => 3, // Column D (Aktivitet)
-					'endColumnIndex' => 4,
+					'startColumnIndex' => 2, // Column C (Aktivitet) - was D before removing Navn
+					'endColumnIndex' => 3,
 				],
 				'rule' => [
 					'condition' => [
@@ -718,8 +718,83 @@ function export_dugnad_sheet() {
 			],
 		]);
 
-		// Auto-resize columns for all sheets
-		foreach ($sheet_ids as $sheet_id) {
+		// Aktivitetslogg: Date format for Dato column (A) with date picker
+		$requests[] = new Sheets\Request([
+			'repeatCell' => [
+				'range' => [
+					'sheetId' => $aktivitetslogg_sheet_id,
+					'startRowIndex' => 1,
+					'endRowIndex' => 500,
+					'startColumnIndex' => 0, // Column A (Dato)
+					'endColumnIndex' => 1,
+				],
+				'cell' => [
+					'userEnteredFormat' => [
+						'numberFormat' => [
+							'type' => 'DATE',
+							'pattern' => 'dd.mm.yyyy',
+						],
+					],
+				],
+				'fields' => 'userEnteredFormat.numberFormat',
+			],
+		]);
+
+		// Aktivitetslogg: Timer column with formula based on Aktivitet (C)
+		// Pre-fill rows 2-500 with formula: =IF(C2="Strandrydding",2,IF(C2="Dugnad",6,""))
+		$timer_formulas = [];
+		for ($row = 2; $row <= 500; $row++) {
+			$timer_formulas[] = ["=IF(C{$row}=\"Strandrydding\",2,IF(C{$row}=\"Dugnad\",6,\"\"))"];
+		}
+		$sheets_service->spreadsheets_values->update(
+			$spreadsheet_id,
+			'Aktivitetslogg!D2:D500',
+			new Sheets\ValueRange(['values' => $timer_formulas]),
+			['valueInputOption' => 'USER_ENTERED']
+		);
+
+		// Set specific column widths for Dugnad sheet
+		// Columns: Hytte(60), Navn(150), Dugnad(80), Strandrydding(100), Overført(80), Totalt(60), Saldo(60), Unntak(60), Merknad(250)
+		$dugnad_widths = [60, 150, 80, 100, 80, 60, 60, 60, 250];
+		foreach ($dugnad_widths as $col_index => $width) {
+			$requests[] = new Sheets\Request([
+				'updateDimensionProperties' => [
+					'range' => [
+						'sheetId' => $dugnad_sheet_id,
+						'dimension' => 'COLUMNS',
+						'startIndex' => $col_index,
+						'endIndex' => $col_index + 1,
+					],
+					'properties' => [
+						'pixelSize' => $width,
+					],
+					'fields' => 'pixelSize',
+				],
+			]);
+		}
+
+		// Set specific column widths for Aktivitetslogg sheet
+		// Columns: Dato(100), Hytte(60), Aktivitet(120), Timer(60), Merknad(300)
+		$log_widths = [100, 60, 120, 60, 300];
+		foreach ($log_widths as $col_index => $width) {
+			$requests[] = new Sheets\Request([
+				'updateDimensionProperties' => [
+					'range' => [
+						'sheetId' => $aktivitetslogg_sheet_id,
+						'dimension' => 'COLUMNS',
+						'startIndex' => $col_index,
+						'endIndex' => $col_index + 1,
+					],
+					'properties' => [
+						'pixelSize' => $width,
+					],
+					'fields' => 'pixelSize',
+				],
+			]);
+		}
+
+		// Auto-resize columns for Medlemsliste and Kassererrapport only
+		foreach ([$sheet_ids[0], $kasserer_sheet_id] as $sheet_id) {
 			$requests[] = new Sheets\Request([
 				'autoResizeDimensions' => [
 					'dimensions' => [
