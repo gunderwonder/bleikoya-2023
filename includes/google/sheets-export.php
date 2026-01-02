@@ -673,13 +673,35 @@ function export_dugnad_sheet() {
 			],
 		]);
 
+		// Aktivitetslogg: Data validation for Hytte column (dropdown from Dugnad sheet)
+		$requests[] = new Sheets\Request([
+			'setDataValidation' => [
+				'range' => [
+					'sheetId' => $aktivitetslogg_sheet_id,
+					'startRowIndex' => 1,
+					'endRowIndex' => 500,
+					'startColumnIndex' => 1, // Column B (Hytte)
+					'endColumnIndex' => 2,
+				],
+				'rule' => [
+					'condition' => [
+						'type' => 'ONE_OF_RANGE',
+						'values' => [
+							['userEnteredValue' => '=Dugnad!$A$2:$A$' . ($num_users + 1)],
+						],
+					],
+					'showCustomUi' => true,
+				],
+			],
+		]);
+
 		// Aktivitetslogg: Data validation for Aktivitet column (dropdown)
 		$requests[] = new Sheets\Request([
 			'setDataValidation' => [
 				'range' => [
 					'sheetId' => $aktivitetslogg_sheet_id,
 					'startRowIndex' => 1,
-					'endRowIndex' => 500, // Allow for many entries
+					'endRowIndex' => 500,
 					'startColumnIndex' => 3, // Column D (Aktivitet)
 					'endColumnIndex' => 4,
 				],
