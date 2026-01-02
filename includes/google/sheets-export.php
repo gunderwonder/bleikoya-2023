@@ -471,6 +471,11 @@ function export_dugnad_sheet() {
 			$name = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
 			$carryover_hours = $carryover[$cabin] ?? 0;
 
+			// SUMIFS formulas to count hours from Aktivitetslogg
+			// Aktivitetslogg columns: A=Dato, B=Hytte, C=Aktivitet, D=Timer, E=Merknad
+			$dugnad_formula = "=SUMIFS(Aktivitetslogg!\$D:\$D,Aktivitetslogg!\$B:\$B,A{$row_num},Aktivitetslogg!\$C:\$C,\"Dugnad\")";
+			$strandrydding_formula = "=SUMIFS(Aktivitetslogg!\$D:\$D,Aktivitetslogg!\$B:\$B,A{$row_num},Aktivitetslogg!\$C:\$C,\"Strandrydding\")";
+
 			// Formulas for calculated columns (Totalt, Saldo)
 			$total_formula = "=C{$row_num}+D{$row_num}+E{$row_num}";
 			$saldo_formula = "=F{$row_num}-8";
@@ -478,8 +483,8 @@ function export_dugnad_sheet() {
 			$dugnad_rows[] = [
 				$cabin,
 				$name,
-				0,  // Dugnad - start at 0
-				0,  // Strandrydding - start at 0
+				$dugnad_formula,      // Sum from Aktivitetslogg
+				$strandrydding_formula, // Sum from Aktivitetslogg
 				$carryover_hours, // Overført
 				$total_formula,
 				$saldo_formula,
