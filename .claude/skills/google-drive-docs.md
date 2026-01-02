@@ -2,6 +2,8 @@
 
 Oppretter Google Docs-dokumenter i Bleikøya Velforenings delte disk.
 
+**Støtter:** Overskrifter, lister, bold, kursiv, kodeblokker, og **ekte tabeller**.
+
 ## Bruk
 
 ```bash
@@ -54,6 +56,7 @@ require get_stylesheet_directory() . "/.claude/skills/google-drive-docs/create-d
 - Google Drive API aktivert
 - Service Account med tilgang til Shared Drive
 - `.env` med `GOOGLE_APPLICATION_CREDENTIALS` og `GOOGLE_SHARED_DRIVE_ID`
+- `uv` installert for tabellstøtte (se MIGRATIONS.md)
 
 ## Mappestruktur
 

@@ -4,6 +4,39 @@ Manuelle endringer som må kjøres ved deploy. Hver migrering er knyttet til en 
 
 ---
 
+## 2026-01-02: Google Docs med tabellstøtte
+
+**Commit:** `Add Python-based markdown to Google Docs with table support`
+
+### Forutsetninger
+
+For å opprette Google Docs-dokumenter fra markdown med tabeller kreves `uv` (Python package manager).
+
+### Lokal installasjon
+
+```bash
+# macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+### Produksjonsserver
+
+```bash
+ssh bleikoya.net@ssh.bleikoya.net
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Verifiser at uv er installert:
+```bash
+uv --version
+```
+
+### Bruk
+
+Se `.claude/skills/google-drive-docs.md` for dokumentasjon.
+
+---
+
 ## 2026-01-01: Dugnadsoversikt til Google Sheets
 
 **Commit:** `Add dugnad tracking export to Google Sheets`

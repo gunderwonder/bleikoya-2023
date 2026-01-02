@@ -69,6 +69,8 @@ if (!empty($doc_folder)) {
 // Get content
 $content = $doc_content ?? '';
 $is_markdown = false;
+$has_tables = false;
+$actual_file_path = null;
 
 if (!empty($doc_file)) {
     $file_path = $doc_file;
@@ -79,8 +81,10 @@ if (!empty($doc_file)) {
         echo "Error: Fil ikke funnet: $doc_file\n";
         exit(1);
     }
+    $actual_file_path = $file_path;
     $content = file_get_contents($file_path);
     $is_markdown = preg_match('/\.md$/i', $file_path);
+    $has_tables = $is_markdown && preg_match('/^\|.+\|/m', $content);
 }
 
 // Check if document already exists (unless force flag is set)
@@ -101,6 +105,39 @@ if (empty($doc_force)) {
         echo "Bruk \$doc_force = true for å opprette på nytt.\n";
         exit(0);
     }
+}
+
+// Use Python script for markdown with tables (real table support)
+if ($has_tables && $actual_file_path) {
+    $script_path = __DIR__ . '/md2gdoc.py';
+    $folder_arg = !empty($doc_folder) ? ' --folder ' . escapeshellarg($doc_folder) : '';
+
+    // Get credentials path and make it absolute if relative
+    $creds_path = $_ENV['GOOGLE_APPLICATION_CREDENTIALS'] ?? getenv('GOOGLE_APPLICATION_CREDENTIALS');
+    if ($creds_path && $creds_path[0] !== '/') {
+        $creds_path = get_stylesheet_directory() . '/' . $creds_path;
+    }
+
+    $cmd = sprintf(
+        'GOOGLE_APPLICATION_CREDENTIALS=%s GOOGLE_SHARED_DRIVE_ID=%s uv run %s --title %s --file %s%s 2>&1',
+        escapeshellarg($creds_path),
+        escapeshellarg($shared_drive_id),
+        escapeshellarg($script_path),
+        escapeshellarg($doc_title),
+        escapeshellarg($actual_file_path),
+        $folder_arg
+    );
+
+    exec($cmd, $output, $return_code);
+    $result = implode("\n", $output);
+
+    if ($return_code !== 0) {
+        echo "Feil ved Python-konvertering:\n$result\n";
+        exit(1);
+    }
+
+    echo $result . "\n";
+    exit(0);
 }
 
 // Create document
