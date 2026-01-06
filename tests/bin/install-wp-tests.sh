@@ -46,7 +46,8 @@ download() {
 
 # Get WordPress version
 if [ "$WP_VERSION" == "latest" ]; then
-    WP_VERSION=$(download https://api.wordpress.org/core/version-check/1.7/ - | grep -oP '"version":"\K[^"]+' | head -1)
+    # Use PHP to parse JSON (most reliable cross-platform)
+    WP_VERSION=$(curl -s https://api.wordpress.org/core/version-check/1.7/ | php -r '$data = json_decode(file_get_contents("php://stdin"), true); echo $data["offers"][0]["version"] ?? "";')
     if [ -z "$WP_VERSION" ]; then
         echo "Error: Could not determine latest WordPress version"
         exit 1
@@ -91,23 +92,36 @@ install_wp() {
 
 # Install WordPress test suite
 install_test_suite() {
-    if [ -d "$WP_TESTS_DIR" ]; then
+    if [ -d "$WP_TESTS_DIR/includes" ]; then
         echo "Test suite already installed at $WP_TESTS_DIR"
         return
     fi
 
     mkdir -p "$WP_TESTS_DIR"
 
-    # Use develop.svn for test files
-    local SVN_URL="https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit"
+    # Download from GitHub trunk (always available)
+    local GH_URL="https://github.com/WordPress/wordpress-develop/archive/refs/heads/trunk.zip"
 
-    echo "Downloading test suite from $SVN_URL..."
+    echo "Downloading test suite from GitHub trunk..."
 
-    # Download includes
-    svn export --quiet "$SVN_URL/includes/" "$WP_TESTS_DIR/includes"
+    # Download and extract
+    curl -sL "$GH_URL" -o "$TMPDIR/wp-develop.zip"
 
-    # Download data
-    svn export --quiet "$SVN_URL/data/" "$WP_TESTS_DIR/data"
+    if [ ! -f "$TMPDIR/wp-develop.zip" ] || [ ! -s "$TMPDIR/wp-develop.zip" ]; then
+        echo "Error: Failed to download WordPress develop archive"
+        exit 1
+    fi
+
+    # Unzip
+    unzip -q "$TMPDIR/wp-develop.zip" -d "$TMPDIR"
+
+    # Copy test files
+    cp -r "$TMPDIR/wordpress-develop-trunk/tests/phpunit/includes" "$WP_TESTS_DIR/"
+    cp -r "$TMPDIR/wordpress-develop-trunk/tests/phpunit/data" "$WP_TESTS_DIR/"
+
+    # Cleanup
+    rm -rf "$TMPDIR/wordpress-develop-trunk"
+    rm -f "$TMPDIR/wp-develop.zip"
 
     echo "Test suite installed."
 }
