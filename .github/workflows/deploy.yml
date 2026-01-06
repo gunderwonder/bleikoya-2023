@@ -1,12 +1,17 @@
 name: Deploy to bleikoya.net
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Tests"]
+    types:
+      - completed
     branches:
       - main
 
 jobs:
   deploy:
+    # Only deploy if tests passed
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
