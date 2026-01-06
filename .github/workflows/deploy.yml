@@ -30,7 +30,7 @@ jobs:
       - name: Send notification
         if: always()
         env:
-          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          COMMIT_MSG: ${{ github.event.workflow_run.head_commit.message }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: |
           # Use only first line of commit message
