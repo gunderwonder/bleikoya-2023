@@ -42,8 +42,9 @@ add_action('enqueue_block_editor_assets', function () {
 				var post = wp.data.select('core/editor').getCurrentPost();
 				// Only set to private for new posts (auto-draft status)
 				if (post && post.status === 'auto-draft') {
-					wp.data.dispatch('core/editor').editPost({ status: 'private' });
+					// Unsubscribe BEFORE dispatch to prevent infinite recursion
 					unsubscribe();
+					wp.data.dispatch('core/editor').editPost({ status: 'private' });
 				}
 			});
 		});
