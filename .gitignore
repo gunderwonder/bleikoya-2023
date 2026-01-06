@@ -6,3 +6,7 @@ secrets/
 *-credentials.json
 *.credentials.json
 vendor/
+
+# PHPUnit
+.phpunit.cache/
+tests/coverage/
