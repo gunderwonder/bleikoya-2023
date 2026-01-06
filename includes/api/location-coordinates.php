@@ -71,14 +71,18 @@ function validate_coordinates($data) {
 		}
 		// Each bound can be either [lat, lng] array or {lat, lng} object
 		foreach ($data['bounds'] as $bound) {
-			if (is_array($bound)) {
-				// Array format: [lat, lng]
-				if (count($bound) !== 2 || !is_numeric($bound[0]) || !is_numeric($bound[1])) {
+			if (!is_array($bound)) {
+				return false;
+			}
+			// Object format: ['lat' => x, 'lng' => y]
+			if (isset($bound['lat']) && isset($bound['lng'])) {
+				if (!is_numeric($bound['lat']) || !is_numeric($bound['lng'])) {
 					return false;
 				}
-			} elseif (is_object($bound) || (is_array($bound) && isset($bound['lat']))) {
-				// Object format: {lat, lng}
-				if (!isset($bound['lat']) || !isset($bound['lng'])) {
+			}
+			// Array format: [lat, lng] (numeric keys)
+			elseif (array_key_exists(0, $bound) && array_key_exists(1, $bound)) {
+				if (count($bound) !== 2 || !is_numeric($bound[0]) || !is_numeric($bound[1])) {
 					return false;
 				}
 			} else {
@@ -95,14 +99,18 @@ function validate_coordinates($data) {
 		}
 		// Each point can be either [lat, lng] array or {lat, lng} object
 		foreach ($data['latlngs'] as $point) {
-			if (is_array($point)) {
-				// Array format: [lat, lng]
-				if (count($point) !== 2 || !is_numeric($point[0]) || !is_numeric($point[1])) {
+			if (!is_array($point)) {
+				return false;
+			}
+			// Object format: ['lat' => x, 'lng' => y]
+			if (isset($point['lat']) && isset($point['lng'])) {
+				if (!is_numeric($point['lat']) || !is_numeric($point['lng'])) {
 					return false;
 				}
-			} elseif (is_object($point) || (is_array($point) && isset($point['lat']))) {
-				// Object format: {lat, lng}
-				if (!isset($point['lat']) || !isset($point['lng'])) {
+			}
+			// Array format: [lat, lng] (numeric keys)
+			elseif (array_key_exists(0, $point) && array_key_exists(1, $point)) {
+				if (count($point) !== 2 || !is_numeric($point[0]) || !is_numeric($point[1])) {
 					return false;
 				}
 			} else {

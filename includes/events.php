@@ -1,5 +1,111 @@
 <?php
 
+// === iCal Helper Functions ===
+
+/**
+ * Escape text per RFC 5545 (iCalendar spec)
+ *
+ * Special characters that must be escaped:
+ * - Backslash (\) -> \\
+ * - Comma (,) -> \,
+ * - Semicolon (;) -> \;
+ * - Newlines -> \n
+ *
+ * @param string $text Text to escape
+ * @return string Escaped text
+ */
+function bleikoya_ical_escape(string $text): string {
+	$text = wp_strip_all_tags($text);
+	$text = str_replace(
+		["\\", ",", ";", "\r\n", "\n", "\r"],
+		["\\\\", "\\,", "\\;", "\\n", "\\n", "\\n"],
+		$text
+	);
+	return $text;
+}
+
+/**
+ * Fold long lines at 75 octets per RFC 5545
+ *
+ * Lines longer than 75 characters are split with CRLF followed by
+ * a single whitespace character (space or tab).
+ *
+ * Note: This implementation uses strlen() which counts bytes, not characters.
+ * For multi-byte UTF-8 text, this is a simplification but works for most cases.
+ *
+ * @param string $line Line to fold
+ * @return string Folded line
+ */
+function bleikoya_ical_fold(string $line): string {
+	$max = 75;
+	$out = '';
+
+	while (strlen($line) > $max) {
+		$out .= substr($line, 0, $max) . "\r\n ";
+		$line = substr($line, $max);
+	}
+
+	return $out . $line;
+}
+
+/**
+ * Calculate the iCal DTEND for an all-day event
+ *
+ * Per RFC 5545, DTEND for all-day events is exclusive (the day after the last day).
+ *
+ * @param string $end_date End date in Ymd format
+ * @return string DTEND date in Ymd format (next day)
+ */
+function bleikoya_ical_allday_dtend(string $end_date): string {
+	$end_dt = DateTime::createFromFormat('Ymd', $end_date, new DateTimeZone('UTC'));
+
+	if (!$end_dt) {
+		return $end_date;
+	}
+
+	$end_dt->modify('+1 day');
+	return $end_dt->format('Ymd');
+}
+
+/**
+ * Generate a stable UID for an iCal event
+ *
+ * UIDs must be globally unique and stable across regenerations.
+ * Format: bleikoya-{post_id}-{hash}@{domain}
+ *
+ * @param int $post_id WordPress post ID
+ * @param string $start_date Start date/time for uniqueness
+ * @param bool $all_day Whether this is an all-day event
+ * @param string $domain Site domain
+ * @return string Unique identifier
+ */
+function bleikoya_ical_uid(int $post_id, string $start_date, bool $all_day, string $domain): string {
+	// For all-day events, append zeros to make the hash different from timed events
+	$start_for_hash = $all_day ? $start_date . '000000' : $start_date;
+	return 'bleikoya-' . $post_id . '-' . md5($start_for_hash) . '@' . $domain;
+}
+
+/**
+ * Build location string from venue and address components
+ *
+ * @param string $venue Venue name
+ * @param array $address_parts Address components (address, zip, city, state, country)
+ * @return string Formatted location string
+ */
+function bleikoya_ical_location(string $venue, array $address_parts): string {
+	// Filter out empty/null parts and trim whitespace
+	$address_parts = array_filter(array_map(fn($v) => is_string($v) ? trim($v) : '', $address_parts));
+	$venue = trim($venue);
+
+	$location = '';
+	if ($venue) {
+		$location = $venue . ', ';
+	}
+	$location .= implode(', ', $address_parts);
+
+	return trim($location, ' ,');
+}
+
 // === Featured Events ICS feed ===
 // Provides a subscribable ICS feed of all upcoming featured events at /featured-events.ics
 add_action('init', function () {
@@ -25,6 +131,7 @@ add_action('template_redirect', function () {
 	if (get_query_var('featured_events_ics')) {
 		$site_name = get_bloginfo('name');
 		$site_url = home_url('/');
+		$domain = wp_parse_url($site_url, PHP_URL_HOST);
 		$now = current_time('timestamp', true); // UTC timestamp
 
 		// Fetch upcoming featured events (includes future occurrences of recurring events)
@@ -33,34 +140,16 @@ add_action('template_redirect', function () {
 			'posts_per_page' => -1,
 			'orderby' => 'event_date',
 			'order' => 'ASC',
-			// Only include events that haven’t fully ended
+			// Only include events that haven't fully ended
 			'ends_after' => 'now',
 		];
 
 		$events = tribe_get_events($args);
 
-		// Helper: escape text per RFC 5545 (\, \; and \n)
-		$esc = function ($text) {
-			$text = wp_strip_all_tags((string) $text);
-			$text = str_replace(["\\", ",", ";", "\r\n", "\n", "\r"], ["\\\\", "\\,", "\\;", "\\n", "\\n", "\\n"], $text);
-			return $text;
-		};
-
-		// Helper: fold long lines at 75 octets (simplified to 75 chars)
-		$fold = function ($line) {
-			$max = 75;
-			$out = '';
-			while (strlen($line) > $max) {
-				$out .= substr($line, 0, $max) . "\r\n ";
-				$line = substr($line, $max);
-			}
-			return $out . $line;
-		};
-
 		$lines = [];
 		$lines[] = 'BEGIN:VCALENDAR';
 		$lines[] = 'VERSION:2.0';
-		$lines[] = 'PRODID:-//' . $esc($site_name) . '//Featured Events//EN';
+		$lines[] = 'PRODID:-//' . bleikoya_ical_escape($site_name) . '//Featured Events//EN';
 		$lines[] = 'CALSCALE:GREGORIAN';
 		$lines[] = 'METHOD:PUBLISH';
 		$lines[] = 'X-WR-CALNAME:Bleikøyakalenderen';
@@ -75,34 +164,26 @@ add_action('template_redirect', function () {
 			$end_utc_raw = tribe_get_end_date($post_id, true, $all_day ? 'Ymd' : 'Ymd\THis\Z', 'UTC');
 
 			// For all-day events, DTEND is exclusive; advance by one day
-			if ($all_day) {
-				$end_dt = DateTime::createFromFormat('Ymd', $end_utc_raw, new DateTimeZone('UTC')) ?: new DateTime('@' . $now);
-				$end_dt->modify('+1 day');
-				$end_utc = $end_dt->format('Ymd');
-			} else {
-				$end_utc = $end_utc_raw;
-			}
+			$end_utc = $all_day ? bleikoya_ical_allday_dtend($end_utc_raw) : $end_utc_raw;
 
 			$title = get_the_title($post_id);
 			$url = get_permalink($post_id);
 			$description = has_excerpt($post_id) ? get_the_excerpt($post_id) : wp_trim_words(wp_strip_all_tags(get_post_field('post_content', $post_id)), 80);
 
-			$venue = tribe_get_venue($post_id);
-			$address_parts = [];
-			$addr = tribe_get_address($post_id);
-			$city = tribe_get_city($post_id);
-			$zip = tribe_get_zip($post_id);
-			$country = tribe_get_country($post_id);
-			$state = tribe_get_stateprovince($post_id);
-			foreach ([$addr, $zip, $city, $state, $country] as $p) {
-				$p = trim((string) $p);
-				if ($p) $address_parts[] = $p;
-			}
-			$location = trim(($venue ? $venue . ', ' : '') . implode(', ', $address_parts), ' ,');
+			// Build location from venue and address
+			$location = bleikoya_ical_location(
+				tribe_get_venue($post_id),
+				[
+					tribe_get_address($post_id),
+					tribe_get_zip($post_id),
+					tribe_get_city($post_id),
+					tribe_get_stateprovince($post_id),
+					tribe_get_country($post_id),
+				]
+			);
 
-			// Build a stable UID that is unique per occurrence when possible
-			$start_for_uid = $all_day ? $start_utc . '000000' : $start_utc;
-			$uid = 'bleikoya-' . $post_id . '-' . md5($start_for_uid) . '@' . wp_parse_url($site_url, PHP_URL_HOST);
+			// Build a stable UID
+			$uid = bleikoya_ical_uid($post_id, $start_utc, $all_day, $domain);
 
 			$lines[] = 'BEGIN:VEVENT';
 			$lines[] = 'UID:' . $uid;
@@ -114,12 +195,12 @@ add_action('template_redirect', function () {
 				$lines[] = 'DTSTART:' . $start_utc;
 				$lines[] = 'DTEND:' . $end_utc;
 			}
-			$lines[] = $fold('SUMMARY:' . $esc($title));
+			$lines[] = bleikoya_ical_fold('SUMMARY:' . bleikoya_ical_escape($title));
 			if (!empty($location)) {
-				$lines[] = $fold('LOCATION:' . $esc($location));
+				$lines[] = bleikoya_ical_fold('LOCATION:' . bleikoya_ical_escape($location));
 			}
-			$lines[] = $fold('DESCRIPTION:' . $esc($description));
-			$lines[] = 'URL;VALUE=URI:' . $esc($url);
+			$lines[] = bleikoya_ical_fold('DESCRIPTION:' . bleikoya_ical_escape($description));
+			$lines[] = 'URL;VALUE=URI:' . bleikoya_ical_escape($url);
 			$lines[] = 'END:VEVENT';
 		}
 
