@@ -10,3 +10,4 @@ vendor/
 # PHPUnit
 .phpunit.cache/
 tests/coverage/
+.phpunit.result.cache

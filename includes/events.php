@@ -93,8 +93,8 @@ function bleikoya_ical_uid(int $post_id, string $start_date, bool $all_day, stri
  * @return string Formatted location string
  */
 function bleikoya_ical_location(string $venue, array $address_parts): string {
-	// Filter out empty parts and trim whitespace
-	$address_parts = array_filter(array_map('trim', $address_parts));
+	// Filter out empty/null parts and trim whitespace
+	$address_parts = array_filter(array_map(fn($v) => is_string($v) ? trim($v) : '', $address_parts));
 	$venue = trim($venue);
 
 	$location = '';

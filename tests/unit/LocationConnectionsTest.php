@@ -9,8 +9,6 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\DataProvider;
 
 // Include the functions being tested
 require_once dirname(__DIR__, 2) . '/includes/api/location-connections.php';
@@ -26,7 +24,7 @@ class LocationConnectionsTest extends TestCase
     // get_location_connections() Tests
     // ===========================================
 
-    #[Test]
+    /** @test */
     public function get_location_connections_returns_empty_array_when_no_connections(): void
     {
         global $mock_posts;
@@ -38,7 +36,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertEmpty($connections);
     }
 
-    #[Test]
+    /** @test */
     public function get_location_connections_returns_connections_in_new_format(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -60,7 +58,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertEquals('post', $connections[0]['type']);
     }
 
-    #[Test]
+    /** @test */
     public function get_location_connections_migrates_old_format_for_users(): void
     {
         global $mock_posts, $mock_users, $mock_post_meta;
@@ -80,7 +78,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertEquals('user', $connections[0]['type']);
     }
 
-    #[Test]
+    /** @test */
     public function get_location_connections_migrates_old_format_for_posts(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -100,7 +98,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertEquals('tribe_events', $connections[0]['type']);
     }
 
-    #[Test]
+    /** @test */
     public function get_location_connections_prioritizes_user_detection_over_post(): void
     {
         global $mock_posts, $mock_users, $mock_post_meta;
@@ -122,7 +120,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertEquals('user', $connections[0]['type']);
     }
 
-    #[Test]
+    /** @test */
     public function get_location_connections_skips_nonexistent_ids(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -143,7 +141,7 @@ class LocationConnectionsTest extends TestCase
     // get_location_connection_ids() Tests
     // ===========================================
 
-    #[Test]
+    /** @test */
     public function get_location_connection_ids_returns_array_of_ids(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -168,7 +166,7 @@ class LocationConnectionsTest extends TestCase
     // get_location_term_connections() Tests
     // ===========================================
 
-    #[Test]
+    /** @test */
     public function get_location_term_connections_returns_empty_array_when_no_terms(): void
     {
         global $mock_posts;
@@ -180,7 +178,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertEmpty($connections);
     }
 
-    #[Test]
+    /** @test */
     public function get_location_term_connections_returns_term_data(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -205,7 +203,7 @@ class LocationConnectionsTest extends TestCase
     // add_location_connection() Tests
     // ===========================================
 
-    #[Test]
+    /** @test */
     public function add_location_connection_returns_false_for_invalid_location_id(): void
     {
         $result = add_location_connection(0, 200, 'post');
@@ -213,7 +211,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertFalse($result);
     }
 
-    #[Test]
+    /** @test */
     public function add_location_connection_returns_false_for_invalid_target_id(): void
     {
         $result = add_location_connection(100, 0, 'post');
@@ -221,7 +219,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertFalse($result);
     }
 
-    #[Test]
+    /** @test */
     public function add_location_connection_adds_post_connection_bidirectionally(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -244,7 +242,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertContains(100, $reverse);
     }
 
-    #[Test]
+    /** @test */
     public function add_location_connection_adds_user_connection_bidirectionally(): void
     {
         global $mock_posts, $mock_users, $mock_post_meta, $mock_user_meta;
@@ -267,7 +265,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertContains(100, $reverse);
     }
 
-    #[Test]
+    /** @test */
     public function add_location_connection_prevents_duplicate_connections(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -283,7 +281,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertCount(1, $connections);
     }
 
-    #[Test]
+    /** @test */
     public function add_location_connection_allows_same_id_with_different_types(): void
     {
         global $mock_posts, $mock_users, $mock_post_meta;
@@ -300,7 +298,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertCount(2, $connections);
     }
 
-    #[Test]
+    /** @test */
     public function add_location_connection_delegates_term_connections(): void
     {
         global $mock_posts, $mock_terms, $mock_post_meta, $mock_term_meta;
@@ -323,7 +321,7 @@ class LocationConnectionsTest extends TestCase
     // add_location_term_connection() Tests
     // ===========================================
 
-    #[Test]
+    /** @test */
     public function add_location_term_connection_returns_false_for_missing_params(): void
     {
         $this->assertFalse(add_location_term_connection(0, 5, 'category'));
@@ -331,7 +329,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertFalse(add_location_term_connection(100, 5, ''));
     }
 
-    #[Test]
+    /** @test */
     public function add_location_term_connection_returns_false_for_nonexistent_term(): void
     {
         global $mock_posts;
@@ -342,7 +340,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertFalse($result);
     }
 
-    #[Test]
+    /** @test */
     public function add_location_term_connection_creates_bidirectional_connection(): void
     {
         global $mock_posts, $mock_terms, $mock_post_meta, $mock_term_meta;
@@ -367,7 +365,7 @@ class LocationConnectionsTest extends TestCase
     // remove_location_connection() Tests
     // ===========================================
 
-    #[Test]
+    /** @test */
     public function remove_location_connection_removes_post_connection_bidirectionally(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -395,7 +393,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertNotContains(100, $reverse);
     }
 
-    #[Test]
+    /** @test */
     public function remove_location_connection_removes_user_connection_bidirectionally(): void
     {
         global $mock_posts, $mock_users, $mock_post_meta, $mock_user_meta;
@@ -416,7 +414,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertNotContains(100, $reverse);
     }
 
-    #[Test]
+    /** @test */
     public function remove_location_connection_only_removes_matching_type(): void
     {
         global $mock_posts, $mock_users, $mock_post_meta;
@@ -441,7 +439,7 @@ class LocationConnectionsTest extends TestCase
     // remove_location_term_connection() Tests
     // ===========================================
 
-    #[Test]
+    /** @test */
     public function remove_location_term_connection_removes_bidirectionally(): void
     {
         global $mock_posts, $mock_terms, $mock_post_meta, $mock_term_meta;
@@ -470,7 +468,7 @@ class LocationConnectionsTest extends TestCase
     // get_connected_locations() Tests
     // ===========================================
 
-    #[Test]
+    /** @test */
     public function get_connected_locations_returns_locations_for_post(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -485,7 +483,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertEquals([100, 101, 102], $locations);
     }
 
-    #[Test]
+    /** @test */
     public function get_connected_locations_returns_locations_for_user(): void
     {
         global $mock_users, $mock_user_meta;
@@ -500,7 +498,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertEquals([100, 101], $locations);
     }
 
-    #[Test]
+    /** @test */
     public function get_connected_locations_returns_locations_for_term(): void
     {
         global $mock_terms, $mock_term_meta;
@@ -515,7 +513,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertEquals([100], $locations);
     }
 
-    #[Test]
+    /** @test */
     public function get_connected_locations_returns_empty_array_when_no_connections(): void
     {
         global $mock_posts;
@@ -532,7 +530,7 @@ class LocationConnectionsTest extends TestCase
     // get_location_connections_full() Tests
     // ===========================================
 
-    #[Test]
+    /** @test */
     public function get_location_connections_full_returns_full_post_data(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -555,7 +553,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertStringContainsString('my-blog-post', $connections[0]['link']);
     }
 
-    #[Test]
+    /** @test */
     public function get_location_connections_full_returns_full_user_data(): void
     {
         global $mock_posts, $mock_users, $mock_post_meta, $mock_user_meta;
@@ -582,7 +580,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertStringContainsString('author', $connections[0]['link']);
     }
 
-    #[Test]
+    /** @test */
     public function get_location_connections_full_returns_full_term_data(): void
     {
         global $mock_posts, $mock_terms, $mock_post_meta;
@@ -606,7 +604,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertEquals(15, $connections[0]['count']);
     }
 
-    #[Test]
+    /** @test */
     public function get_location_connections_full_skips_nonexistent_connections(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -628,7 +626,7 @@ class LocationConnectionsTest extends TestCase
     // cleanup_location_connections_on_delete() Tests
     // ===========================================
 
-    #[Test]
+    /** @test */
     public function cleanup_ignores_non_kartpunkt_posts(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -654,7 +652,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertContains(100, $reverse);
     }
 
-    #[Test]
+    /** @test */
     public function cleanup_removes_reverse_connections_for_posts(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -680,7 +678,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertContains(101, $reverse);
     }
 
-    #[Test]
+    /** @test */
     public function cleanup_removes_reverse_connections_for_users(): void
     {
         global $mock_posts, $mock_users, $mock_post_meta, $mock_user_meta;
@@ -705,7 +703,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertNotContains(100, $reverse);
     }
 
-    #[Test]
+    /** @test */
     public function cleanup_removes_reverse_connections_for_terms(): void
     {
         global $mock_posts, $mock_terms, $mock_post_meta, $mock_term_meta;
@@ -734,7 +732,7 @@ class LocationConnectionsTest extends TestCase
     // get_connectable_taxonomies() Tests
     // ===========================================
 
-    #[Test]
+    /** @test */
     public function get_connectable_taxonomies_excludes_internal_taxonomies(): void
     {
         $taxonomies = get_connectable_taxonomies();
@@ -752,7 +750,7 @@ class LocationConnectionsTest extends TestCase
     // migrate_connections_format() Tests
     // ===========================================
 
-    #[Test]
+    /** @test */
     public function migrate_skips_locations_without_connections(): void
     {
         global $mock_posts;
@@ -767,7 +765,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertEquals(2, $results['skipped']);
     }
 
-    #[Test]
+    /** @test */
     public function migrate_skips_already_migrated_connections(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -789,7 +787,7 @@ class LocationConnectionsTest extends TestCase
         $this->assertEquals(1, $results['skipped']);
     }
 
-    #[Test]
+    /** @test */
     public function migrate_converts_old_format_to_new(): void
     {
         global $mock_posts, $mock_users, $mock_post_meta;
