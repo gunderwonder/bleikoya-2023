@@ -21,6 +21,12 @@ if ($test_type === 'integration') {
     // Requires WP_TESTS_DIR to be set to wordpress-develop/tests/phpunit
     $wp_tests_dir = getenv('WP_TESTS_DIR') ?: '/tmp/wordpress-tests-lib';
 
+    // Load PHPUnit Polyfills (required by WordPress test suite)
+    $polyfills_path = dirname(__DIR__) . '/vendor/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php';
+    if (file_exists($polyfills_path)) {
+        require_once $polyfills_path;
+    }
+
     if (!file_exists($wp_tests_dir . '/includes/functions.php')) {
         echo "\n";
         echo "WordPress test library not found at: $wp_tests_dir\n";
