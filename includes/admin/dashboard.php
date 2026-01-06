@@ -134,7 +134,138 @@ add_action('admin_menu', function() {
 			exit;
 		}
 	);
+
+	// Google Docs import page
+	add_submenu_page(
+		'tools.php',                      // Parent menu slug (Verktøy)
+		'Importer Google Doc',            // Page title
+		'Importer Google Doc',            // Menu title
+		'edit_posts',                     // Capability required
+		'import-google-doc',              // Menu slug
+		'render_import_google_doc_page'   // Callback function
+	);
 });
+
+/**
+ * Render the Google Docs import admin page.
+ */
+function render_import_google_doc_page() {
+	// Check for doc parameter (direct link from Google Drive)
+	$prefilled_url = isset($_GET['doc']) ? esc_attr($_GET['doc']) : '';
+
+	?>
+	<div class="wrap">
+		<h1>Importer Google Doc</h1>
+		<p>Importer et Google Docs-dokument som en WordPress-post. Dokumentet må ligge i den delte disken.</p>
+
+		<form id="import-google-doc-form" method="post">
+			<?php wp_nonce_field('import_google_doc'); ?>
+
+			<table class="form-table">
+				<tr>
+					<th scope="row">
+						<label for="doc_url">Google Docs URL</label>
+					</th>
+					<td>
+						<input type="text"
+						       id="doc_url"
+						       name="doc_url"
+						       value="<?php echo $prefilled_url; ?>"
+						       class="regular-text"
+						       placeholder="https://docs.google.com/document/d/..."
+						       required
+						       style="width: 100%; max-width: 500px;">
+						<p class="description">
+							Lim inn URL til Google Docs-dokumentet du vil importere.
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<label for="category_id">Kategori (valgfritt)</label>
+					</th>
+					<td>
+						<?php
+						wp_dropdown_categories([
+							'name'             => 'category_id',
+							'id'               => 'category_id',
+							'show_option_none' => '— Ingen kategori —',
+							'option_none_value' => '',
+							'hide_empty'       => false,
+						]);
+						?>
+					</td>
+				</tr>
+			</table>
+
+			<p class="submit">
+				<button type="submit" class="button button-primary" id="import-button">
+					Importer dokument
+				</button>
+				<span id="import-spinner" class="spinner" style="float: none; margin-top: 0;"></span>
+			</p>
+
+			<div id="import-result" style="display: none;"></div>
+		</form>
+	</div>
+
+	<script>
+	jQuery(document).ready(function($) {
+		$('#import-google-doc-form').on('submit', function(e) {
+			e.preventDefault();
+
+			var $form = $(this);
+			var $button = $('#import-button');
+			var $spinner = $('#import-spinner');
+			var $result = $('#import-result');
+
+			$button.prop('disabled', true);
+			$spinner.addClass('is-active');
+			$result.hide();
+
+			$.ajax({
+				url: '<?php echo esc_url(get_stylesheet_directory_uri() . '/admin/import-google-doc.php'); ?>',
+				type: 'POST',
+				data: $form.serialize(),
+				dataType: 'json',
+				success: function(response) {
+					if (response.success) {
+						$result
+							.html('<div class="notice notice-success"><p>Dokumentet "' + response.title + '" ble importert! <a href="' + response.edit_url + '">Rediger posten</a></p></div>')
+							.show();
+
+						// Optionally redirect to edit page
+						setTimeout(function() {
+							window.location.href = response.edit_url;
+						}, 1500);
+					} else {
+						$result
+							.html('<div class="notice notice-error"><p>Feil: ' + response.error + '</p></div>')
+							.show();
+					}
+				},
+				error: function(xhr) {
+					var errorMsg = 'En ukjent feil oppstod.';
+					try {
+						var response = JSON.parse(xhr.responseText);
+						if (response.error) {
+							errorMsg = response.error;
+						}
+					} catch (e) {}
+					$result
+						.html('<div class="notice notice-error"><p>Feil: ' + errorMsg + '</p></div>')
+						.show();
+				},
+				complete: function() {
+					$button.prop('disabled', false);
+					$spinner.removeClass('is-active');
+				}
+			});
+		});
+	});
+	</script>
+	<?php
+}
 
 /**
  * Rename "Innlegg" to "Oppslag" in admin menu
