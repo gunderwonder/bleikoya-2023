@@ -8,6 +8,7 @@
 use Google\Client;
 use Google\Service\Sheets;
 use Google\Service\Drive;
+use Google\Service\Docs;
 
 /**
  * Get configured Google Client with Service Account credentials.
@@ -34,6 +35,7 @@ function get_google_client() {
 	$client->setScopes([
 		Sheets::SPREADSHEETS,
 		Drive::DRIVE,
+		Docs::DOCUMENTS_READONLY,
 	]);
 
 	return $client;
