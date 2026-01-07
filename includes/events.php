@@ -88,14 +88,14 @@ function bleikoya_ical_uid(int $post_id, string $start_date, bool $all_day, stri
 /**
  * Build location string from venue and address components
  *
- * @param string $venue Venue name
+ * @param string|null $venue Venue name (null-safe)
  * @param array $address_parts Address components (address, zip, city, state, country)
  * @return string Formatted location string
  */
-function bleikoya_ical_location(string $venue, array $address_parts): string {
+function bleikoya_ical_location(?string $venue, array $address_parts): string {
 	// Filter out empty/null parts and trim whitespace
 	$address_parts = array_filter(array_map(fn($v) => is_string($v) ? trim($v) : '', $address_parts));
-	$venue = trim($venue);
+	$venue = trim($venue ?? '');
 
 	$location = '';
 	if ($venue) {
@@ -173,7 +173,7 @@ add_action('template_redirect', function () {
 
 			// Build location from venue and address
 			$location = bleikoya_ical_location(
-				tribe_get_venue($post_id) ?? '',
+				tribe_get_venue($post_id),
 				[
 					tribe_get_address($post_id),
 					tribe_get_zip($post_id),

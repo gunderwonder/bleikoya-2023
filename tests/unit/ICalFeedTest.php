@@ -409,9 +409,17 @@ class ICalFeedTest extends TestCase
     }
 
     /** @test */
-    public function ical_location_handles_null_venue_gracefully(): void
+    public function ical_location_handles_null_venue(): void
     {
-        // In PHP 8, empty string is used when venue might be null
+        // tribe_get_venue() returns null for events without a venue
+        $result = bleikoya_ical_location(null, ['Oslo', 'Norway']);
+
+        $this->assertEquals('Oslo, Norway', $result);
+    }
+
+    /** @test */
+    public function ical_location_handles_empty_venue(): void
+    {
         $result = bleikoya_ical_location('', ['Oslo', 'Norway']);
 
         $this->assertEquals('Oslo, Norway', $result);
