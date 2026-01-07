@@ -129,6 +129,7 @@ add_action('after_switch_theme', function () {
 // Output the ICS when our endpoint is requested
 add_action('template_redirect', function () {
 	if (get_query_var('featured_events_ics')) {
+
 		$site_name = get_bloginfo('name');
 		$site_url = home_url('/');
 		$domain = wp_parse_url($site_url, PHP_URL_HOST);
@@ -172,7 +173,7 @@ add_action('template_redirect', function () {
 
 			// Build location from venue and address
 			$location = bleikoya_ical_location(
-				tribe_get_venue($post_id),
+				tribe_get_venue($post_id) ?? '',
 				[
 					tribe_get_address($post_id),
 					tribe_get_zip($post_id),

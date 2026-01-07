@@ -10,7 +10,6 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 - **Image Galleries**: Photo galleries
 - **Contact Forms**: Contact form functionality
 - **iCal Feed**: `/featured-events.ics` - subscribable calendar feed for featured events
-- **Health Checks**: Integration tests in `test/health-check.php`
 - **Interactive Map (Kart)**: Leaflet-based map with kartpunkt system (see `MAP_DESIGN.md`)
 - **Author Pages**: Custom author template showing cabin owner info and map connections
 - **Member Export**: Export member list to Excel (XLSX) or Google Sheets in Shared Drive
@@ -46,11 +45,16 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 │       └── sheets-export.php  # Google Sheets export functionality
 ├── parts/                 # Template parts
 │   └── post/              # Post templates (content.php, plug.php)
-├── test/                  # Integration tests
-│   └── health-check.php   # HTTP endpoint health checks
+├── tests/                 # PHPUnit test suites
+│   ├── unit/              # Unit tests (no WordPress required)
+│   ├── integration/       # Integration tests (requires WP test framework)
+│   ├── health/            # HTTP health checks (curl-based)
+│   ├── mocks/             # Mock functions for unit tests
+│   └── bootstrap.php      # Test bootstrapping
 ├── acf-json/              # ACF field groups (auto-synced JSON)
 ├── vendor/                # Composer dependencies (currently committed)
 ├── composer.json          # Composer dependencies
+├── phpunit.xml            # PHPUnit configuration
 ├── author.php             # Author page template (cabin owner info)
 ├── page-kart.php          # Interactive map page template
 ├── page-stilguide.php     # Style guide template
@@ -98,19 +102,46 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 - `monolog/monolog` - Logging
 - `guzzlehttp/guzzle` - HTTP client
 - `vlucas/phpdotenv` - Environment configuration
+- `phpunit/phpunit` - Testing framework (dev)
 
 ## Testing
-Run health checks locally:
+
+The theme uses PHPUnit with three test suites.
+
+### Composer scripts (recommended)
 ```bash
-cd test
-SITE_URL="https://bleikoya.test" php health-check.php
+composer test              # Run all tests
+composer test:unit         # Unit tests only
+composer test:health       # Health checks (local site)
+composer test:health:core  # Core health checks only
+composer test:health:prod  # Health checks against production
+composer test:integration  # Integration tests (requires WP test framework)
 ```
 
-Tests verify:
-- HTTP endpoints (homepage, admin, search, etc.)
+### Direct PHPUnit
+```bash
+./vendor/bin/phpunit                      # All tests
+./vendor/bin/phpunit --testsuite Unit     # Unit tests
+./vendor/bin/phpunit --testsuite HealthCheck  # Health checks
+```
+
+### Test suites
+
+| Suite | Location | Description |
+|-------|----------|-------------|
+| **Unit** | `tests/unit/` | Pure PHP tests with mocked WordPress functions |
+| **HealthCheck** | `tests/health/` | HTTP endpoint tests against running site |
+| **Integration** | `tests/integration/` | Full WordPress integration tests |
+
+### Health checks verify
+- HTTP endpoints (homepage, admin, search, events, etc.)
 - REST API endpoints
-- iCal feed format and headers
+- iCal feed format and headers (`/featured-events.ics`)
 - 404 handling
+- Content-type headers
+
+### CI/CD
+PHPUnit tests run automatically via GitHub Actions on push/PR (see `.github/workflows/phpunit.yml`)
 
 ## Deployment
 - **Method**: GitHub Actions workflow (`.github/workflows/deploy.yml`)
@@ -209,4 +240,4 @@ This project has Chrome DevTools MCP configured for browser-based debugging and 
 ## Important Notes
 - iCal feed includes all upcoming featured events
 - Rewrite rules require flush after theme activation (`wp rewrite flush`)
-- Health check expects 301→200 redirect for `/featured-events.ics` (WordPress canonical redirect)
+- `/featured-events.ics` redirects 301→200 (WordPress canonical redirect adds trailing slash)
