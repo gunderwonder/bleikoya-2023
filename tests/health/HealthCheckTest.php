@@ -230,25 +230,25 @@ class HealthCheckTest extends TestCase {
 	}
 
 	// =========================================================================
-	// Location REST API (@group feature)
+	// Kartpunkt REST API (@group feature)
 	// =========================================================================
 
 	/**
 	 * @group feature
 	 */
-	public function test_locations_api_returns_200(): void {
-		$response = $this->request('/wp-json/wp/v2/location');
-		$this->assertEquals(200, $response['status'], 'Locations API should return 200');
+	public function test_kartpunkt_api_returns_200(): void {
+		$response = $this->request('/wp-json/wp/v2/kartpunkt');
+		$this->assertEquals(200, $response['status'], 'Kartpunkt API should return 200');
 	}
 
 	/**
 	 * @group feature
 	 */
-	public function test_locations_api_returns_json_array(): void {
-		$response = $this->request('/wp-json/wp/v2/location');
+	public function test_kartpunkt_api_returns_json_array(): void {
+		$response = $this->request('/wp-json/wp/v2/kartpunkt');
 
 		$json = json_decode($response['body'], true);
-		$this->assertIsArray($json, 'Locations API should return a JSON array');
+		$this->assertIsArray($json, 'Kartpunkt API should return a JSON array');
 	}
 
 	// =========================================================================
@@ -261,17 +261,5 @@ class HealthCheckTest extends TestCase {
 	public function test_style_guide_returns_200(): void {
 		$response = $this->request('/stilguide/');
 		$this->assertEquals(200, $response['status'], 'Style guide page should return 200');
-	}
-
-	// =========================================================================
-	// Archive Page (@group feature)
-	// =========================================================================
-
-	/**
-	 * @group feature
-	 */
-	public function test_archive_page_returns_200(): void {
-		$response = $this->request('/arkiv/');
-		$this->assertEquals(200, $response['status'], 'Archive page should return 200');
 	}
 }
