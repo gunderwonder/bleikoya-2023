@@ -24,6 +24,9 @@
     "scripts": {
         "test": "phpunit",
         "test:unit": "phpunit --testsuite Unit",
-        "test:integration": "TEST_TYPE=integration phpunit --testsuite Integration"
+        "test:integration": "TEST_TYPE=integration phpunit --testsuite Integration",
+        "test:health": "phpunit --testsuite HealthCheck",
+        "test:health:core": "phpunit --testsuite HealthCheck --group core",
+        "test:health:prod": "SITE_URL=https://bleikoya.net phpunit --testsuite HealthCheck --group core"
     }
 }
