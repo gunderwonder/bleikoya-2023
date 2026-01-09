@@ -2,10 +2,17 @@
 <?php $is_local = wp_get_environment_type() === 'local'; ?>
 <?php $env_color = $is_local ? '#3769a0' : '#b93e3c'; ?>
 <?php $favicon_suffix = $is_local ? '-dev' : ''; ?>
-<html class="no-js" lang="no-nb">
+<html class="no-js" lang="no-nb" style="background-color: <?php echo $env_color; ?>">
 <head>
 	<meta charset="utf-8">
-	<meta name="theme-color" content="<?php echo $env_color; ?>">
+	<!-- theme-color removed: Safari auto-detects from fixed header stripe -->
+	<!-- <meta name="theme-color" content="<?php echo $env_color; ?>"> -->
+	<script>
+		// Enable view transitions only for non-Safari (Safari has theme-color flash bug)
+		if (!/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+			document.write('<style>@view-transition{navigation:auto}</style>');
+		}
+	</script>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<meta name="description" content="<?php if (is_single()) {

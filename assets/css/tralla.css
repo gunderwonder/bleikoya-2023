@@ -1,14 +1,17 @@
 /* #region View Transitions */
-@view-transition {
-	navigation: auto;
+/* View transitions added via JS for non-Safari browsers */
+
+/* Header stripe: instant transition (no crossfade) to prevent Safari color sampling */
+.b-header-stripe {
+	view-transition-name: header-stripe;
 }
 
-/* Exclude html, body and header from transitions to prevent Safari theme-color flash */
-html, body, .b-header-stripe, .b-navigation {
-	view-transition-name: none;
+::view-transition-old(header-stripe),
+::view-transition-new(header-stripe) {
+	animation-duration: 0s;
 }
 
-/* Named view transitions for specific elements */
+/* Calendar grid: named transition for AJAX navigation */
 .b-month-grid {
 	view-transition-name: calendar-grid;
 }
@@ -18,7 +21,6 @@ html, body, .b-header-stripe, .b-navigation {
 	animation-duration: 0.3s;
 }
 
-/* Crossfade for calendar */
 ::view-transition-old(calendar-grid) {
 	animation: fade-out 0.15s ease-out forwards;
 }
@@ -38,7 +40,6 @@ html, body, .b-header-stripe, .b-navigation {
 	to { opacity: 1; }
 }
 
-/* Prevent layout shift during transitions */
 ::view-transition-group(calendar-grid) {
 	overflow: hidden;
 }
