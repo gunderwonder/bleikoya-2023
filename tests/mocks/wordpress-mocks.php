@@ -442,3 +442,73 @@ function esc_attr($text) {
 function esc_url($url) {
     return filter_var($url, FILTER_SANITIZE_URL);
 }
+
+// === Type Check Functions ===
+
+function taxonomy_exists($taxonomy) {
+    return in_array($taxonomy, ['category', 'post_tag', 'gruppe'], true);
+}
+
+function post_type_exists($post_type) {
+    return in_array($post_type, ['post', 'page', 'kartpunkt', 'tribe_events', 'link'], true);
+}
+
+// === Utility Functions ===
+
+function wp_parse_args($args, $defaults = []) {
+    if (is_object($args)) {
+        $args = get_object_vars($args);
+    } elseif (is_string($args)) {
+        parse_str($args, $args);
+    }
+    if (!is_array($args)) {
+        $args = [];
+    }
+    return array_merge($defaults, $args);
+}
+
+function __($text, $domain = 'default') {
+    return $text;
+}
+
+function esc_html__($text, $domain = 'default') {
+    return esc_html($text);
+}
+
+function delete_term_meta($term_id, $key, $value = '') {
+    global $mock_term_meta;
+
+    if (!isset($mock_term_meta[$term_id][$key])) {
+        return false;
+    }
+
+    if ($value === '') {
+        unset($mock_term_meta[$term_id][$key]);
+    } else {
+        $mock_term_meta[$term_id][$key] = array_filter(
+            $mock_term_meta[$term_id][$key],
+            fn($v) => $v !== $value
+        );
+    }
+
+    return true;
+}
+
+function delete_user_meta($user_id, $key, $value = '') {
+    global $mock_user_meta;
+
+    if (!isset($mock_user_meta[$user_id][$key])) {
+        return false;
+    }
+
+    if ($value === '') {
+        unset($mock_user_meta[$user_id][$key]);
+    } else {
+        $mock_user_meta[$user_id][$key] = array_filter(
+            $mock_user_meta[$user_id][$key],
+            fn($v) => $v !== $value
+        );
+    }
+
+    return true;
+}

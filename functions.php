@@ -24,6 +24,16 @@ require 'includes/admin/dashboard.php';
 require 'includes/admin/users.php';
 require 'includes/admin/category-aliases.php';
 
+// Generalized bidirectional connection system
+require 'includes/connections/class-connection-registry.php';
+require 'includes/connections/class-connection-store.php';
+require 'includes/connections/class-connection-manager.php';
+require 'includes/connections/helpers.php';
+require 'includes/connections/rest-endpoints.php';
+require 'includes/admin/connections/class-meta-box.php';
+require 'includes/admin/connections/class-term-ui.php';
+require 'includes/connections/init.php';
+
 // Location (kartpunkt) custom post type and related functionality
 require 'includes/post-types/location.php';
 

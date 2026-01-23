@@ -1,0 +1,368 @@
+/**
+ * Bleikoya Connections Admin Styles
+ *
+ * Styles for the reusable connection manager UI.
+ *
+ * @package Bleikoya
+ */
+
+/* ==========================================================================
+   Manager Container
+   ========================================================================== */
+
+.bleikoya-connections-manager {
+	position: relative;
+}
+
+/* ==========================================================================
+   Search Section
+   ========================================================================== */
+
+.bleikoya-connection-search-wrapper {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.bleikoya-connection-search {
+	flex: 1;
+	min-width: 0;
+}
+
+.bleikoya-connection-type-filter {
+	flex-shrink: 0;
+	max-width: 140px;
+}
+
+/* ==========================================================================
+   Results Dropdown
+   ========================================================================== */
+
+.bleikoya-connection-results {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	z-index: 100;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	max-height: 300px;
+	overflow-y: auto;
+	display: none;
+	margin-top: 4px;
+}
+
+.bleikoya-connection-results.is-visible {
+	display: block;
+}
+
+/* Loading state */
+.bleikoya-connection-loading {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px;
+	color: #666;
+}
+
+.bleikoya-connection-loading .spinner {
+	float: none;
+	margin: 0;
+}
+
+/* No results */
+.bleikoya-connection-no-results {
+	padding: 12px;
+	color: #666;
+	text-align: center;
+}
+
+/* Error */
+.bleikoya-connection-error {
+	padding: 12px;
+	color: #d63638;
+	text-align: center;
+}
+
+/* ==========================================================================
+   Result Item
+   ========================================================================== */
+
+.bleikoya-connection-result-item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	border-bottom: 1px solid #eee;
+	transition: background-color 0.15s;
+}
+
+.bleikoya-connection-result-item:last-child {
+	border-bottom: none;
+}
+
+.bleikoya-connection-result-item:hover {
+	background-color: #f6f7f7;
+}
+
+.bleikoya-connection-result-info {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.bleikoya-connection-result-title {
+	font-weight: 500;
+	color: #1d2327;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bleikoya-connection-result-desc {
+	font-size: 12px;
+	color: #666;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bleikoya-connection-add-btn {
+	flex-shrink: 0;
+	padding: 4px 8px !important;
+	min-height: auto !important;
+	line-height: 1 !important;
+}
+
+.bleikoya-connection-add-btn .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+/* ==========================================================================
+   Thumbnail
+   ========================================================================== */
+
+.bleikoya-connection-thumbnail {
+	width: 32px;
+	height: 32px;
+	border-radius: 4px;
+	object-fit: cover;
+	flex-shrink: 0;
+}
+
+/* User avatars are circular */
+.bleikoya-connection-result-item[data-type="user"] .bleikoya-connection-thumbnail,
+.bleikoya-connection-item[data-type="user"] .bleikoya-connection-thumbnail {
+	border-radius: 50%;
+}
+
+/* ==========================================================================
+   Type Badge
+   ========================================================================== */
+
+.bleikoya-connection-type-badge {
+	display: inline-block;
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	padding: 2px 6px;
+	border-radius: 3px;
+	background: #f0f0f1;
+	color: #50575e;
+	margin-right: 6px;
+	vertical-align: middle;
+}
+
+/* Type-specific colors */
+.bleikoya-connection-type-badge--post {
+	background: #fcf0f1;
+	color: #a00;
+}
+
+.bleikoya-connection-type-badge--page {
+	background: #f0f6fc;
+	color: #0073aa;
+}
+
+.bleikoya-connection-type-badge--tribe_events {
+	background: #fef8ee;
+	color: #996800;
+}
+
+.bleikoya-connection-type-badge--user {
+	background: #edf7ed;
+	color: #006600;
+}
+
+.bleikoya-connection-type-badge--category {
+	background: #f0f0f1;
+	color: #50575e;
+}
+
+.bleikoya-connection-type-badge--kartpunkt {
+	background: #f0f6fc;
+	color: #0073aa;
+}
+
+/* ==========================================================================
+   Connection List
+   ========================================================================== */
+
+.bleikoya-connection-list-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid #ddd;
+}
+
+.bleikoya-connection-list-title {
+	font-weight: 600;
+	color: #1d2327;
+	margin: 0;
+}
+
+.bleikoya-connection-count {
+	background: #f0f0f1;
+	color: #50575e;
+	font-size: 11px;
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 10px;
+}
+
+.bleikoya-connection-list {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+/* Empty state */
+.bleikoya-connection-empty {
+	padding: 16px;
+	text-align: center;
+	color: #666;
+	background: #f9f9f9;
+	border-radius: 4px;
+}
+
+/* ==========================================================================
+   List Item
+   ========================================================================== */
+
+.bleikoya-connection-item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 10px;
+	background: #f9f9f9;
+	border-radius: 4px;
+	transition: background-color 0.15s, opacity 0.2s, transform 0.2s;
+}
+
+.bleikoya-connection-item:hover {
+	background: #f0f0f1;
+}
+
+.bleikoya-connection-item-info {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+
+.bleikoya-connection-item-title {
+	color: #2271b1;
+	text-decoration: none;
+	font-weight: 500;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bleikoya-connection-item-title:hover {
+	color: #135e96;
+	text-decoration: underline;
+}
+
+.bleikoya-connection-remove-btn {
+	flex-shrink: 0;
+	padding: 2px 6px !important;
+	min-height: auto !important;
+	line-height: 1 !important;
+	color: #a00 !important;
+	border-color: transparent !important;
+	background: transparent !important;
+}
+
+.bleikoya-connection-remove-btn:hover {
+	color: #dc3232 !important;
+	background: rgba(220, 50, 50, 0.1) !important;
+}
+
+.bleikoya-connection-remove-btn .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+/* ==========================================================================
+   Term Edit Screen Specific
+   ========================================================================== */
+
+.form-field .bleikoya-connections-manager {
+	max-width: 500px;
+}
+
+.form-field .bleikoya-connection-results {
+	max-width: 500px;
+}
+
+/* ==========================================================================
+   Meta Box Specific
+   ========================================================================== */
+
+#side-sortables .bleikoya-connections-manager {
+	margin: -6px -12px;
+	padding: 12px;
+}
+
+#side-sortables .bleikoya-connection-search-wrapper {
+	flex-direction: column;
+}
+
+#side-sortables .bleikoya-connection-type-filter {
+	max-width: none;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media screen and (max-width: 782px) {
+	.bleikoya-connection-search-wrapper {
+		flex-direction: column;
+	}
+
+	.bleikoya-connection-type-filter {
+		max-width: none;
+	}
+
+	.bleikoya-connection-result-item {
+		padding: 12px;
+	}
+
+	.bleikoya-connection-item {
+		padding: 10px 12px;
+	}
+}
