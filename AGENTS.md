@@ -237,6 +237,31 @@ This project has Chrome DevTools MCP configured for browser-based debugging and 
 - `mcp__chrome-devtools__list_console_messages` - View JS console output
 - `mcp__chrome-devtools__evaluate_script` - Run JavaScript in page context
 
+## Skills
+
+Custom skills are available in `.claude/skills/`:
+
+| Skill | Command | Description |
+|-------|---------|-------------|
+| **wp-search** | `/wp-search <query>` | Search bleikoya.net content via WP-CLI |
+| **ship** | `/ship` | Commit and push changes |
+| **obsidian** | `/obsidian` | Save to Obsidian vault |
+
+### wp-search
+
+Searches WordPress content including private posts and ACF metadata. Uses WP-CLI for direct database access.
+
+**Example usage:**
+```
+/wp-search vedtekter
+/wp-search dugnad regler
+```
+
+**Key categories with documentation:**
+- `dugnad` (ID: 56) - Volunteer work rules
+- `vedtekter` (ID: 61) - Bylaws
+- `styret` (ID: 47) - Board information
+
 ## Important Notes
 - iCal feed includes all upcoming featured events
 - Rewrite rules require flush after theme activation (`wp rewrite flush`)

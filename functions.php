@@ -32,6 +32,7 @@ require 'includes/post-types/link.php';
 require 'includes/api/location-connections.php';
 require 'includes/api/location-coordinates.php';
 require 'includes/api/location-rest-endpoints.php';
+require 'includes/api/content-search.php';
 require 'includes/admin/location-meta-boxes.php';
 require 'includes/admin/connected-locations-meta-box.php';
 require 'includes/admin/location-ajax.php';
