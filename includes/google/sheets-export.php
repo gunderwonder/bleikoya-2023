@@ -447,6 +447,14 @@ function export_dugnad_sheet() {
 					],
 				],
 			]),
+			// Add Aktivitetstyper sheet
+			new Sheets\Request([
+				'addSheet' => [
+					'properties' => [
+						'title' => 'Aktivitetstyper',
+					],
+				],
+			]),
 		];
 
 		$batch_update = new Sheets\BatchUpdateSpreadsheetRequest([
@@ -485,7 +493,7 @@ function export_dugnad_sheet() {
 		);
 
 		// === Sheet 2: Dugnad ===
-		$dugnad_headers = ['Hytte', 'Navn', 'Dugnad (6t)', 'Strandrydding (2t)', 'Overført', 'Totalt', 'Saldo', 'Unntak', 'Merknad'];
+		$dugnad_headers = ['Hytte', 'Navn', 'Dugnad', 'Strandrydding', 'Annet', 'Overført', 'Totalt', 'Saldo', 'Fritak', 'Styret', 'Merknad'];
 		$dugnad_rows = [$dugnad_headers];
 
 		$row_num = 2; // Starting row for formulas (1-indexed, after header)
@@ -498,21 +506,26 @@ function export_dugnad_sheet() {
 			// Aktivitetslogg columns: A=Dato, B=Hytte, C=Aktivitet, D=Timer, E=Merknad
 			$dugnad_formula = "=SUMIFS(Aktivitetslogg!\$D:\$D,Aktivitetslogg!\$B:\$B,A{$row_num},Aktivitetslogg!\$C:\$C,\"Dugnad\")";
 			$strandrydding_formula = "=SUMIFS(Aktivitetslogg!\$D:\$D,Aktivitetslogg!\$B:\$B,A{$row_num},Aktivitetslogg!\$C:\$C,\"Strandrydding\")";
+			// Annet: sum hours where activity is neither Dugnad nor Strandrydding
+			$annet_formula = "=SUMIFS(Aktivitetslogg!\$D:\$D,Aktivitetslogg!\$B:\$B,A{$row_num},Aktivitetslogg!\$C:\$C,\"<>Dugnad\",Aktivitetslogg!\$C:\$C,\"<>Strandrydding\",Aktivitetslogg!\$C:\$C,\"<>\")";
 
 			// Formulas for calculated columns (Totalt, Saldo)
-			$total_formula = "=C{$row_num}+D{$row_num}+E{$row_num}";
-			$saldo_formula = "=F{$row_num}-8";
+			// Columns: C=Dugnad, D=Strandrydding, E=Annet, F=Overført, G=Totalt, H=Saldo
+			$total_formula = "=C{$row_num}+D{$row_num}+E{$row_num}+F{$row_num}";
+			$saldo_formula = "=G{$row_num}-8";
 
 			$dugnad_rows[] = [
 				$cabin,
 				$name,
-				$dugnad_formula,      // Sum from Aktivitetslogg
-				$strandrydding_formula, // Sum from Aktivitetslogg
-				$carryover_hours, // Overført
-				$total_formula,
-				$saldo_formula,
-				'', // Unntak (checkbox)
-				'', // Merknad
+				$dugnad_formula,        // C: Sum from Aktivitetslogg for Dugnad
+				$strandrydding_formula, // D: Sum from Aktivitetslogg for Strandrydding
+				$annet_formula,         // E: Sum from Aktivitetslogg for other activities
+				$carryover_hours,       // F: Overført
+				$total_formula,         // G: Totalt
+				$saldo_formula,         // H: Saldo
+				'',                     // I: Fritak (checkbox)
+				'',                     // J: Styret (checkbox)
+				'',                     // K: Merknad
 			];
 			$row_num++;
 		}
@@ -536,6 +549,21 @@ function export_dugnad_sheet() {
 			['valueInputOption' => 'RAW']
 		);
 
+		// === Sheet 5: Aktivitetstyper ===
+		// Defines activity types and their default hours
+		$aktivitetstyper_rows = [
+			['Aktivitet', 'Timer'],
+			['Dugnad', 6],
+			['Strandrydding', 2],
+		];
+
+		$sheets_service->spreadsheets_values->update(
+			$spreadsheet_id,
+			'Aktivitetstyper!A1',
+			new Sheets\ValueRange(['values' => $aktivitetstyper_rows]),
+			['valueInputOption' => 'RAW']
+		);
+
 		// === Sheet 4: Kassererrapport ===
 		$report_headers = ['Hytte', 'Navn', 'Epost', 'Manglende timer', 'Gebyr'];
 		$report_rows = [$report_headers];
@@ -543,16 +571,18 @@ function export_dugnad_sheet() {
 		$row_num = 2;
 		foreach ($user_data as $user) {
 			// Formula to pull data from Dugnad sheet and calculate fees
-			// Only show if Saldo < 0 and no exemption
+			// Only show if Saldo < 0 and no exemption (Fritak or Styret)
+			// Column references: A=Hytte, B=Navn, H=Saldo, I=Fritak, J=Styret
 			$hytte_ref = "Dugnad!A{$row_num}";
 			$navn_ref = "Dugnad!B{$row_num}";
-			$saldo_ref = "Dugnad!G{$row_num}";
-			$unntak_ref = "Dugnad!H{$row_num}";
+			$saldo_ref = "Dugnad!H{$row_num}";
+			$fritak_ref = "Dugnad!I{$row_num}";
+			$styret_ref = "Dugnad!J{$row_num}";
 
-			// Manglende timer: show negative saldo as positive, or 0 if exempt
-			$missing_formula = "=IF(OR({$unntak_ref}=TRUE,{$saldo_ref}>=0),0,ABS({$saldo_ref}))";
+			// Manglende timer: show negative saldo as positive, or 0 if exempt (Fritak or Styret)
+			$missing_formula = "=IF(OR({$fritak_ref}=TRUE,{$styret_ref}=TRUE,{$saldo_ref}>=0),0,ABS({$saldo_ref}))";
 			// Gebyr: 500 kr per missing hour
-			$fee_formula = "=IF(OR({$unntak_ref}=TRUE,{$saldo_ref}>=0),0,ABS({$saldo_ref})*500)";
+			$fee_formula = "=IF(OR({$fritak_ref}=TRUE,{$styret_ref}=TRUE,{$saldo_ref}>=0),0,ABS({$saldo_ref})*500)";
 
 			$report_rows[] = [
 				"={$hytte_ref}",
@@ -617,8 +647,9 @@ function export_dugnad_sheet() {
 		$dugnad_sheet_id = $sheet_ids[1] ?? 1;
 		$aktivitetslogg_sheet_id = $sheet_ids[2] ?? 2;
 		$kasserer_sheet_id = $sheet_ids[3] ?? 3;
+		$aktivitetstyper_sheet_id = $sheet_ids[4] ?? 4;
 
-		// Dugnad sheet: Conditional formatting for Saldo column (G)
+		// Dugnad sheet: Conditional formatting for Saldo column (H)
 		// Red for negative, green for positive
 		$requests[] = new Sheets\Request([
 			'addConditionalFormatRule' => [
@@ -628,8 +659,8 @@ function export_dugnad_sheet() {
 							'sheetId' => $dugnad_sheet_id,
 							'startRowIndex' => 1,
 							'endRowIndex' => $num_users + 1,
-							'startColumnIndex' => 6, // Column G (0-indexed)
-							'endColumnIndex' => 7,
+							'startColumnIndex' => 7, // Column H (0-indexed)
+							'endColumnIndex' => 8,
 						],
 					],
 					'booleanRule' => [
@@ -658,8 +689,8 @@ function export_dugnad_sheet() {
 							'sheetId' => $dugnad_sheet_id,
 							'startRowIndex' => 1,
 							'endRowIndex' => $num_users + 1,
-							'startColumnIndex' => 6,
-							'endColumnIndex' => 7,
+							'startColumnIndex' => 7,
+							'endColumnIndex' => 8,
 						],
 					],
 					'booleanRule' => [
@@ -680,15 +711,15 @@ function export_dugnad_sheet() {
 			],
 		]);
 
-		// Dugnad sheet: Add checkbox for Unntak column (H)
+		// Dugnad sheet: Add checkbox for Fritak (I) and Styret (J) columns
 		$requests[] = new Sheets\Request([
 			'repeatCell' => [
 				'range' => [
 					'sheetId' => $dugnad_sheet_id,
 					'startRowIndex' => 1,
 					'endRowIndex' => $num_users + 1,
-					'startColumnIndex' => 7, // Column H
-					'endColumnIndex' => 8,
+					'startColumnIndex' => 8, // Column I (Fritak)
+					'endColumnIndex' => 10,  // Through Column J (Styret)
 				],
 				'cell' => [
 					'dataValidation' => [
@@ -723,22 +754,21 @@ function export_dugnad_sheet() {
 			],
 		]);
 
-		// Aktivitetslogg: Data validation for Aktivitet column (dropdown)
+		// Aktivitetslogg: Data validation for Aktivitet column (dropdown from Aktivitetstyper sheet)
 		$requests[] = new Sheets\Request([
 			'setDataValidation' => [
 				'range' => [
 					'sheetId' => $aktivitetslogg_sheet_id,
 					'startRowIndex' => 1,
 					'endRowIndex' => 500,
-					'startColumnIndex' => 2, // Column C (Aktivitet) - was D before removing Navn
+					'startColumnIndex' => 2, // Column C (Aktivitet)
 					'endColumnIndex' => 3,
 				],
 				'rule' => [
 					'condition' => [
-						'type' => 'ONE_OF_LIST',
+						'type' => 'ONE_OF_RANGE',
 						'values' => [
-							['userEnteredValue' => 'Dugnad'],
-							['userEnteredValue' => 'Strandrydding'],
+							['userEnteredValue' => '=Aktivitetstyper!$A$2:$A$100'],
 						],
 					],
 					'showCustomUi' => true,
@@ -787,11 +817,11 @@ function export_dugnad_sheet() {
 			],
 		]);
 
-		// Aktivitetslogg: Timer column with formula based on Aktivitet (C)
-		// Pre-fill rows 2-500 with formula: =IF(C2="Strandrydding",2,IF(C2="Dugnad",6,""))
+		// Aktivitetslogg: Timer column with VLOOKUP from Aktivitetstyper
+		// Pre-fill rows 2-500 with formula that looks up hours from Aktivitetstyper sheet
 		$timer_formulas = [];
 		for ($row = 2; $row <= 500; $row++) {
-			$timer_formulas[] = ["=IF(C{$row}=\"Strandrydding\",2,IF(C{$row}=\"Dugnad\",6,\"\"))"];
+			$timer_formulas[] = ["=IFERROR(VLOOKUP(C{$row},Aktivitetstyper!\$A:\$B,2,FALSE),\"\")"];
 		}
 		$sheets_service->spreadsheets_values->update(
 			$spreadsheet_id,
@@ -801,8 +831,8 @@ function export_dugnad_sheet() {
 		);
 
 		// Set specific column widths for Dugnad sheet
-		// Columns: Hytte(60), Navn(150), Dugnad(80), Strandrydding(100), Overført(80), Totalt(60), Saldo(60), Unntak(60), Merknad(250)
-		$dugnad_widths = [60, 150, 80, 100, 80, 60, 60, 60, 250];
+		// Columns: Hytte(60), Navn(150), Dugnad(80), Strandrydding(100), Annet(60), Overført(80), Totalt(60), Saldo(60), Fritak(60), Styret(60), Merknad(250)
+		$dugnad_widths = [60, 150, 80, 100, 60, 80, 60, 60, 60, 60, 250];
 		foreach ($dugnad_widths as $col_index => $width) {
 			$requests[] = new Sheets\Request([
 				'updateDimensionProperties' => [
@@ -828,6 +858,26 @@ function export_dugnad_sheet() {
 				'updateDimensionProperties' => [
 					'range' => [
 						'sheetId' => $aktivitetslogg_sheet_id,
+						'dimension' => 'COLUMNS',
+						'startIndex' => $col_index,
+						'endIndex' => $col_index + 1,
+					],
+					'properties' => [
+						'pixelSize' => $width,
+					],
+					'fields' => 'pixelSize',
+				],
+			]);
+		}
+
+		// Set specific column widths for Aktivitetstyper sheet
+		// Columns: Aktivitet(150), Timer(80)
+		$aktivitetstyper_widths = [150, 80];
+		foreach ($aktivitetstyper_widths as $col_index => $width) {
+			$requests[] = new Sheets\Request([
+				'updateDimensionProperties' => [
+					'range' => [
+						'sheetId' => $aktivitetstyper_sheet_id,
 						'dimension' => 'COLUMNS',
 						'startIndex' => $col_index,
 						'endIndex' => $col_index + 1,
