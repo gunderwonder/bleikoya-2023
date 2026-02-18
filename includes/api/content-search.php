@@ -2,8 +2,10 @@
 /**
  * Content Search REST API
  *
- * Provides search functionality for posts, pages, and category documentation.
+ * Provides search functionality for posts, pages, events, and category documentation.
  * Designed for AI-assisted development workflows.
+ *
+ * When authenticated (e.g. via Application Password), private posts are included.
  */
 
 add_action('rest_api_init', function () {
@@ -21,7 +23,7 @@ add_action('rest_api_init', function () {
 				'required' => false,
 				'type' => 'string',
 				'default' => 'all',
-				'enum' => ['all', 'posts', 'categories', 'category'],
+				'enum' => ['all', 'posts', 'categories', 'category', 'events'],
 				'description' => 'Content type to search',
 			],
 			'category' => [
@@ -34,6 +36,16 @@ add_action('rest_api_init', function () {
 				'type' => 'integer',
 				'default' => 10,
 				'maximum' => 50,
+			],
+			'after' => [
+				'required' => false,
+				'type' => 'string',
+				'description' => 'Only events ending after this date (Y-m-d). Defaults to today for type=events.',
+			],
+			'before' => [
+				'required' => false,
+				'type' => 'string',
+				'description' => 'Only events starting before this date (Y-m-d).',
 			],
 		],
 	]);
@@ -53,12 +65,37 @@ function bleikoya_content_search($request) {
 
 	$results = [];
 
+	$post_statuses = bleikoya_search_post_statuses();
+
 	// Get specific category documentation
 	if ($type === 'category' && $category_slug) {
 		$term = get_term_by('slug', $category_slug, 'category');
 		if ($term) {
 			$results['category'] = bleikoya_get_category_data($term);
 		}
+		return new WP_REST_Response($results, 200);
+	}
+
+	// Search events specifically
+	if ($type === 'events') {
+		$event_args = [
+			'posts_per_page' => $limit,
+			'post_status' => $post_statuses,
+		];
+
+		$after = $request->get_param('after');
+		$before = $request->get_param('before');
+		$event_args['ends_after'] = $after ?: 'now';
+		if ($before) {
+			$event_args['starts_before'] = $before;
+		}
+		if (!empty($query)) {
+			$event_args['s'] = $query;
+		}
+
+		$events = tribe_get_events($event_args);
+		$results['events'] = array_map('bleikoya_format_event_result', $events);
+		$results['meta'] = bleikoya_search_meta();
 		return new WP_REST_Response($results, 200);
 	}
 
@@ -84,29 +121,35 @@ function bleikoya_content_search($request) {
 		$results['categories'] = $category_results;
 	}
 
-	// Search posts and pages
+	// Search posts, pages, and events
 	if (($type === 'all' || $type === 'posts') && !empty($query)) {
 		$posts = get_posts([
 			's' => $query,
-			'post_type' => ['post', 'page'],
-			'post_status' => 'publish',
+			'post_type' => ['post', 'page', 'tribe_events'],
+			'post_status' => $post_statuses,
 			'posts_per_page' => $limit,
 		]);
 
 		$post_results = [];
 		foreach ($posts as $post) {
-			$post_results[] = [
-				'id' => $post->ID,
-				'title' => $post->post_title,
-				'type' => $post->post_type,
-				'url' => get_permalink($post->ID),
-				'excerpt' => bleikoya_get_search_excerpt($post->post_content, $query),
-				'date' => $post->post_date,
-			];
+			if ($post->post_type === 'tribe_events') {
+				$post_results[] = bleikoya_format_event_result($post);
+			} else {
+				$post_results[] = [
+					'id' => $post->ID,
+					'title' => $post->post_title,
+					'type' => $post->post_type,
+					'status' => $post->post_status,
+					'url' => get_permalink($post->ID),
+					'excerpt' => bleikoya_get_search_excerpt($post->post_content, $query),
+					'date' => $post->post_date,
+				];
+			}
 		}
 		$results['posts'] = $post_results;
 	}
 
+	$results['meta'] = bleikoya_search_meta();
 	return new WP_REST_Response($results, 200);
 }
 
@@ -140,6 +183,52 @@ function bleikoya_get_category_data($term, $include_excerpt = false) {
 	}
 
 	return $data;
+}
+
+/**
+ * Determine which post statuses to include based on current user capabilities.
+ *
+ * @return string[]
+ */
+function bleikoya_search_post_statuses(): array {
+	$statuses = ['publish'];
+	if (current_user_can('read_private_posts')) {
+		$statuses[] = 'private';
+	}
+	return $statuses;
+}
+
+/**
+ * Response metadata indicating authentication state.
+ *
+ * @return array
+ */
+function bleikoya_search_meta(): array {
+	return [
+		'authenticated' => is_user_logged_in(),
+		'includes_private' => current_user_can('read_private_posts'),
+	];
+}
+
+/**
+ * Format an event post for the search response.
+ *
+ * @param WP_Post $event
+ * @return array
+ */
+function bleikoya_format_event_result($event): array {
+	return [
+		'id' => $event->ID,
+		'title' => $event->post_title,
+		'type' => 'tribe_events',
+		'status' => $event->post_status,
+		'url' => get_permalink($event->ID),
+		'date' => $event->post_date,
+		'start_date' => tribe_get_start_date($event->ID, true, 'Y-m-d H:i:s'),
+		'end_date' => tribe_get_end_date($event->ID, true, 'Y-m-d H:i:s'),
+		'venue' => tribe_get_venue($event->ID),
+		'all_day' => tribe_event_is_all_day($event->ID),
+	];
 }
 
 /**

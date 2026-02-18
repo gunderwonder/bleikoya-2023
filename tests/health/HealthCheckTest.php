@@ -252,6 +252,35 @@ class HealthCheckTest extends TestCase {
 	}
 
 	// =========================================================================
+	// Content Search API (@group feature)
+	// =========================================================================
+
+	/**
+	 * @group feature
+	 */
+	public function test_content_search_api_returns_200(): void {
+		$response = $this->request('/wp-json/bleikoya/v1/search?q=bleikoya');
+		$this->assertEquals(200, $response['status'], 'Content search API should return 200');
+
+		$json = json_decode($response['body'], true);
+		$this->assertIsArray($json, 'Search response should be valid JSON');
+		$this->assertArrayHasKey('meta', $json, 'Response should include meta');
+		$this->assertFalse($json['meta']['includes_private'], 'Unauthenticated should not include private');
+	}
+
+	/**
+	 * @group feature
+	 */
+	public function test_events_search_returns_200(): void {
+		$response = $this->request('/wp-json/bleikoya/v1/search?type=events');
+		$this->assertEquals(200, $response['status'], 'Events search should return 200');
+
+		$json = json_decode($response['body'], true);
+		$this->assertIsArray($json, 'Events search should return valid JSON');
+		$this->assertArrayHasKey('events', $json, 'Events search should have events key');
+	}
+
+	// =========================================================================
 	// Style Guide (@group feature)
 	// =========================================================================
 
