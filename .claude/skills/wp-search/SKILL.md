@@ -45,13 +45,14 @@ curl -s "https://bleikoya.net/wp-json/bleikoya/v1/search?type=events&after=2024-
 
 ## Authentication (for private content)
 
-Many posts (meeting minutes, board documents, innkallinger) are private. To include them, authenticate with a WordPress Application Password:
+Many posts (meeting minutes, board documents, innkallinger) are private. To include them, authenticate using credentials from `.env`:
 
 ```bash
-curl -s -u "username:xxxx xxxx xxxx xxxx xxxx xxxx" "https://bleikoya.net/wp-json/bleikoya/v1/search?q=referat" | jq '.'
+export $(grep "^PRODUCTION_" .env | xargs)
+curl -s -u "$PRODUCTION_USER:$PRODUCTION_APPLICATION_PASSWORD" "https://bleikoya.net/wp-json/bleikoya/v1/search?q=referat" | jq '.'
 ```
 
-The `meta.includes_private` field in the response indicates whether private posts are included. Without authentication, only published content is returned.
+**Always authenticate** when searching for meeting minutes (referater), board documents, or other internal content. The `meta.includes_private` field in the response confirms whether private posts are included — if it's `false`, you need to authenticate.
 
 ## API Parameters
 
@@ -77,13 +78,18 @@ The `meta.includes_private` field in the response indicates whether private post
 
 ## Instructions
 
-1. Start by searching for the relevant category if looking for rules
-2. Use `type=category&category=<slug>` for full documentation
-3. Use `q=<keyword>` to search across all content (posts, pages, and events)
-4. Use `type=events` for dedicated event search with date filtering
-5. Use `type=events&after=YYYY-01-01&before=YYYY-12-31` for historical events
-6. Parse the JSON response and summarize relevant findings
-7. Check `meta.includes_private` to know if private content is included
+1. **Always authenticate** by loading credentials from `.env` before making requests:
+   ```bash
+   export $(grep "^PRODUCTION_" .env | xargs)
+   ```
+   Then add `-u "$PRODUCTION_USER:$PRODUCTION_APPLICATION_PASSWORD"` to all curl commands.
+2. Start by searching for the relevant category if looking for rules
+3. Use `type=category&category=<slug>` for full documentation
+4. Use `q=<keyword>` to search across all content (posts, pages, and events)
+5. Use `type=events` for dedicated event search with date filtering
+6. Use `type=events&after=YYYY-01-01&before=YYYY-12-31` for historical events
+7. Parse the JSON response and summarize relevant findings
+8. Verify `meta.includes_private` is `true` — if not, authentication failed
 
 ## Response Format
 
