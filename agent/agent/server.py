@@ -193,9 +193,10 @@ def _build_prompt(messages: list[dict]) -> str:
     )
 
 
-# Serve static files (chat UI) — must be mounted last so /chat route takes priority
-static_dir = Path(__file__).parent.parent / "static"
-app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+# Serve static files (chat UI) in local dev only — production uses WordPress page template
+if not IS_PRODUCTION:
+    static_dir = Path(__file__).parent.parent / "static"
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
 
 
 def main():
