@@ -44,7 +44,7 @@ get_header();
 .chat-page { max-width: 42rem; margin: 2rem auto; padding: 0 1rem; }
 .chat-page .chat { height: min(50rem, calc(100dvh - 12rem)); }
 /* Hide site chrome on agent page */
-.b-header, .b-navigation, .b-bleikoya-map, .b-cabin-gallery, .b-footer { display: none; }
+.b-header-stripe, .b-header, .b-navigation, .b-bleikoya-map, .b-cabin-gallery, .b-footer { display: none !important; }
 </style>
 
 <div class="chat-page">
