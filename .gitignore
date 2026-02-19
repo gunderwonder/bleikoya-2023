@@ -7,6 +7,10 @@ secrets/
 *.credentials.json
 vendor/
 
+# Python agent
+agent/.venv/
+agent/.env
+
 # PHPUnit
 .phpunit.cache/
 tests/coverage/
