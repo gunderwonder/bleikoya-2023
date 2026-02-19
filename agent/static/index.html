@@ -3,25 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bleikøya Søkeassistent</title>
+    <title>Bleikøya-agenten</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600&family=Libre+Franklin:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600&family=Libre+Franklin:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/chat.css">
 </head>
 <body>
     <div class="chat">
         <header class="chat__header">
-            <h1 class="chat__title">Bleikøya Søkeassistent</h1>
-            <p class="chat__subtitle">Spor meg om noe fra nettsiden</p>
+            <img class="chat__logo" src="/b-logo.png" alt="Bleikøya Velforening">
+            <div>
+                <h1 class="chat__title">Bleikøya-agenten</h1>
+                <p class="chat__subtitle">Søkeassistent for styret</p>
+            </div>
         </header>
         <div class="chat__messages" id="messages">
             <div class="chat__message chat__message--assistant">
-                <div class="chat__bubble">Hei! Jeg kan hjelpe deg med å finne informasjon på bleikoya.net. Hva lurer du på?</div>
+                <div class="chat__bubble">
+                    <p>Hei! Jeg er styrets søkeassistent. Jeg kan hjelpe deg med å finne informasjon fra nettsiden og dokumentarkivet i Google Drive.</p>
+                    <p>Prøv for eksempel:</p>
+                    <ul>
+                        <li>Hva er gjeldende vedtekter?</li>
+                        <li>Oppsummer siste styremøte</li>
+                        <li>Finn avtalen med vaktmesteren</li>
+                    </ul>
+                </div>
             </div>
         </div>
         <form class="chat__form" id="form">
-            <input class="chat__input" id="input" type="text" placeholder="Skriv et spørsmål..." autocomplete="off">
+            <input class="chat__input" id="input" type="text" placeholder="Spor meg om noe..." autocomplete="off">
             <button class="chat__send" type="submit">Send</button>
         </form>
     </div>

@@ -25,8 +25,10 @@
         input.value = '';
         setInputEnabled(false);
 
-        var bubbleEl = appendMessage('assistant', '');
+        var bubbleEl = null;
         var streamedText = '';
+        var fullText = '';
+        var needNewBubble = true;
 
         try {
             var response = await fetch('/chat', {
@@ -61,15 +63,28 @@
                         var data = JSON.parse(line.substring(6));
 
                         if (eventType === 'text') {
+                            if (needNewBubble) {
+                                hideSearching();
+                                bubbleEl = appendMessage('assistant', '');
+                                streamedText = '';
+                                needNewBubble = false;
+                            }
                             streamedText += data.text;
+                            fullText += data.text;
                             bubbleEl.innerHTML = marked.parse(streamedText);
                             scrollToBottom();
                         } else if (eventType === 'tool_start') {
-                            showSearching();
+                            showSearching(data.tool, data.input);
                         } else if (eventType === 'tool_done') {
-                            hideSearching();
+                            // Don't hide indicators yet — keep them visible
+                            // until next text arrives. Just mark that a new
+                            // bubble should be created for the next text.
+                            needNewBubble = true;
                         } else if (eventType === 'error') {
                             hideSearching();
+                            if (!bubbleEl) {
+                                bubbleEl = appendMessage('assistant', '');
+                            }
                             bubbleEl.textContent = data.error;
                             bubbleEl.classList.add('chat__bubble--error');
                         }
@@ -81,12 +96,15 @@
             }
 
             hideSearching();
-            if (streamedText) {
-                messages.push({ role: 'assistant', content: streamedText });
+            if (fullText) {
+                messages.push({ role: 'assistant', content: fullText });
             }
         } catch (err) {
             console.error('Chat error:', err);
             hideSearching();
+            if (!bubbleEl) {
+                bubbleEl = appendMessage('assistant', '');
+            }
             bubbleEl.textContent = 'Beklager, noe gikk galt. Er agentserveren startet?';
             bubbleEl.classList.add('chat__bubble--error');
         }
@@ -111,11 +129,25 @@
         return bubble;
     }
 
-    function showSearching() {
-        if (messagesEl.querySelector('.chat__searching')) return;
+    function describeToolUse(toolName, input) {
+        switch (toolName) {
+            case 'mcp__wp__search':
+                return 'Søker på nettsiden' + (input.query ? ': \u00ab' + input.query + '\u00bb' : '');
+            case 'mcp__wp__get_post':
+                return 'Leser innlegg #' + (input.post_id || '');
+            case 'mcp__wp__drive_search':
+                return 'Søker i dokumentarkivet' + (input.query ? ': \u00ab' + input.query + '\u00bb' : '');
+            case 'mcp__wp__drive_read_doc':
+                return 'Leser dokument fra arkivet';
+            default:
+                return 'Arbeider';
+        }
+    }
+
+    function showSearching(toolName, input) {
         var el = document.createElement('div');
         el.className = 'chat__searching';
-        el.textContent = 'Søker på nettsiden\u2026';
+        el.textContent = describeToolUse(toolName, input || {}) + '\u2026';
         messagesEl.appendChild(el);
         scrollToBottom();
     }
