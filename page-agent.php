@@ -42,13 +42,22 @@ get_header();
 
 <link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/agent/static/chat.css?v=<?php echo bleikoya_asset_version('/agent/static/chat.css'); ?>">
 <style>
-/* Reset standalone chat styles — integrate with theme */
+/* Undo chat.css global resets that break theme layout */
+body {
+	display: block;
+	height: auto;
+	background: none;
+	align-items: initial;
+	justify-content: initial;
+}
+/* Reset standalone chat shell — integrate with theme */
 .chat {
 	width: 100%;
 	height: min(50rem, calc(100dvh - 14rem));
 	background: none;
 	border-radius: 0;
 	box-shadow: none;
+	overflow: visible;
 }
 .chat__form {
 	padding: 0.75rem 0;
