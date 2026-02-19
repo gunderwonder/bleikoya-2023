@@ -25,7 +25,7 @@ $token = '';
 if ($agent_auth_secret) {
 	$header = base64url_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
 	$payload = base64url_encode(json_encode([
-		'sub' => $current_user->ID,
+		'sub' => (string) $current_user->ID,
 		'name' => $current_user->display_name,
 		'iss' => 'bleikoya.net',
 		'iat' => time(),
