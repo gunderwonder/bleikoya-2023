@@ -39,7 +39,7 @@ IS_PRODUCTION = "FLY_APP_NAME" in os.environ
 
 app = FastAPI()
 
-allowed_origins = ["https://bleikoya.net"]
+allowed_origins = ["https://bleikoya.net", "https://www.bleikoya.net"]
 if not IS_PRODUCTION:
     allowed_origins.append("https://bleikoya.test")
 
