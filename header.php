@@ -71,6 +71,7 @@
 			<?php if (is_user_logged_in()) : ?>
 				<?php $queried_object = get_queried_object() ?>
 				<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'galleri' || (isset($queried_object->taxonomy) && $queried_object->taxonomy === 'gallery')) : ?>b-menu__link--active<?php endif; ?>" href="/galleri/" data-text="Bilder">Bilder</a></li>
+				<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'agent') : ?>b-menu__link--active<?php endif; ?>" href="/agent/" data-text="Agent">Agent</a></li>
 			<?php endif; ?>
 			<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'kontakt') : ?>b-menu__link--active<?php endif; ?>" href="/kontakt/" data-text="Kontakt">Kontakt</a></li>
 		</ul>

@@ -1,5 +1,6 @@
 """FastAPI server for the Bleikøya chat agent (Claude Agent SDK)."""
 
+import base64
 import json
 import os
 from collections.abc import AsyncIterator
@@ -22,6 +23,7 @@ from claude_agent_sdk import (
     ToolUseBlock,
 )
 
+from .auth import require_auth
 from .prompts import SYSTEM_PROMPT
 from .tools import configure as configure_tools, wp_mcp_server
 
@@ -33,22 +35,32 @@ load_dotenv(Path(__file__).parent.parent.parent / ".env")
 # from within Claude Code, the CLAUDECODE env var blocks nested sessions.
 os.environ.pop("CLAUDECODE", None)
 
+IS_PRODUCTION = "FLY_APP_NAME" in os.environ
+
 app = FastAPI()
+
+allowed_origins = ["https://bleikoya.net"]
+if not IS_PRODUCTION:
+    allowed_origins.append("https://bleikoya.test")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://bleikoya.test"],
+    allow_origins=allowed_origins,
     allow_methods=["POST", "OPTIONS"],
-    allow_headers=["Content-Type"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 WP_BASE_URL = os.environ.get("WP_BASE_URL", "https://bleikoya.test")
 WP_AUTH = (os.environ["WP_USER"], os.environ["WP_APPLICATION_PASSWORD"])
 MODEL = "claude-sonnet-4-5-20250929"
 
-# Resolve Google credentials path (relative to theme root or absolute)
+# Resolve Google credentials: base64 secret (fly.io) or file path (local)
 _google_creds = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "")
-if _google_creds.startswith("./"):
+if os.environ.get("GOOGLE_CREDENTIALS_BASE64"):
+    _creds_json = base64.b64decode(os.environ["GOOGLE_CREDENTIALS_BASE64"])
+    _google_creds = "/tmp/google-credentials.json"
+    Path(_google_creds).write_bytes(_creds_json)
+elif _google_creds.startswith("./"):
     _google_creds = str(Path(__file__).parent.parent.parent / _google_creds[2:])
 
 # Configure all MCP tool functions
@@ -81,6 +93,7 @@ async def _prompt_stream(text: str) -> AsyncIterator[dict]:
 
 @app.post("/chat")
 async def chat(request: Request):
+    require_auth(request)
     body = await request.json()
     user_messages = body.get("messages", [])
 
@@ -187,4 +200,9 @@ app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
 
 def main():
     import uvicorn
-    uvicorn.run("agent.server:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run(
+        "agent.server:app",
+        host="0.0.0.0" if IS_PRODUCTION else "127.0.0.1",
+        port=8000,
+        reload=not IS_PRODUCTION,
+    )

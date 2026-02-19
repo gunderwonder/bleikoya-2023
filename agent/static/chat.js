@@ -7,6 +7,11 @@
 (function () {
     'use strict';
 
+    // Configuration injected by WordPress page template (or empty for local dev)
+    var config = window.AGENT_CONFIG || {};
+    var BASE_URL = config.baseUrl || '';
+    var AUTH_TOKEN = config.token || '';
+
     var messages = []; // Conversation history sent to the API
 
     var form = document.getElementById('form');
@@ -31,9 +36,14 @@
         var needNewBubble = true;
 
         try {
-            var response = await fetch('/chat', {
+            var headers = { 'Content-Type': 'application/json' };
+            if (AUTH_TOKEN) {
+                headers['Authorization'] = 'Bearer ' + AUTH_TOKEN;
+            }
+
+            var response = await fetch(BASE_URL + '/chat', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify({ messages: messages }),
             });
 

@@ -56,6 +56,7 @@ dependencies = [
     { name = "google-api-python-client" },
     { name = "google-auth" },
     { name = "httpx" },
+    { name = "pyjwt" },
     { name = "python-dotenv" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -67,6 +68,7 @@ requires-dist = [
     { name = "google-api-python-client", specifier = ">=2.100.0" },
     { name = "google-auth", specifier = ">=2.25.0" },
     { name = "httpx", specifier = ">=0.28.0" },
+    { name = "pyjwt", specifier = ">=2.8.0" },
     { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.34.0" },
 ]

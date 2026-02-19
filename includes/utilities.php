@@ -17,6 +17,13 @@ function sc_is_xmlhttprequest() {
 		strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
 }
 
+/**
+ * Base64url encode (JWT-safe base64 without padding).
+ */
+function base64url_encode(string $data): string {
+	return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+}
+
 function array_flatten($array) {
 	$results = [];
 
