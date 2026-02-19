@@ -150,6 +150,9 @@ async def chat(request: Request):
                         seen_tool_ids.clear()
 
         except Exception as e:
+            import traceback, sys
+            traceback.print_exc(file=sys.stderr)
+            print(f"Chat error: {e!r}", file=sys.stderr, flush=True)
             yield sse("error", {"error": str(e)})
 
         if seen_tool_ids:
