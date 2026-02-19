@@ -16,8 +16,8 @@ if (!current_user_can('read_private_posts')) {
 	wp_die('Du har ikke tilgang til agenten.', 403);
 }
 
-$agent_auth_secret = getenv('AGENT_AUTH_SECRET') ?: '';
-$agent_base_url = rtrim(getenv('AGENT_BASE_URL') ?: '', '/');
+$agent_auth_secret = $_ENV['AGENT_AUTH_SECRET'] ?? $_SERVER['AGENT_AUTH_SECRET'] ?? '';
+$agent_base_url = rtrim($_ENV['AGENT_BASE_URL'] ?? $_SERVER['AGENT_BASE_URL'] ?? '', '/');
 $current_user = wp_get_current_user();
 
 // Generate JWT (HS256) for the current user
