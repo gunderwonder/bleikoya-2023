@@ -43,8 +43,8 @@ get_header();
 <style>
 .chat-page { max-width: 42rem; margin: 2rem auto; padding: 0 1rem; }
 .chat-page .chat { height: min(50rem, calc(100dvh - 12rem)); }
-/* Hide footer decorations on agent page */
-.b-bleikoya-map, .b-cabins, .b-footer { display: none; }
+/* Hide header and footer decorations on agent page */
+.b-header, .b-bleikoya-map, .b-cabin-gallery, .b-footer { display: none; }
 </style>
 
 <div class="chat-page">
