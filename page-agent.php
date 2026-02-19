@@ -40,48 +40,54 @@ if ($agent_auth_secret) {
 get_header();
 ?>
 
+<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/agent/static/chat.css?v=<?php echo bleikoya_asset_version('/agent/static/chat.css'); ?>">
 <style>
-.chat-page { max-width: 42rem; margin: 2rem auto; padding: 0 1rem; }
-.chat-page .chat { height: min(50rem, calc(100dvh - 12rem)); }
-/* Hide site chrome on agent page */
-.b-header-stripe, .b-header, .b-navigation, .b-search-form, .b-bleikoya-map, .b-cabin-gallery, .b-footer { display: none !important; }
+/* Reset standalone chat styles — integrate with theme */
+.chat {
+	width: 100%;
+	height: min(50rem, calc(100dvh - 14rem));
+	background: none;
+	border-radius: 0;
+	box-shadow: none;
+}
+.chat__form {
+	padding: 0.75rem 0;
+	border-top: 1px solid var(--b-border-color);
+}
+.chat__messages {
+	padding: 1.25rem 0;
+}
 </style>
 
-<div class="chat-page">
-	<div class="chat">
-		<header class="chat__header">
-			<img class="chat__logo"
-				 src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/b-logo.png"
-				 alt="Bleikøya Velforening">
-			<div>
-				<h1 class="chat__title">Bleikøya-agenten</h1>
-				<p class="chat__subtitle">Søkeassistent for styret</p>
-			</div>
-		</header>
-		<div class="chat__messages" id="messages">
-			<div class="chat__message chat__message--assistant">
-				<div class="chat__bubble">
-					<p>Hei, <?php echo esc_html($current_user->first_name ?: $current_user->display_name); ?>!
-					   Jeg er styrets søkeassistent. Jeg kan hjelpe deg med å finne informasjon
-					   fra nettsiden og dokumentarkivet i Google Drive.</p>
-					<p>Prøv for eksempel:</p>
-					<ul>
-						<li>Hva er gjeldende vedtekter?</li>
-						<li>Oppsummer siste styremøte</li>
-						<li>Finn avtalen med vaktmesteren</li>
-					</ul>
+<div class="b-center">
+	<main>
+		<h1>Bleikøya-agenten</h1>
+
+		<div class="chat">
+			<div class="chat__messages" id="messages">
+				<div class="chat__message chat__message--assistant">
+					<div class="chat__bubble">
+						<p>Hei, <?php echo esc_html($current_user->first_name ?: $current_user->display_name); ?>!
+						   Jeg er styrets søkeassistent. Jeg kan hjelpe deg med å finne informasjon
+						   fra nettsiden og dokumentarkivet i Google Drive.</p>
+						<p>Prøv for eksempel:</p>
+						<ul>
+							<li>Hva er gjeldende vedtekter?</li>
+							<li>Oppsummer siste styremøte</li>
+							<li>Finn avtalen med vaktmesteren</li>
+						</ul>
+					</div>
 				</div>
 			</div>
+			<form class="chat__form" id="form">
+				<input class="chat__input" id="input" type="text"
+					   placeholder="Spør meg om noe..." autocomplete="off">
+				<button class="chat__send" type="submit">Send</button>
+			</form>
 		</div>
-		<form class="chat__form" id="form">
-			<input class="chat__input" id="input" type="text"
-				   placeholder="Spor meg om noe..." autocomplete="off">
-			<button class="chat__send" type="submit">Send</button>
-		</form>
-	</div>
+	</main>
 </div>
 
-<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/agent/static/chat.css?v=<?php echo bleikoya_asset_version('/agent/static/chat.css'); ?>">
 <script src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
 <script>
 	window.AGENT_CONFIG = {
