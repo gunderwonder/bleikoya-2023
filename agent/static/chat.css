@@ -247,7 +247,7 @@ body {
     border: 2px solid transparent;
     border-radius: var(--radius-pill);
     padding: 0.6rem 1rem;
-    font-size: 0.9rem;
+    font-size: 1rem; /* ≥16px prevents iOS zoom on focus */
     font-family: var(--font-body);
     background: var(--green-light);
     color: var(--header-color);
