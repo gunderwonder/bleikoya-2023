@@ -203,8 +203,9 @@ body {
     margin: 0.8em 0;
 }
 
-/* ── Searching indicator ───────────────────────────────────────────────── */
+/* ── Thinking / searching indicators ──────────────────────────────────── */
 
+.chat__thinking,
 .chat__searching {
     font-size: 0.8rem;
     color: #999;
@@ -215,6 +216,7 @@ body {
     gap: 0.4rem;
 }
 
+.chat__thinking::before,
 .chat__searching::before {
     content: "";
     width: 0.65rem;

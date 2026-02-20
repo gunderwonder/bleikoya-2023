@@ -29,6 +29,8 @@
         messages.push({ role: 'user', content: text });
         input.value = '';
         setInputEnabled(false);
+        autoScroll = true;
+        showThinking();
 
         var bubbleEl = null;
         var streamedText = '';
@@ -74,6 +76,7 @@
 
                         if (eventType === 'text') {
                             if (needNewBubble) {
+                                hideThinking();
                                 hideSearching();
                                 bubbleEl = appendMessage('assistant', '');
                                 streamedText = '';
@@ -84,6 +87,7 @@
                             bubbleEl.innerHTML = marked.parse(streamedText);
                             scrollToBottom();
                         } else if (eventType === 'tool_start') {
+                            hideThinking();
                             showSearching(data.tool, data.input);
                         } else if (eventType === 'tool_done') {
                             // Don't hide indicators yet — keep them visible
@@ -91,6 +95,7 @@
                             // bubble should be created for the next text.
                             needNewBubble = true;
                         } else if (eventType === 'error') {
+                            hideThinking();
                             hideSearching();
                             if (!bubbleEl) {
                                 bubbleEl = appendMessage('assistant', '');
@@ -105,12 +110,14 @@
                 }
             }
 
+            hideThinking();
             hideSearching();
             if (fullText) {
                 messages.push({ role: 'assistant', content: fullText });
             }
         } catch (err) {
             console.error('Chat error:', err);
+            hideThinking();
             hideSearching();
             if (!bubbleEl) {
                 bubbleEl = appendMessage('assistant', '');
@@ -154,6 +161,20 @@
         }
     }
 
+    function showThinking() {
+        var el = document.createElement('div');
+        el.className = 'chat__thinking';
+        el.textContent = 'Tenker\u2026';
+        messagesEl.appendChild(el);
+        scrollToBottom();
+    }
+
+    function hideThinking() {
+        messagesEl.querySelectorAll('.chat__thinking').forEach(function (el) {
+            el.remove();
+        });
+    }
+
     function showSearching(toolName, input) {
         var el = document.createElement('div');
         el.className = 'chat__searching';
@@ -168,8 +189,27 @@
         });
     }
 
+    // Auto-scroll during active response. Disabled if user scrolls up manually.
+    var autoScroll = true;
+    var lastScrollY = window.scrollY;
+
+    window.addEventListener('scroll', function () {
+        // If user scrolled up during a response, stop auto-scrolling
+        if (window.scrollY < lastScrollY - 30) {
+            autoScroll = false;
+        }
+        lastScrollY = window.scrollY;
+    }, { passive: true });
+
     function scrollToBottom() {
-        messagesEl.scrollTop = messagesEl.scrollHeight;
+        if (!autoScroll) return;
+        var lastChild = messagesEl.lastElementChild;
+        if (!lastChild) return;
+        var rect = lastChild.getBoundingClientRect();
+        var targetY = window.scrollY + rect.bottom - window.innerHeight + 100;
+        if (targetY > window.scrollY) {
+            window.scrollTo({ top: targetY, behavior: 'smooth' });
+        }
     }
 
     function setInputEnabled(enabled) {

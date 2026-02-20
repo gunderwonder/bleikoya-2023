@@ -46,25 +46,36 @@ get_header();
 body {
 	display: block;
 	height: auto;
-	background: none;
-	align-items: initial;
-	justify-content: initial;
+	background-color: white;
 }
-/* Reset standalone chat shell — integrate with theme */
+.b-center {
+	max-width: 40rem;
+	margin: auto;
+	padding: 1rem;
+}
+/* Remove standalone chat shell styling */
 .chat {
 	width: 100%;
-	height: min(50rem, calc(100dvh - 14rem));
+	height: auto;
 	background: none;
 	border-radius: 0;
 	box-shadow: none;
 	overflow: visible;
-}
-.chat__form {
-	padding: 0.75rem 0;
-	border-top: 1px solid var(--b-border-color);
+	display: block;
 }
 .chat__messages {
 	padding: 1.25rem 0;
+	overflow: visible;
+	height: auto;
+}
+/* Sticky input at bottom of viewport */
+.chat__form {
+	position: sticky;
+	bottom: 0;
+	background: white;
+	padding: 0.75rem 0;
+	border-top: 1px solid var(--b-border-color);
+	z-index: 10;
 }
 </style>
 
