@@ -110,7 +110,7 @@ async def chat(request: Request):
                           "WebFetch", "WebSearch", "Task", "Skill",
                           "NotebookEdit", "EnterPlanMode"],
         permission_mode="bypassPermissions",
-        max_turns=10,
+        max_turns=30,
         include_partial_messages=True,
     )
 
@@ -149,11 +149,12 @@ async def chat(request: Request):
                         yield sse("tool_done", {})
                         seen_tool_ids.clear()
 
-        except Exception as e:
+        except BaseException as e:
             import traceback, sys
             traceback.print_exc(file=sys.stderr)
             print(f"Chat error: {e!r}", file=sys.stderr, flush=True)
-            yield sse("error", {"error": str(e)})
+            msg = "Beklager, søket tok for lang tid eller ble avbrutt. Prøv å stille et mer spesifikt spørsmål."
+            yield sse("error", {"error": msg})
 
         if seen_tool_ids:
             yield sse("tool_done", {})
