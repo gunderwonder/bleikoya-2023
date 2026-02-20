@@ -43,8 +43,9 @@ Commit and push all changes with a well-crafted commit message.
    - If no upstream is set, use `git push -u origin <branch>`
 
 6. **Deploy agent if needed**
-   - Check if any committed files are under `agent/` (use `git diff --name-only HEAD~1` or the staged files you just committed)
-   - If agent files changed, deploy to fly.io:
+   - Check if any committed files are under `agent/agent/` (the Python server code)
+   - Files under `agent/static/` are served by WordPress and do NOT need a fly.io deploy
+   - If server code changed, deploy to fly.io:
      ```bash
      cd agent && flyctl deploy --remote-only
      ```
