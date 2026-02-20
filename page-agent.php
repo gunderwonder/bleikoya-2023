@@ -81,14 +81,14 @@ body {
 
 <div class="b-center">
 	<main>
-		<h1>Bleikøya-agenten</h1>
+		<h1>Øyarkivaren</h1>
 
 		<div class="chat">
 			<div class="chat__messages" id="messages">
 				<div class="chat__message chat__message--assistant">
 					<div class="chat__bubble">
 						<p>Hei, <?php echo esc_html($current_user->first_name ?: $current_user->display_name); ?>!
-						   Jeg er styrets søkeassistent. Jeg kan hjelpe deg med å finne informasjon
+						   Jeg er Øyarkivaren – styrets søkeassistent. Jeg kan hjelpe deg med å finne informasjon
 						   fra nettsiden og dokumentarkivet i Google Drive.</p>
 						<p>Prøv for eksempel:</p>
 						<ul>
