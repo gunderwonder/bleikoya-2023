@@ -392,6 +392,39 @@ a.b-anchor--with-icon::after {
 	padding: 0 0 0 1rem;
 }
 
+.b-body-text table {
+	width: 100%;
+	border-collapse: collapse;
+	line-height: 1.7em;
+	color: var(--b-header-color);
+	margin: 1rem 0;
+}
+
+.b-body-text th,
+.b-body-text td {
+	text-align: left;
+	padding: 0.5rem 1rem 0.5rem 0;
+}
+
+.b-body-text th:not(:last-child),
+.b-body-text td:not(:last-child) {
+	border-right: 1px solid var(--b-border-color);
+	padding-right: 1rem;
+}
+
+.b-body-text th:not(:first-child),
+.b-body-text td:not(:first-child) {
+	padding-left: 1rem;
+}
+
+.b-body-text thead th {
+	border-bottom: 2px solid var(--b-border-color);
+}
+
+.b-body-text tbody tr:not(:last-child) td {
+	border-bottom: 1px solid var(--b-border-color);
+}
+
 .b-body-text p:last-child {
 	margin-bottom: 0;
 }

@@ -10,6 +10,7 @@ vendor/
 # Python agent
 agent/.venv/
 agent/.env
+__pycache__/
 
 # PHPUnit
 .phpunit.cache/

@@ -111,6 +111,7 @@ get_header();
 	<a href="#author" class="b-button">Hytteeier</a>
 	<a href="#emner" class="b-button">Emner</a>
 	<a href="#skjema" class="b-button">Skjema</a>
+	<a href="#tabeller" class="b-button">Tabeller</a>
 	<a href="#lister" class="b-button">Lister</a>
 </nav>
 
@@ -869,6 +870,95 @@ map, download, info, user, user-pen, log-out, facebook --&gt;</code></div>
   &lt;/p&gt;
   &lt;button class="b-button b-button--green"&gt;Send&lt;/button&gt;
 &lt;/form&gt;</code></div>
+		</div>
+	</section>
+
+	<!-- TABELLER -->
+	<section id="tabeller" class="sg-section">
+		<h1>Tabeller</h1>
+
+		<div class="sg-component">
+			<div class="sg-label">Tabell i .b-body-text</div>
+			<div class="sg-example--white sg-example">
+				<div class="b-body-text">
+					<table>
+						<thead>
+							<tr>
+								<th>Gjenstand</th>
+								<th>Pris</th>
+								<th>Merknad</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Lenestol/sofa (pr. sete)</td>
+								<td>350 kr</td>
+								<td>Knus/demonter</td>
+							</tr>
+							<tr>
+								<td>Bord</td>
+								<td>350 kr</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>Spisestol/hagestol</td>
+								<td>100 kr</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>Grill/gressklipper</td>
+								<td>350 kr</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>Hvitevarer</td>
+								<td>600 kr</td>
+								<td>Merk med hyttenr.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="sg-code"><code>&lt;div class="b-body-text"&gt;
+  &lt;table&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;&lt;th&gt;Kolonne 1&lt;/th&gt;&lt;th&gt;Kolonne 2&lt;/th&gt;&lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;&lt;td&gt;Data 1&lt;/td&gt;&lt;td&gt;Data 2&lt;/td&gt;&lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code></div>
+		</div>
+
+		<div class="sg-component">
+			<div class="sg-label">Enkel tabell (to kolonner)</div>
+			<div class="sg-example--white sg-example">
+				<div class="b-body-text">
+					<table>
+						<thead>
+							<tr>
+								<th>Kategori</th>
+								<th>Antall</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Hytter</td>
+								<td>91</td>
+							</tr>
+							<tr>
+								<td>Brygger</td>
+								<td>4</td>
+							</tr>
+							<tr>
+								<td>Areal</td>
+								<td>0,12 km²</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</div>
 	</section>
 
