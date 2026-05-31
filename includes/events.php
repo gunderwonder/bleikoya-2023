@@ -274,21 +274,17 @@ function bleikoya_get_calendar_grid($request) {
 	$month_param = $request->get_param('month');
 	$mode = $request->get_param('mode');
 
-	// Get all upcoming events for dot indicators
+	// Wider range so past months also show event dots when navigating backwards.
 	$events = tribe_get_events([
-		'start_date' => 'now',
-		'posts_per_page' => 100,
-		'eventDisplay' => 'list',
+		'start_date' => date('Y-m-d 00:00:00', strtotime('-2 years')),
+		'end_date' => date('Y-m-d 23:59:59', strtotime('+2 years')),
+		'posts_per_page' => 500,
+		'eventDisplay' => 'custom',
 	]);
 
 	// Determine display month
 	if ($month_param === 'today' || empty($month_param)) {
-		// Find first month with events
-		$display_month = null;
-		if ($events) {
-			$first_event_date = tribe_get_start_date($events[0], false, 'Y-m-01');
-			$display_month = new DateTime($first_event_date);
-		}
+		$display_month = new DateTime('first day of this month');
 	} elseif (preg_match('/^\d{4}-\d{2}$/', $month_param)) {
 		$display_month = new DateTime($month_param . '-01');
 	} else {

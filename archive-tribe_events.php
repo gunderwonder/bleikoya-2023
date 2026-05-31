@@ -6,11 +6,21 @@
  */
 get_header();
 
-// Query all upcoming events
+// Query upcoming events for the list (start of today, so events that already
+// started today still show — fixes "today's event disappears mid-day")
 $events = tribe_get_events([
-	'start_date' => 'now',
+	'start_date' => date('Y-m-d 00:00:00'),
 	'posts_per_page' => 50,
 	'eventDisplay' => 'list',
+]);
+
+// Query a wider range for the mini calendar dots, so dots appear for past
+// months (rentals, past arrangements) when navigating backwards.
+$calendar_events = tribe_get_events([
+	'start_date' => date('Y-m-d 00:00:00', strtotime('-2 years')),
+	'end_date' => date('Y-m-d 23:59:59', strtotime('+2 years')),
+	'posts_per_page' => 500,
+	'eventDisplay' => 'custom',
 ]);
 
 // ICS subscription link
@@ -44,7 +54,7 @@ $webcal_url = preg_replace('~^https?~', 'webcal', $ics_url);
 					$display_month = new DateTime($first_event_date);
 				}
 				sc_get_template_part('parts/calendar/month-grid', null, [
-					'events' => $events,
+					'events' => $calendar_events,
 					'display_month' => $display_month
 				]);
 				?>
