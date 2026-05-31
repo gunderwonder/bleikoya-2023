@@ -246,6 +246,7 @@ Custom skills are available in `.claude/skills/`:
 | **wp-search** | `/wp-search <query>` | Search bleikoya.net content via WP-CLI |
 | **ship** | `/ship` | Commit and push changes |
 | **obsidian** | `/obsidian` | Save to Obsidian vault |
+| **styrereferat** | `/styrereferat [url] [--prod]` | Import Google Doc as draft post (wraps `import_google_doc_to_post()`) |
 
 ### wp-search
 

@@ -66,14 +66,15 @@ function google_doc_to_html($document) {
 	$inline_objects = $document->getInlineObjects() ?? [];
 	$lists = $document->getLists() ?? [];
 
-	// Track list state
-	$in_list = false;
-	$list_type = null;
+	// Track list and blockquote state across paragraphs.
+	// $list_stack: stack of currently open lists, each ['type' => 'ul'|'ol', 'level' => int]
+	$list_stack = [];
+	$in_blockquote = false;
 
 	foreach ($content as $element) {
 		// Handle paragraphs
 		if ($paragraph = $element->getParagraph()) {
-			$para_html = process_paragraph($paragraph, $inline_objects, $lists, $in_list, $list_type);
+			$para_html = process_paragraph($paragraph, $inline_objects, $lists, $list_stack, $in_blockquote);
 
 			if ($para_html !== null) {
 				$html .= $para_html;
@@ -82,20 +83,32 @@ function google_doc_to_html($document) {
 
 		// Handle tables
 		if ($table = $element->getTable()) {
-			// Close any open list
-			if ($in_list) {
-				$html .= $list_type === 'ul' ? '</ul>' : '</ol>';
-				$in_list = false;
+			$html .= close_all_lists($list_stack);
+			if ($in_blockquote) {
+				$html .= '</blockquote>';
+				$in_blockquote = false;
 			}
 			$html .= process_table($table, $inline_objects);
 		}
 	}
 
-	// Close any remaining open list
-	if ($in_list) {
-		$html .= $list_type === 'ul' ? '</ul>' : '</ol>';
+	$html .= close_all_lists($list_stack);
+	if ($in_blockquote) {
+		$html .= '</blockquote>';
 	}
 
+	return $html;
+}
+
+/**
+ * Pop and close every open list on the stack, returning the closing HTML.
+ */
+function close_all_lists(array &$list_stack): string {
+	$html = '';
+	while (count($list_stack) > 0) {
+		$top = array_pop($list_stack);
+		$html .= '</li></' . $top['type'] . '>';
+	}
 	return $html;
 }
 
@@ -105,14 +118,18 @@ function google_doc_to_html($document) {
  * @param Google\Service\Docs\Paragraph $paragraph
  * @param array $inline_objects
  * @param array $lists
- * @param bool &$in_list
- * @param string|null &$list_type
+ * @param array &$list_stack Stack of open lists [['type' => ul|ol, 'level' => int], …]
+ * @param bool &$in_blockquote
  * @return string|null HTML or null to skip
  */
-function process_paragraph($paragraph, $inline_objects, $lists, &$in_list, &$list_type) {
+function process_paragraph($paragraph, $inline_objects, $lists, array &$list_stack, &$in_blockquote = false) {
 	$elements = $paragraph->getElements() ?? [];
 	$style = $paragraph->getParagraphStyle();
 	$bullet = $paragraph->getBullet();
+
+	// Indented (left margin > 0) paragraphs are treated as block quotes.
+	$indent = $style ? $style->getIndentStart() : null;
+	$is_indented = $indent && $indent->getMagnitude() > 0;
 
 	// Get paragraph text content
 	$text_content = '';
@@ -139,56 +156,97 @@ function process_paragraph($paragraph, $inline_objects, $lists, &$in_list, &$lis
 
 	// Skip empty paragraphs
 	if (!$has_content || trim(strip_tags($text_content)) === '') {
-		// But still close lists if needed
-		if ($in_list && !$bullet) {
-			$result = $list_type === 'ul' ? '</ul>' : '</ol>';
-			$in_list = false;
-			$list_type = null;
-			return $result;
+		$result = '';
+		if (!$bullet && count($list_stack) > 0) {
+			$result .= close_all_lists($list_stack);
 		}
-		return null;
+		if ($in_blockquote && !$is_indented) {
+			$result .= '</blockquote>';
+			$in_blockquote = false;
+		}
+		return $result !== '' ? $result : null;
 	}
 
 	// Handle lists
 	if ($bullet) {
-		$list_id = $bullet->getListId();
-		$nesting_level = $bullet->getNestingLevel() ?? 0;
+		// A list item always breaks out of a blockquote.
+		$prefix = '';
+		if ($in_blockquote) {
+			$prefix = '</blockquote>';
+			$in_blockquote = false;
+		}
 
-		// Determine list type from lists definition
-		$new_list_type = 'ul'; // default
+		$list_id = $bullet->getListId();
+		$new_level = $bullet->getNestingLevel() ?? 0;
+
+		// Determine list type from list definition at this nesting level
+		$new_type = 'ul';
 		if (isset($lists[$list_id])) {
 			$list_props = $lists[$list_id]->getListProperties();
 			if ($list_props) {
 				$nesting_levels = $list_props->getNestingLevels();
-				if ($nesting_levels && isset($nesting_levels[$nesting_level])) {
-					$glyph_type = $nesting_levels[$nesting_level]->getGlyphType();
+				if ($nesting_levels && isset($nesting_levels[$new_level])) {
+					$glyph_type = $nesting_levels[$new_level]->getGlyphType();
 					if ($glyph_type && str_contains(strtoupper($glyph_type), 'DECIMAL')) {
-						$new_list_type = 'ol';
+						$new_type = 'ol';
 					}
 				}
 			}
 		}
 
-		// Start new list if needed
-		if (!$in_list) {
-			$in_list = true;
-			$list_type = $new_list_type;
-			return "<{$new_list_type}><li>{$text_content}</li>";
+		// Pop lists deeper than the new level.
+		while (count($list_stack) > 0 && end($list_stack)['level'] > $new_level) {
+			$top = array_pop($list_stack);
+			$prefix .= '</li></' . $top['type'] . '>';
 		}
 
-		return "<li>{$text_content}</li>";
+		if (count($list_stack) === 0) {
+			$list_stack[] = ['type' => $new_type, 'level' => $new_level];
+			$prefix .= '<' . $new_type . '><li>';
+		} else {
+			$top = end($list_stack);
+			if ($top['level'] === $new_level) {
+				if ($top['type'] !== $new_type) {
+					// Same level, different list type — close current, open new.
+					array_pop($list_stack);
+					$prefix .= '</li></' . $top['type'] . '>';
+					$list_stack[] = ['type' => $new_type, 'level' => $new_level];
+					$prefix .= '<' . $new_type . '><li>';
+				} else {
+					$prefix .= '</li><li>';
+				}
+			} else {
+				// Going deeper — open a new list nested inside the current <li>.
+				$list_stack[] = ['type' => $new_type, 'level' => $new_level];
+				$prefix .= '<' . $new_type . '><li>';
+			}
+		}
+
+		return $prefix . $text_content;
 	}
 
-	// Close list if we were in one
-	$prefix = '';
-	if ($in_list) {
-		$prefix = $list_type === 'ul' ? '</ul>' : '</ol>';
-		$in_list = false;
-		$list_type = null;
-	}
+	// Close all lists when leaving list mode
+	$prefix = close_all_lists($list_stack);
 
-	// Handle headings
 	$named_style = $style ? $style->getNamedStyleType() : null;
+	$is_heading = $named_style && str_starts_with($named_style, 'HEADING_');
+
+	// Headings always break out of a blockquote.
+	if ($is_heading && $in_blockquote) {
+		$prefix .= '</blockquote>';
+		$in_blockquote = false;
+	}
+
+	// Normal paragraph: open/close blockquote on indent transitions.
+	if (!$is_heading) {
+		if ($is_indented && !$in_blockquote) {
+			$prefix .= '<blockquote>';
+			$in_blockquote = true;
+		} elseif (!$is_indented && $in_blockquote) {
+			$prefix .= '</blockquote>';
+			$in_blockquote = false;
+		}
+	}
 
 	switch ($named_style) {
 		case 'HEADING_1':
