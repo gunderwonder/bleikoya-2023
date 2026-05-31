@@ -1,0 +1,226 @@
+/* Møtepoll — Doodle-aktig avstemming
+ *
+ * UX-modell (samme som Doodle):
+ *   - Hel celle er klikkbar i "Du"-raden
+ *   - Klikk sykler: blank → ja → nei → blank
+ *   - Bakgrunnsfarge viser tilstand (palett fra tralla.css)
+ *   - Eksisterende svar vises som farget celle med samme palett (read-only)
+ */
+
+.meeting-poll {
+	margin-bottom: 4rem;
+	font-family: var(--b-font-body);
+}
+
+/* Alt tekstinnhold i tabellen bruker body-fonten (én font, mindre rotete).
+ * .b-button beholder Futura-stilen sin iht. stilguiden. */
+.meeting-poll__table,
+.meeting-poll__table input,
+.meeting-poll__table button,
+.meeting-poll__table th,
+.meeting-poll__table td,
+.meeting-poll__intro,
+.meeting-poll__status {
+	font-family: var(--b-font-body);
+}
+
+.meeting-poll__intro {
+	margin-bottom: 1.5rem;
+}
+
+.meeting-poll__empty {
+	color: #777;
+	font-style: italic;
+}
+
+/* Horisontal scroll på smale skjermer */
+.meeting-poll__table-wrap {
+	overflow-x: auto;
+	margin: 1.5rem 0;
+	-webkit-overflow-scrolling: touch;
+}
+
+.meeting-poll__table {
+	border-collapse: separate;
+	border-spacing: 4px;
+	width: 100%;
+	min-width: max-content;
+}
+
+/* Navnerad/-kolonne — alltid venstrejustert */
+.meeting-poll__table .meeting-poll__th-name,
+.meeting-poll__table .meeting-poll__cell-name {
+	text-align: left;
+	font-weight: 600;
+	white-space: nowrap;
+	padding: 0 1.5rem 0 0;
+	vertical-align: middle;
+}
+
+/* Kolonneoverskrifter (datoer) */
+.meeting-poll__table .meeting-poll__th-option {
+	font-weight: 600;
+	white-space: nowrap;
+	min-width: 6rem;
+	padding: 0.6rem 0.5rem 0.75rem;
+	text-align: center;
+	vertical-align: bottom;
+}
+
+.meeting-poll__option-label {
+	display: block;
+	color: var(--b-header-color);
+}
+
+.meeting-poll__yes-count {
+	display: block;
+	font-size: 0.75rem;
+	font-weight: 400;
+	color: var(--b-header-color);
+	opacity: 0.7;
+	margin-top: 0.15rem;
+}
+
+/* Lederkolonne(r) — flest "ja" — grønn understrek */
+.meeting-poll__col--leader {
+	border-bottom: 3px solid var(--b-green-color);
+}
+.meeting-poll__col--leader .meeting-poll__yes-count {
+	color: var(--b-green-color);
+	opacity: 1;
+	font-weight: 600;
+}
+
+/* Stemmeceller — felles base for alle (eksisterende svar + Du-rad) */
+.meeting-poll__table .meeting-poll__cell {
+	padding: 0;
+	height: 2.5rem;
+	width: 5rem;
+	min-width: 5rem;
+	border-radius: var(--b-radius-box, 10px);
+	text-align: center;
+	vertical-align: middle;
+	font-weight: 700;
+	font-size: 1.1rem;
+	box-sizing: border-box;
+	transition: background-color 0.15s ease;
+}
+
+.meeting-poll__cell--blank {
+	background-color: rgba(230, 230, 233, 0.4);
+	color: #aaa;
+}
+.meeting-poll__cell--blank::after {
+	content: "·";
+	font-size: 1.4rem;
+	line-height: 0.5;
+}
+
+.meeting-poll__cell--yes {
+	background-color: rgba(81, 131, 71, 0.18);
+	color: var(--b-green-color);
+}
+.meeting-poll__cell--yes::after {
+	content: "✓";
+}
+
+.meeting-poll__cell--no {
+	background-color: rgba(185, 62, 60, 0.13);
+	color: var(--b-primary-color);
+}
+.meeting-poll__cell--no::after {
+	content: "✕";
+}
+
+/* "Du"-rad bakgrunn + klikkbar celle */
+.meeting-poll__row-self .meeting-poll__cell-name {
+	background: transparent;
+}
+
+.meeting-poll__name-input {
+	font: inherit;
+	font-weight: 600;
+	text-align: left;
+	height: 2.5rem;
+	line-height: 1;
+	padding: 0 0.75rem;
+	border: 1px solid var(--b-border-color);
+	border-radius: var(--b-radius-box);
+	background: white;
+	width: 100%;
+	min-width: 9rem;
+	box-sizing: border-box;
+}
+.meeting-poll__name-input:read-only {
+	background: var(--b-green-light-color);
+	cursor: default;
+}
+
+/* Klikkbar knapp inni celle — transparent, fyller cellen */
+.meeting-poll__cell--self {
+	cursor: pointer;
+	position: relative;
+}
+/* La cell::after-symbolet ikke fange klikk */
+.meeting-poll__cell--self::after {
+	pointer-events: none;
+}
+
+.meeting-poll__vote {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: none;
+	background: transparent;
+	border-radius: inherit;
+	cursor: pointer;
+	font: inherit;
+	color: transparent;
+	padding: 0;
+	margin: 0;
+}
+
+.meeting-poll__cell--self:hover {
+	filter: brightness(0.96);
+}
+.meeting-poll__cell--self.meeting-poll__cell--blank:hover {
+	background-color: rgba(230, 230, 233, 0.7);
+}
+
+.meeting-poll__vote:focus-visible {
+	outline: 2px solid var(--b-blue-color);
+	outline-offset: 2px;
+}
+
+/* Handlinger under tabellen */
+.meeting-poll__actions {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-top: 1.5rem;
+}
+
+.meeting-poll__status {
+	margin: 0;
+	color: var(--b-header-color);
+	font-size: 0.875rem;
+}
+.meeting-poll__status--error {
+	color: var(--b-primary-color);
+}
+.meeting-poll__status--success {
+	color: var(--b-green-color);
+}
+
+/* Mobil: navnekolonne sticky */
+@media (max-width: 640px) {
+	.meeting-poll__table th:first-child,
+	.meeting-poll__table td:first-child {
+		position: sticky;
+		left: 0;
+		z-index: 1;
+		background: white;
+	}
+}

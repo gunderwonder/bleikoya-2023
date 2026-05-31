@@ -29,6 +29,11 @@ require 'includes/post-types/location.php';
 
 // Link (lenke) custom post type for external bookmarks
 require 'includes/post-types/link.php';
+
+// Meeting Poll (møtepoll) — Doodle-style date voting
+require 'includes/post-types/meeting-poll.php';
+require 'includes/api/meeting-poll-rest.php';
+
 require 'includes/api/location-connections.php';
 require 'includes/api/location-coordinates.php';
 require 'includes/api/location-rest-endpoints.php';

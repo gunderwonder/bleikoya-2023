@@ -153,3 +153,43 @@ function bleikoya_enqueue_map_assets() {
 	]);
 }
 add_action('wp_enqueue_scripts', 'bleikoya_enqueue_map_assets');
+
+/**
+ * Enqueue meeting poll assets on single meeting_poll pages
+ */
+function bleikoya_enqueue_meeting_poll_assets() {
+	if (!is_singular('meeting_poll')) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'bleikoya-meeting-poll',
+		get_template_directory_uri() . '/assets/css/meeting-poll.css',
+		[],
+		filemtime(get_template_directory() . '/assets/css/meeting-poll.css')
+	);
+
+	wp_enqueue_script(
+		'bleikoya-meeting-poll',
+		get_template_directory_uri() . '/assets/js/meeting-poll.js',
+		[],
+		filemtime(get_template_directory() . '/assets/js/meeting-poll.js'),
+		true
+	);
+
+	wp_localize_script('bleikoya-meeting-poll', 'meetingPollData', [
+		'postId'        => get_the_ID(),
+		'restUrl'       => rest_url('bleikoya/v1/meeting-poll/' . get_the_ID() . '/vote'),
+		'nonce'         => wp_create_nonce('wp_rest'),
+		'isLoggedIn'    => is_user_logged_in(),
+		'currentUserId' => get_current_user_id(),
+		'i18n'          => [
+			'saving'       => 'Lagrer…',
+			'saved'        => 'Lagret!',
+			'error'        => 'Noe gikk galt. Prøv igjen.',
+			'nameRequired' => 'Skriv inn navnet ditt før du stemmer.',
+			'deleted'      => 'Svaret ditt er slettet.',
+		],
+	]);
+}
+add_action('wp_enqueue_scripts', 'bleikoya_enqueue_meeting_poll_assets');
