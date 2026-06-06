@@ -15,7 +15,7 @@ Posten opprettes som **draft** med `_visibility = private`. Brukeren publiserer 
 /styrereferat [url-eller-id] [--prod]
 ```
 
-- `url-eller-id` — Google Docs URL eller doc-ID. Hvis utelatt, vis liste over nyeste docs i "Styremøter"-mappa og la bruker velge.
+- `url-eller-id` — Google Docs URL eller doc-ID. Hvis utelatt, vis liste over nyeste docs i "Styremøter"-mappa og la bruker velge. `list-docs.php` godtar både mappenavn og folder-ID som første argument.
 - `--prod` — kjør mot produksjon (ssh.bleikoya.net) i stedet for lokal (bleikoya.test). Default er lokal.
 
 ## Flyt
@@ -29,19 +29,26 @@ Posten opprettes som **draft** med `_visibility = private`. Brukeren publiserer 
 
 **Hvis URL/ID gitt**: bruk direkte.
 
-**Hvis ingen**: kjør list-scriptet og vis nummerert valg:
+**Hvis ingen**: kjør list-scriptet og vis nummerert valg. Første argument er enten et mappenavn eller en folder-ID (lang alfanumerisk streng, f.eks. fra en Drive-URL `drive.google.com/drive/folders/<ID>`):
 
 ```bash
-# Lokalt:
+# Lokalt, etter navn:
 wp eval-file .claude/skills/styrereferat/list-docs.php "Styremøter" 15
+
+# Lokalt, etter folder-ID:
+wp eval-file .claude/skills/styrereferat/list-docs.php "1lKm65DfCQqhk6ZkjjzHzetiympUlrAq4" 15
 
 # Prod:
 ssh bleikoya.net@ssh.bleikoya.net "wp --path=/www eval-file /www/wp-content/themes/bleikoya-2023/.claude/skills/styrereferat/list-docs.php 'Styremøter' 15"
 ```
 
-Output er TSV: `<doc_id>\t<title>\t<modified>` per linje. Parse og vis som nummerert liste. Hvis "Styremøter"-mappa ikke finnes (ERROR i output), prøv på nytt uten mappefilter.
+Output er TSV: `<doc_id>\t<title>\t<modified>` per linje. Parse og vis som nummerert liste. Hvis "Styremøter"-mappa ikke finnes (ERROR i output), prøv på nytt uten mappefilter — be evt. brukeren om en Drive-URL til riktig mappe og bruk folder-ID-en derfra.
+
+Merk: Styremøter-mappa har historisk én undermappe per møte (ikke per år), så det er ofte ingen direkte docs i selve "Styremøter" — referatene ligger ett nivå ned. Trenger du å finne alle referater på tvers, søk i hele Shared Drive med `name contains 'styremøte'` via Drive API.
 
 Bruk `AskUserQuestion` med opp til 4 nyeste docs. Hvis brukeren vil ha flere, falback til å spørre etter URL.
+
+**Multi-import**: Hvis brukeren ber om å importere alle docs som "mangler" på nettsidene, hent eksisterende poster med `wp post list --category_name=styret --fields=ID,post_title,post_date` og match mot Drive-listen før du spør hvilke som skal importeres.
 
 ### 3. Velg kategori
 

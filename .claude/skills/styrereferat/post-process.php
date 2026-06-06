@@ -90,3 +90,21 @@ function styrereferat_clean_headings(string $html): string {
 		$html
 	);
 }
+
+/**
+ * Strip <u> wrappers inside <a> tags.
+ *
+ * Google Docs renders linked text as underlined and exports the underline
+ * as a <u> wrapper inside the <a>. The theme already underlines links via
+ * CSS, so the <u> is redundant and produces a double underline.
+ */
+function styrereferat_unwrap_link_underlines(string $html): string {
+	return preg_replace_callback(
+		'#<a([^>]*)>(.*?)</a>#is',
+		function ($m) {
+			$inner = preg_replace('#</?u\b[^>]*>#i', '', $m[2]);
+			return '<a' . $m[1] . '>' . $inner . '</a>';
+		},
+		$html
+	);
+}

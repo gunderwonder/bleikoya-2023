@@ -37,10 +37,12 @@ if (is_wp_error($result)) {
 
 $post_id = $result['post_id'];
 
-// Post-process: normalize ALL-CAPS Norwegian headings to sentence case
-// and strip leading numbering from h2.
+// Post-process: normalize ALL-CAPS Norwegian headings to sentence case,
+// strip leading numbering from h2, and remove redundant <u> wrappers inside
+// links (theme already underlines via CSS).
 $post = get_post($post_id);
 $cleaned = styrereferat_clean_headings($post->post_content);
+$cleaned = styrereferat_unwrap_link_underlines($cleaned);
 
 if ($cleaned !== $post->post_content) {
 	wp_update_post([
