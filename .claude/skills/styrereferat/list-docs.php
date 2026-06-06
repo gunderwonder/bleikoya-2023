@@ -3,7 +3,10 @@
  * List recent Google Docs from the Shared Drive, optionally filtered to a folder.
  *
  * Usage:
- *   wp eval-file .claude/skills/styrereferat/list-docs.php [folder_name] [limit]
+ *   wp eval-file .claude/skills/styrereferat/list-docs.php [folder_name_or_id] [limit]
+ *
+ * If the first argument matches a Drive ID pattern (long alphanumeric +/-/_),
+ * it is treated as a folder ID directly. Otherwise it is looked up by name.
  *
  * Output: TSV (id<tab>name<tab>modified) — one doc per line, newest first.
  */
@@ -33,23 +36,30 @@ $drive_service = new Drive($client);
 $query = "mimeType = 'application/vnd.google-apps.document' and trashed = false";
 
 if (!empty($folder_name)) {
-	$folder_query = "name = '" . addslashes($folder_name) . "' and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
-	$folders = $drive_service->files->listFiles([
-		'q'                         => $folder_query,
-		'driveId'                   => $shared_drive_id,
-		'corpora'                   => 'drive',
-		'includeItemsFromAllDrives' => true,
-		'supportsAllDrives'         => true,
-		'fields'                    => 'files(id, name)',
-	]);
+	// If the arg looks like a Drive ID (long, no spaces, only alphanumeric/-/_),
+	// use it directly. Otherwise resolve by name.
+	if (preg_match('/^[a-zA-Z0-9_-]{20,}$/', $folder_name)) {
+		$folder_id = $folder_name;
+	} else {
+		$folder_query = "name = '" . addslashes($folder_name) . "' and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+		$folders = $drive_service->files->listFiles([
+			'q'                         => $folder_query,
+			'driveId'                   => $shared_drive_id,
+			'corpora'                   => 'drive',
+			'includeItemsFromAllDrives' => true,
+			'supportsAllDrives'         => true,
+			'fields'                    => 'files(id, name)',
+		]);
 
-	$found = $folders->getFiles();
-	if (empty($found)) {
-		echo "ERROR: folder '$folder_name' not found in Shared Drive\n";
-		exit(1);
+		$found = $folders->getFiles();
+		if (empty($found)) {
+			echo "ERROR: folder '$folder_name' not found in Shared Drive\n";
+			exit(1);
+		}
+
+		$folder_id = $found[0]->getId();
 	}
 
-	$folder_id = $found[0]->getId();
 	$query .= " and '$folder_id' in parents";
 }
 
