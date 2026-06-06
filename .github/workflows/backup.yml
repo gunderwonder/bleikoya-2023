@@ -1,0 +1,31 @@
+name: Database backup
+
+on:
+  schedule:
+    # 04:00 norsk tid (03:00 UTC vinter, 02:00 UTC sommer — vi velger 02:00 UTC = 04:00 CEST)
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run backup script on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ssh.bleikoya.net
+          username: bleikoya.net
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            bash /www/wp-content/themes/bleikoya-2023/scripts/backup.sh
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          curl -H "Priority: high" -H "Tags: warning" \
+            -d "Database-backup FEILET på bleikoya.net" \
+            "ntfy.sh/$NTFY_TOPIC"

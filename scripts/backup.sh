@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Backup-script for bleikoya.net
-# Kjører daglig via cron: 0 4 * * * bash /www/wp-content/themes/bleikoya-2023/scripts/backup.sh >> /home/bleikoya.net/backups/backup.log 2>&1
+# Kjøres daglig via GitHub Actions (.github/workflows/backup.yml).
 #
 
 set -e
