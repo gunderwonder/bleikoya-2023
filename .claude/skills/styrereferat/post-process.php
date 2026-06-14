@@ -60,9 +60,12 @@ function styrereferat_normalize_case(string $text): string {
  * These are really section headings.
  */
 function styrereferat_promote_single_item_lists(string $html): string {
+	// Match <ol> with optional attributes, and an optional wp:list block
+	// comment that may surround it. Drop both the open/close markers and
+	// the inner list-item markers so the result is a clean <h2>.
 	return preg_replace_callback(
-		'#<ol>\s*<li>((?:(?!</?li[\s>/]).)*)</li>\s*</ol>#is',
-		fn($m) => '<h2>' . trim($m[1]) . '</h2>',
+		'#(?:<!--\s*wp:list[^>]*-->\s*)?<ol\b[^>]*>\s*(?:<!--\s*wp:list-item\s*-->\s*)?<li\b[^>]*>((?:(?!</?li[\s>/]).)*)</li>\s*(?:<!--\s*/wp:list-item\s*-->\s*)?</ol>(?:\s*<!--\s*/wp:list\s*-->)?#is',
+		fn($m) => '<!-- wp:heading --><h2 class="wp-block-heading">' . trim($m[1]) . '</h2><!-- /wp:heading -->',
 		$html
 	);
 }
@@ -74,10 +77,11 @@ function styrereferat_clean_headings(string $html): string {
 	$html = styrereferat_promote_single_item_lists($html);
 
 	return preg_replace_callback(
-		'#<(h[1-6])>(.+?)</\1>#is',
+		'#<(h[1-6])(\b[^>]*)>(.+?)</\1>#is',
 		function ($m) {
 			$tag = $m[1];
-			$inner = trim($m[2]);
+			$attrs = $m[2];
+			$inner = trim($m[3]);
 
 			$inner = styrereferat_normalize_case($inner);
 
@@ -85,7 +89,7 @@ function styrereferat_clean_headings(string $html): string {
 				$inner = preg_replace('/^\s*\d+(\.\d+)*[\.\)]?\s+/u', '', $inner);
 			}
 
-			return "<{$tag}>{$inner}</{$tag}>";
+			return "<{$tag}{$attrs}>{$inner}</{$tag}>";
 		},
 		$html
 	);

@@ -427,6 +427,41 @@ function import_google_doc_images($html, $post_id) {
 }
 
 /**
+ * Wrap converted HTML in Gutenberg block delimiters.
+ *
+ * Without these comment markers Gutenberg treats the full post_content as
+ * a single Classic block, which renders in Times New Roman and shows a
+ * "Konverter til blokker" prompt. Wrapping each block-level element makes
+ * the editor see them as native blocks.
+ *
+ * Operates on the opening/closing tags independently so nested lists are
+ * marked at every level without needing a real parser.
+ */
+function convert_html_to_blocks(string $html): string {
+	$replacements = [
+		'#<h1>(.*?)</h1>#is'        => '<!-- wp:heading {"level":1} --><h1 class="wp-block-heading">$1</h1><!-- /wp:heading -->',
+		'#<h2>(.*?)</h2>#is'        => '<!-- wp:heading --><h2 class="wp-block-heading">$1</h2><!-- /wp:heading -->',
+		'#<h3>(.*?)</h3>#is'        => '<!-- wp:heading {"level":3} --><h3 class="wp-block-heading">$1</h3><!-- /wp:heading -->',
+		'#<h4>(.*?)</h4>#is'        => '<!-- wp:heading {"level":4} --><h4 class="wp-block-heading">$1</h4><!-- /wp:heading -->',
+		'#<h5>(.*?)</h5>#is'        => '<!-- wp:heading {"level":5} --><h5 class="wp-block-heading">$1</h5><!-- /wp:heading -->',
+		'#<h6>(.*?)</h6>#is'        => '<!-- wp:heading {"level":6} --><h6 class="wp-block-heading">$1</h6><!-- /wp:heading -->',
+		'#<p>(.*?)</p>#is'          => '<!-- wp:paragraph --><p>$1</p><!-- /wp:paragraph -->',
+		'#<blockquote>#i'           => '<!-- wp:quote --><blockquote class="wp-block-quote">',
+		'#</blockquote>#i'          => '</blockquote><!-- /wp:quote -->',
+		'#<ul>#i'                   => '<!-- wp:list --><ul class="wp-block-list">',
+		'#</ul>#i'                  => '</ul><!-- /wp:list -->',
+		'#<ol>#i'                   => '<!-- wp:list {"ordered":true} --><ol class="wp-block-list">',
+		'#</ol>#i'                  => '</ol><!-- /wp:list -->',
+		'#<li>#i'                   => '<!-- wp:list-item --><li>',
+		'#</li>#i'                  => '</li><!-- /wp:list-item -->',
+		'#<table>#i'                => '<!-- wp:table --><figure class="wp-block-table"><table>',
+		'#</table>#i'               => '</table></figure><!-- /wp:table -->',
+	];
+
+	return preg_replace(array_keys($replacements), array_values($replacements), $html);
+}
+
+/**
  * Import a Google Doc as a WordPress post.
  *
  * @param string $doc_id_or_url Document ID or URL
@@ -478,15 +513,16 @@ function import_google_doc_to_post($doc_id_or_url, $options = []) {
 		return $post_id;
 	}
 
-	// Import images and update content
+	// Import images and wrap the HTML in Gutenberg block markers so the
+	// editor recognizes each element as a block instead of dumping
+	// everything into a single Classic block.
 	$updated_content = import_google_doc_images($html_content, $post_id);
+	$updated_content = convert_html_to_blocks($updated_content);
 
-	if ($updated_content !== $html_content) {
-		wp_update_post([
-			'ID'           => $post_id,
-			'post_content' => $updated_content,
-		]);
-	}
+	wp_update_post([
+		'ID'           => $post_id,
+		'post_content' => $updated_content,
+	]);
 
 	// Set visibility to private
 	update_post_meta($post_id, '_visibility', 'private');
