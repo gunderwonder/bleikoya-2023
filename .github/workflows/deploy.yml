@@ -23,7 +23,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
           script: |
-            cd /www/wp-content/themes/bleikoya-2023
+            cd /webroots/www/wp-content/themes/bleikoya-2023
             git pull
             composer install --no-dev --optimize-autoloader
 
