@@ -127,7 +127,7 @@ add_action('admin_menu', function() {
 		'users.php',                      // Parent menu slug
 		'Eksporter medlemsliste',         // Page title
 		'Eksporter medlemsliste',         // Menu title
-		'manage_options',                 // Capability required
+		'export_member_list',             // Capability required
 		'export-users',                   // Menu slug
 		function() {                      // Callback function
 			wp_redirect(get_stylesheet_directory_uri() . '/admin/export-user-data.php');

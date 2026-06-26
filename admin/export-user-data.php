@@ -5,7 +5,7 @@ require __DIR__ . '/../vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-if (!is_user_logged_in() || !current_user_can('manage_options'))
+if (!is_user_logged_in() || !current_user_can('export_member_list'))
 	wp_die('You do not have sufficient permissions to access this page.');
 
 $users = get_users();

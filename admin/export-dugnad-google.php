@@ -9,7 +9,7 @@ require __DIR__ . '/../includes/google/sheets-export.php';
 
 header('Content-Type: application/json');
 
-if (!is_user_logged_in() || !current_user_can('manage_options')) {
+if (!is_user_logged_in() || !current_user_can('export_member_list')) {
 	http_response_code(403);
 	echo json_encode([
 		'success' => false,

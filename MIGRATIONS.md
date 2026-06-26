@@ -4,6 +4,33 @@ Manuelle endringer som må kjøres ved deploy. Hver migrering er knyttet til en 
 
 ---
 
+## 2026-06-15: Egen «Styret»-rolle
+
+**Commit:** `Add Styret user role with content and member-list access`
+
+### Automatisk
+
+Rollen «Styret» registreres automatisk ved første innlogging i wp-admin etter deploy
+(versjonert via `BLEIKOYA_STYRET_ROLE_VERSION` i `includes/admin/roles.php`). Ingen
+manuell kjøring trengs for selve rollen. Administratorer får samtidig den nye capen
+`export_member_list`, så medlemseksporten fungerer som før.
+
+### Manuelt engangssteg
+
+Tildel rollen til de aktuelle styremedlemmene:
+
+- **Brukere** i wp-admin → huk av de aktuelle hyttene → **Endre rolle til → Styret** → **Endre**
+- (eller per bruker: rediger brukeren og velg rollen «Styret»)
+
+Alternativt via WP-CLI:
+```bash
+wp user set-role <bruker> styret
+```
+
+Hytteeier-status (`user-cabin-number`) påvirkes ikke av rolleendringen.
+
+---
+
 ## 2026-01-02: Google Docs med tabellstøtte
 
 **Commit:** `Add Python-based markdown to Google Docs with table support`

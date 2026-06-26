@@ -5,7 +5,7 @@ add_action('rest_api_init', function () {
 		'methods' => 'GET',
 		'callback' => 'export_user_data',
 		'permission_callback' => function () {
-			return current_user_can('manage_options');
+			return current_user_can('export_member_list');
 		}
 	));
 });
@@ -18,7 +18,7 @@ add_action('init', function() {
 });
 
 function export_user_data() {
-	if (!is_user_logged_in() || !current_user_can('manage_options')) {
+	if (!is_user_logged_in() || !current_user_can('export_member_list')) {
 		return new WP_Error('rest_forbidden', esc_html__('You do not have sufficient permissions to access this endpoint.'), array('status' => 403));
 	}
 
