@@ -19,7 +19,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
           script: |
-            bash /www/wp-content/themes/bleikoya-2023/scripts/backup.sh
+            bash /webroots/www/wp-content/themes/bleikoya-2023/scripts/backup.sh
 
       - name: Notify on failure
         if: failure()
