@@ -4,14 +4,14 @@
  *
  * Tests coordinate storage, validation, and styling with real WordPress database.
  * Requires: TEST_TYPE=integration environment variable
- *
- * @group integration
  */
 
 declare(strict_types=1);
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 
-
+#[Group('integration')]
 class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
 {
     private int $location_id;
@@ -39,7 +39,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
     // Coordinate Storage Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function update_coordinates_stores_marker_as_json(): void
     {
         $coords = ['lat' => 59.8933, 'lng' => 10.7555];
@@ -57,7 +57,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
         $this->assertEquals(10.7555, $decoded['lng']);
     }
 
-    /** @test */
+    #[Test]
     public function get_coordinates_returns_decoded_array(): void
     {
         // Store as JSON string (as update_location_coordinates does)
@@ -71,7 +71,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
         $this->assertEquals(10.7555, $coords['lng']);
     }
 
-    /** @test */
+    #[Test]
     public function coordinates_persist_across_requests(): void
     {
         $original = ['lat' => 59.8933, 'lng' => 10.7555];
@@ -90,7 +90,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
     // Rectangle Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function update_coordinates_stores_rectangle(): void
     {
         $coords = [
@@ -108,7 +108,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
         $this->assertEquals($coords['bounds'], $retrieved['bounds']);
     }
 
-    /** @test */
+    #[Test]
     public function update_coordinates_stores_rectangle_with_object_format(): void
     {
         $coords = [
@@ -130,7 +130,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
     // Polygon Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function update_coordinates_stores_polygon(): void
     {
         $coords = [
@@ -154,7 +154,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
     // Type Storage Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function update_type_persists_marker(): void
     {
         $result = update_location_type($this->location_id, 'marker');
@@ -165,7 +165,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
         $this->assertEquals('marker', $type);
     }
 
-    /** @test */
+    #[Test]
     public function update_type_persists_rectangle(): void
     {
         update_location_type($this->location_id, 'rectangle');
@@ -174,7 +174,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
         $this->assertEquals('rectangle', $type);
     }
 
-    /** @test */
+    #[Test]
     public function update_type_persists_polygon(): void
     {
         update_location_type($this->location_id, 'polygon');
@@ -183,7 +183,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
         $this->assertEquals('polygon', $type);
     }
 
-    /** @test */
+    #[Test]
     public function update_type_rejects_invalid(): void
     {
         $result = update_location_type($this->location_id, 'circle');
@@ -196,7 +196,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
     // Style Storage Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function update_style_stores_color(): void
     {
         update_location_style($this->location_id, ['color' => '#ff0000']);
@@ -205,7 +205,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
         $this->assertEquals('#ff0000', $style['color']);
     }
 
-    /** @test */
+    #[Test]
     public function update_style_stores_rgb_color(): void
     {
         update_location_style($this->location_id, ['color' => 'rgb(90, 146, 203)']);
@@ -214,7 +214,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
         $this->assertEquals('rgb(90, 146, 203)', $style['color']);
     }
 
-    /** @test */
+    #[Test]
     public function update_style_applies_preset(): void
     {
         update_location_style($this->location_id, ['preset' => 'brygge']);
@@ -224,7 +224,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
         $this->assertEquals('anchor', $style['icon']);
     }
 
-    /** @test */
+    #[Test]
     public function update_style_clamps_opacity(): void
     {
         update_location_style($this->location_id, ['opacity' => 1.5]);
@@ -242,7 +242,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
     // Label Storage Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function update_label_stores_string(): void
     {
         update_location_label($this->location_id, '42');
@@ -251,7 +251,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
         $this->assertEquals('42', $label);
     }
 
-    /** @test */
+    #[Test]
     public function update_label_sanitizes_input(): void
     {
         update_location_label($this->location_id, '<script>alert("xss")</script>42');
@@ -261,7 +261,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
         $this->assertStringNotContainsString('<script>', $label);
     }
 
-    /** @test */
+    #[Test]
     public function empty_label_returns_null(): void
     {
         update_location_label($this->location_id, '');
@@ -274,7 +274,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
     // get_location_data() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function get_location_data_returns_complete_data(): void
     {
         // Set up location with all data
@@ -293,7 +293,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
         $this->assertEquals('hytte', $data['style']['preset']);
     }
 
-    /** @test */
+    #[Test]
     public function get_location_data_uses_cabin_number_as_fallback_label(): void
     {
         // Create a user with cabin number
@@ -309,7 +309,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
         $this->assertEquals('99', $data['label']);
     }
 
-    /** @test */
+    #[Test]
     public function get_location_data_prefers_manual_label_over_cabin_number(): void
     {
         // Create a user with cabin number
@@ -330,7 +330,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
     // Preset Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function marker_presets_have_valid_colors(): void
     {
         $presets = get_marker_presets();
@@ -349,7 +349,7 @@ class LocationCoordinatesIntegrationTest extends WP_UnitTestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function all_presets_can_be_applied(): void
     {
         $presets = get_marker_presets();

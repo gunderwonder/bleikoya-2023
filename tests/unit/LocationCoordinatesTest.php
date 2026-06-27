@@ -7,6 +7,8 @@
 
 declare(strict_types=1);
 
+use PHPUnit\Framework\Attributes\Test;
+
 use PHPUnit\Framework\TestCase;
 
 // Mock sanitize functions not in our wordpress-mocks.php
@@ -59,7 +61,7 @@ class LocationCoordinatesTest extends TestCase
     // validate_coordinates() Tests - Markers
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_accepts_valid_marker(): void
     {
         $coords = ['lat' => 59.8933, 'lng' => 10.7555];
@@ -67,7 +69,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertTrue(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_accepts_marker_with_string_numbers(): void
     {
         $coords = ['lat' => '59.8933', 'lng' => '10.7555'];
@@ -75,7 +77,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertTrue(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_accepts_marker_with_negative_coordinates(): void
     {
         $coords = ['lat' => -33.8688, 'lng' => -151.2093];
@@ -83,7 +85,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertTrue(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_accepts_marker_with_zero(): void
     {
         $coords = ['lat' => 0, 'lng' => 0];
@@ -91,7 +93,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertTrue(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_rejects_marker_missing_lat(): void
     {
         $coords = ['lng' => 10.7555];
@@ -99,7 +101,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertFalse(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_rejects_marker_missing_lng(): void
     {
         $coords = ['lat' => 59.8933];
@@ -107,7 +109,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertFalse(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_rejects_marker_with_non_numeric_lat(): void
     {
         $coords = ['lat' => 'invalid', 'lng' => 10.7555];
@@ -115,7 +117,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertFalse(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_rejects_marker_with_non_numeric_lng(): void
     {
         $coords = ['lat' => 59.8933, 'lng' => 'invalid'];
@@ -127,7 +129,7 @@ class LocationCoordinatesTest extends TestCase
     // validate_coordinates() Tests - Rectangles
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_accepts_rectangle_with_array_bounds(): void
     {
         $coords = [
@@ -140,7 +142,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertTrue(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_accepts_rectangle_with_object_bounds(): void
     {
         $coords = [
@@ -153,7 +155,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertTrue(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_rejects_rectangle_with_one_bound(): void
     {
         $coords = [
@@ -165,7 +167,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertFalse(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_rejects_rectangle_with_three_bounds(): void
     {
         $coords = [
@@ -179,7 +181,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertFalse(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_rejects_rectangle_with_invalid_array_bound(): void
     {
         $coords = [
@@ -192,7 +194,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertFalse(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_rejects_rectangle_with_non_numeric_bound(): void
     {
         $coords = [
@@ -209,7 +211,7 @@ class LocationCoordinatesTest extends TestCase
     // validate_coordinates() Tests - Polygons
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_accepts_valid_polygon(): void
     {
         $coords = [
@@ -223,7 +225,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertTrue(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_accepts_polygon_with_object_points(): void
     {
         $coords = [
@@ -237,7 +239,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertTrue(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_accepts_complex_polygon(): void
     {
         // A polygon with many points
@@ -254,7 +256,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertTrue(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_rejects_polygon_with_two_points(): void
     {
         $coords = [
@@ -267,7 +269,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertFalse(validate_coordinates($coords));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_rejects_polygon_with_invalid_point(): void
     {
         $coords = [
@@ -285,25 +287,25 @@ class LocationCoordinatesTest extends TestCase
     // validate_coordinates() Tests - Edge Cases
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_rejects_null(): void
     {
         $this->assertFalse(validate_coordinates(null));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_rejects_string(): void
     {
         $this->assertFalse(validate_coordinates('invalid'));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_rejects_empty_array(): void
     {
         $this->assertFalse(validate_coordinates([]));
     }
 
-    /** @test */
+    #[Test]
     public function validate_coordinates_rejects_unknown_format(): void
     {
         $coords = ['x' => 100, 'y' => 200];
@@ -315,7 +317,7 @@ class LocationCoordinatesTest extends TestCase
     // get_location_coordinates() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function get_location_coordinates_returns_null_when_not_set(): void
     {
         global $mock_posts;
@@ -326,7 +328,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertNull($result);
     }
 
-    /** @test */
+    #[Test]
     public function get_location_coordinates_returns_array_when_stored_as_array(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -342,7 +344,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertEquals(59.8933, $result['lat']);
     }
 
-    /** @test */
+    #[Test]
     public function get_location_coordinates_decodes_json_string(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -359,7 +361,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertEquals(10.7555, $result['lng']);
     }
 
-    /** @test */
+    #[Test]
     public function get_location_coordinates_returns_null_for_invalid_json(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -378,7 +380,7 @@ class LocationCoordinatesTest extends TestCase
     // update_location_coordinates() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function update_location_coordinates_saves_valid_marker(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -391,7 +393,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertNotEmpty($mock_post_meta[100]['_coordinates']);
     }
 
-    /** @test */
+    #[Test]
     public function update_location_coordinates_rejects_invalid_data(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -407,7 +409,7 @@ class LocationCoordinatesTest extends TestCase
     // get_location_type() / update_location_type() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function get_location_type_returns_null_when_not_set(): void
     {
         global $mock_posts;
@@ -418,7 +420,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertNull($result);
     }
 
-    /** @test */
+    #[Test]
     public function get_location_type_returns_stored_type(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -431,7 +433,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertEquals('marker', $result);
     }
 
-    /** @test */
+    #[Test]
     public function update_location_type_accepts_valid_types(): void
     {
         global $mock_posts;
@@ -442,7 +444,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertTrue(update_location_type(100, 'polygon'));
     }
 
-    /** @test */
+    #[Test]
     public function update_location_type_rejects_invalid_type(): void
     {
         global $mock_posts;
@@ -457,7 +459,7 @@ class LocationCoordinatesTest extends TestCase
     // get_marker_presets() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function get_marker_presets_returns_array(): void
     {
         $presets = get_marker_presets();
@@ -466,7 +468,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertNotEmpty($presets);
     }
 
-    /** @test */
+    #[Test]
     public function get_marker_presets_contains_required_keys(): void
     {
         $presets = get_marker_presets();
@@ -477,7 +479,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertArrayHasKey('velhus', $presets);
     }
 
-    /** @test */
+    #[Test]
     public function get_marker_presets_each_has_name_color_icon(): void
     {
         $presets = get_marker_presets();
@@ -493,7 +495,7 @@ class LocationCoordinatesTest extends TestCase
     // sanitize_marker_color() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function sanitize_marker_color_accepts_valid_hex(): void
     {
         $this->assertEquals('#ff0000', sanitize_marker_color('#ff0000'));
@@ -501,14 +503,14 @@ class LocationCoordinatesTest extends TestCase
         $this->assertEquals('#b93e3c', sanitize_marker_color('#b93e3c'));
     }
 
-    /** @test */
+    #[Test]
     public function sanitize_marker_color_accepts_rgb_format(): void
     {
         $this->assertEquals('rgb(255, 0, 0)', sanitize_marker_color('rgb(255, 0, 0)'));
         $this->assertEquals('rgb(90, 146, 203)', sanitize_marker_color('rgb(90, 146, 203)'));
     }
 
-    /** @test */
+    #[Test]
     public function sanitize_marker_color_rejects_invalid_formats(): void
     {
         $this->assertNull(sanitize_marker_color('red'));
@@ -520,7 +522,7 @@ class LocationCoordinatesTest extends TestCase
     // get_location_style() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function get_location_style_returns_defaults_when_not_set(): void
     {
         global $mock_posts;
@@ -535,7 +537,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertEquals('', $style['preset']);
     }
 
-    /** @test */
+    #[Test]
     public function get_location_style_decodes_json_string(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -551,7 +553,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertEquals(0.5, $style['opacity']);
     }
 
-    /** @test */
+    #[Test]
     public function get_location_style_merges_with_defaults(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -572,7 +574,7 @@ class LocationCoordinatesTest extends TestCase
     // update_location_style() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function update_location_style_sanitizes_color(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -585,7 +587,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertEquals('#ff0000', $stored['color']);
     }
 
-    /** @test */
+    #[Test]
     public function update_location_style_clamps_opacity(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -601,7 +603,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertEquals(0, $stored['opacity']);
     }
 
-    /** @test */
+    #[Test]
     public function update_location_style_clamps_weight(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -617,7 +619,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertEquals(1, $stored['weight']);
     }
 
-    /** @test */
+    #[Test]
     public function update_location_style_applies_preset(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -633,7 +635,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertEquals($presets['brygge']['icon'], $stored['icon']);
     }
 
-    /** @test */
+    #[Test]
     public function update_location_style_rejects_non_array(): void
     {
         $this->assertFalse(update_location_style(100, 'invalid'));
@@ -644,7 +646,7 @@ class LocationCoordinatesTest extends TestCase
     // get_location_label() / update_location_label() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function get_location_label_returns_null_when_not_set(): void
     {
         global $mock_posts;
@@ -653,7 +655,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertNull(get_location_label(100));
     }
 
-    /** @test */
+    #[Test]
     public function get_location_label_returns_stored_label(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -664,7 +666,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertEquals('42', get_location_label(100));
     }
 
-    /** @test */
+    #[Test]
     public function update_location_label_stores_label(): void
     {
         global $mock_posts, $mock_post_meta;
@@ -676,7 +678,7 @@ class LocationCoordinatesTest extends TestCase
         $this->assertEquals('42', $mock_post_meta[100]['_label'][0]);
     }
 
-    /** @test */
+    #[Test]
     public function update_location_label_sanitizes_html(): void
     {
         global $mock_posts, $mock_post_meta;

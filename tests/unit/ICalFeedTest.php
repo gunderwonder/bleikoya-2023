@@ -7,6 +7,8 @@
 
 declare(strict_types=1);
 
+use PHPUnit\Framework\Attributes\Test;
+
 use PHPUnit\Framework\TestCase;
 
 // Include the functions being tested
@@ -18,7 +20,7 @@ class ICalFeedTest extends TestCase
     // bleikoya_ical_escape() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function ical_escape_returns_empty_string_for_empty_input(): void
     {
         $result = bleikoya_ical_escape('');
@@ -26,7 +28,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_escape_preserves_plain_text(): void
     {
         $result = bleikoya_ical_escape('Simple event title');
@@ -34,7 +36,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Simple event title', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_escape_escapes_backslashes(): void
     {
         $result = bleikoya_ical_escape('Path\\to\\file');
@@ -42,7 +44,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Path\\\\to\\\\file', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_escape_escapes_commas(): void
     {
         $result = bleikoya_ical_escape('Oslo, Norway');
@@ -50,7 +52,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Oslo\\, Norway', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_escape_escapes_semicolons(): void
     {
         $result = bleikoya_ical_escape('Event; Special');
@@ -58,7 +60,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Event\\; Special', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_escape_converts_newlines_to_escaped_n(): void
     {
         $result = bleikoya_ical_escape("Line 1\nLine 2");
@@ -66,7 +68,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Line 1\\nLine 2', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_escape_converts_crlf_to_escaped_n(): void
     {
         $result = bleikoya_ical_escape("Line 1\r\nLine 2");
@@ -74,7 +76,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Line 1\\nLine 2', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_escape_converts_cr_to_escaped_n(): void
     {
         $result = bleikoya_ical_escape("Line 1\rLine 2");
@@ -82,7 +84,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Line 1\\nLine 2', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_escape_strips_html_tags(): void
     {
         $result = bleikoya_ical_escape('<strong>Bold</strong> text');
@@ -90,7 +92,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Bold text', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_escape_handles_complex_html(): void
     {
         $result = bleikoya_ical_escape('<p>Paragraph</p><br><a href="url">Link</a>');
@@ -98,7 +100,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('ParagraphLink', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_escape_handles_multiple_special_characters(): void
     {
         $result = bleikoya_ical_escape("Event; in Oslo, Norway\nwith backslash\\");
@@ -106,7 +108,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Event\\; in Oslo\\, Norway\\nwith backslash\\\\', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_escape_handles_norwegian_characters(): void
     {
         $result = bleikoya_ical_escape('Bleikøya Velforening');
@@ -114,7 +116,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Bleikøya Velforening', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_escape_preserves_unicode(): void
     {
         $result = bleikoya_ical_escape('Café ☕ møte');
@@ -126,7 +128,7 @@ class ICalFeedTest extends TestCase
     // bleikoya_ical_fold() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function ical_fold_preserves_short_lines(): void
     {
         $line = 'SUMMARY:Short title';
@@ -136,7 +138,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals($line, $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_fold_preserves_exactly_75_char_lines(): void
     {
         $line = str_repeat('x', 75);
@@ -146,7 +148,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals($line, $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_fold_folds_76_char_lines(): void
     {
         $line = str_repeat('x', 76);
@@ -158,7 +160,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_fold_folds_long_lines_at_75_chars(): void
     {
         $line = str_repeat('a', 160);
@@ -170,7 +172,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_fold_uses_crlf_and_space(): void
     {
         $line = str_repeat('z', 100);
@@ -181,7 +183,7 @@ class ICalFeedTest extends TestCase
         $this->assertStringContainsString("\r\n ", $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_fold_handles_realistic_summary(): void
     {
         $line = 'SUMMARY:This is a very long event title that exceeds seventy-five characters and needs to be folded';
@@ -195,7 +197,7 @@ class ICalFeedTest extends TestCase
         $this->assertLessThanOrEqual(76, strlen($lines[1])); // space + up to 75
     }
 
-    /** @test */
+    #[Test]
     public function ical_fold_handles_empty_string(): void
     {
         $result = bleikoya_ical_fold('');
@@ -207,7 +209,7 @@ class ICalFeedTest extends TestCase
     // bleikoya_ical_allday_dtend() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function ical_allday_dtend_adds_one_day(): void
     {
         $result = bleikoya_ical_allday_dtend('20240615');
@@ -215,7 +217,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('20240616', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_allday_dtend_handles_month_boundary(): void
     {
         $result = bleikoya_ical_allday_dtend('20240131');
@@ -223,7 +225,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('20240201', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_allday_dtend_handles_year_boundary(): void
     {
         $result = bleikoya_ical_allday_dtend('20241231');
@@ -231,7 +233,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('20250101', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_allday_dtend_handles_leap_year(): void
     {
         $result = bleikoya_ical_allday_dtend('20240228');
@@ -239,7 +241,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('20240229', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_allday_dtend_handles_leap_year_feb_29(): void
     {
         $result = bleikoya_ical_allday_dtend('20240229');
@@ -247,7 +249,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('20240301', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_allday_dtend_handles_non_leap_year(): void
     {
         $result = bleikoya_ical_allday_dtend('20230228');
@@ -255,7 +257,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('20230301', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_allday_dtend_returns_input_for_invalid_date(): void
     {
         $result = bleikoya_ical_allday_dtend('invalid');
@@ -263,7 +265,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('invalid', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_allday_dtend_returns_input_for_wrong_format(): void
     {
         $result = bleikoya_ical_allday_dtend('2024-06-15');
@@ -275,7 +277,7 @@ class ICalFeedTest extends TestCase
     // bleikoya_ical_uid() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function ical_uid_contains_post_id(): void
     {
         $result = bleikoya_ical_uid(123, '20240615T100000Z', false, 'bleikoya.net');
@@ -283,7 +285,7 @@ class ICalFeedTest extends TestCase
         $this->assertStringContainsString('bleikoya-123-', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_uid_contains_domain(): void
     {
         $result = bleikoya_ical_uid(123, '20240615T100000Z', false, 'bleikoya.net');
@@ -291,7 +293,7 @@ class ICalFeedTest extends TestCase
         $this->assertStringEndsWith('@bleikoya.net', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_uid_contains_hash(): void
     {
         $result = bleikoya_ical_uid(123, '20240615T100000Z', false, 'bleikoya.net');
@@ -300,7 +302,7 @@ class ICalFeedTest extends TestCase
         $this->assertMatchesRegularExpression('/^bleikoya-\d+-[a-f0-9]{32}@.+$/', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_uid_is_stable_for_same_inputs(): void
     {
         $uid1 = bleikoya_ical_uid(123, '20240615T100000Z', false, 'bleikoya.net');
@@ -309,7 +311,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals($uid1, $uid2);
     }
 
-    /** @test */
+    #[Test]
     public function ical_uid_differs_for_different_post_ids(): void
     {
         $uid1 = bleikoya_ical_uid(123, '20240615T100000Z', false, 'bleikoya.net');
@@ -318,7 +320,7 @@ class ICalFeedTest extends TestCase
         $this->assertNotEquals($uid1, $uid2);
     }
 
-    /** @test */
+    #[Test]
     public function ical_uid_differs_for_different_start_times(): void
     {
         $uid1 = bleikoya_ical_uid(123, '20240615T100000Z', false, 'bleikoya.net');
@@ -327,7 +329,7 @@ class ICalFeedTest extends TestCase
         $this->assertNotEquals($uid1, $uid2);
     }
 
-    /** @test */
+    #[Test]
     public function ical_uid_differs_for_allday_vs_timed_events(): void
     {
         // Same event ID, same date, but one is all-day
@@ -337,7 +339,7 @@ class ICalFeedTest extends TestCase
         $this->assertNotEquals($uid1, $uid2);
     }
 
-    /** @test */
+    #[Test]
     public function ical_uid_is_unique_for_recurring_event_occurrences(): void
     {
         // Same post ID, different dates (recurring event)
@@ -351,7 +353,7 @@ class ICalFeedTest extends TestCase
     // bleikoya_ical_location() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function ical_location_returns_empty_for_no_data(): void
     {
         $result = bleikoya_ical_location('', []);
@@ -359,7 +361,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_location_returns_venue_only(): void
     {
         $result = bleikoya_ical_location('Velhuset', []);
@@ -367,7 +369,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Velhuset', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_location_returns_address_only(): void
     {
         $result = bleikoya_ical_location('', ['Strandveien 1', '0150', 'Oslo', '', 'Norway']);
@@ -375,7 +377,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Strandveien 1, 0150, Oslo, Norway', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_location_combines_venue_and_address(): void
     {
         $result = bleikoya_ical_location('Velhuset', ['Strandveien 1', '0150', 'Oslo']);
@@ -383,7 +385,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Velhuset, Strandveien 1, 0150, Oslo', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_location_filters_empty_address_parts(): void
     {
         $result = bleikoya_ical_location('Velhuset', ['', '', 'Oslo', '', 'Norway']);
@@ -391,7 +393,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Velhuset, Oslo, Norway', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_location_trims_whitespace(): void
     {
         $result = bleikoya_ical_location('  Velhuset  ', ['  Oslo  ', '  Norway  ']);
@@ -399,7 +401,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Velhuset, Oslo, Norway', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_location_handles_all_empty_address_parts(): void
     {
         $result = bleikoya_ical_location('Velhuset', ['', '  ', '', null]);
@@ -408,7 +410,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Velhuset', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_location_handles_null_venue(): void
     {
         // tribe_get_venue() returns null for events without a venue
@@ -417,7 +419,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals('Oslo, Norway', $result);
     }
 
-    /** @test */
+    #[Test]
     public function ical_location_handles_empty_venue(): void
     {
         $result = bleikoya_ical_location('', ['Oslo', 'Norway']);
@@ -429,7 +431,7 @@ class ICalFeedTest extends TestCase
     // Integration-style tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function realistic_event_escaping(): void
     {
         $title = "Sommerfest på Bleikøya; mat, drikke og musikk!";
@@ -438,7 +440,7 @@ class ICalFeedTest extends TestCase
         $this->assertEquals("Sommerfest på Bleikøya\\; mat\\, drikke og musikk!", $escaped);
     }
 
-    /** @test */
+    #[Test]
     public function realistic_long_description(): void
     {
         $description = "DESCRIPTION:Velkommen til årets sommerfest på Bleikøya! Vi starter kl. 15:00 med aktiviteter for barn\\, deretter mat og drikke. Husk å melde deg på via skjemaet.";
@@ -453,7 +455,7 @@ class ICalFeedTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function multi_day_allday_event_dtend(): void
     {
         // A 3-day event from June 15-17 should have DTEND on June 18

@@ -4,14 +4,14 @@
  *
  * These tests run against a real WordPress installation with database.
  * Requires: TEST_TYPE=integration environment variable
- *
- * @group integration
  */
 
 declare(strict_types=1);
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 
-
+#[Group('integration')]
 class LocationConnectionsIntegrationTest extends WP_UnitTestCase
 {
     private int $location_id;
@@ -60,7 +60,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
     // Database Persistence Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function add_connection_persists_to_database(): void
     {
         $result = add_location_connection($this->location_id, $this->post_id, 'post');
@@ -75,7 +75,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
         $this->assertEquals('post', $stored[0]['type']);
     }
 
-    /** @test */
+    #[Test]
     public function add_connection_creates_bidirectional_link(): void
     {
         add_location_connection($this->location_id, $this->post_id, 'post');
@@ -86,7 +86,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
         $this->assertContains($this->location_id, $reverse);
     }
 
-    /** @test */
+    #[Test]
     public function remove_connection_removes_from_both_sides(): void
     {
         // First add
@@ -107,7 +107,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
     // User Connection Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function add_user_connection_uses_user_meta(): void
     {
         add_location_connection($this->location_id, $this->user_id, 'user');
@@ -118,7 +118,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
         $this->assertContains($this->location_id, $reverse);
     }
 
-    /** @test */
+    #[Test]
     public function get_connected_locations_works_for_users(): void
     {
         add_location_connection($this->location_id, $this->user_id, 'user');
@@ -132,7 +132,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
     // Term Connection Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function add_term_connection_works_with_real_taxonomy(): void
     {
         // Create a real term
@@ -149,7 +149,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
         $this->assertContains($this->location_id, $reverse);
     }
 
-    /** @test */
+    #[Test]
     public function add_term_connection_fails_for_nonexistent_term(): void
     {
         $result = add_location_term_connection($this->location_id, 99999, 'category');
@@ -161,7 +161,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
     // get_location_connections_full() Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function get_location_connections_full_returns_post_details(): void
     {
         add_location_connection($this->location_id, $this->post_id, 'post');
@@ -175,7 +175,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
         $this->assertNotEmpty($connections[0]['link']);
     }
 
-    /** @test */
+    #[Test]
     public function get_location_connections_full_returns_user_details(): void
     {
         add_location_connection($this->location_id, $this->user_id, 'user');
@@ -192,7 +192,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
         $this->assertEquals('42', $connections[0]['cabin_number']);
     }
 
-    /** @test */
+    #[Test]
     public function get_location_connections_full_returns_term_details(): void
     {
         $term = wp_insert_term('Nature', 'category');
@@ -213,7 +213,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
     // Cleanup on Delete Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function cleanup_removes_connections_when_location_deleted(): void
     {
         add_location_connection($this->location_id, $this->post_id, 'post');
@@ -230,7 +230,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
         $this->assertEmpty($user_reverse);
     }
 
-    /** @test */
+    #[Test]
     public function cleanup_only_affects_kartpunkt_posts(): void
     {
         // This test ensures non-kartpunkt posts don't trigger cleanup
@@ -257,7 +257,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
     // Multiple Connections Tests
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function location_can_have_multiple_connections(): void
     {
         $post2 = $this->factory->post->create(['post_type' => 'post']);
@@ -273,7 +273,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
         $this->assertCount(4, $connections);
     }
 
-    /** @test */
+    #[Test]
     public function post_can_be_connected_to_multiple_locations(): void
     {
         $location2 = $this->factory->post->create([
@@ -295,7 +295,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
     // Edge Cases
     // ===========================================
 
-    /** @test */
+    #[Test]
     public function adding_same_connection_twice_does_not_duplicate(): void
     {
         add_location_connection($this->location_id, $this->post_id, 'post');
@@ -306,7 +306,7 @@ class LocationConnectionsIntegrationTest extends WP_UnitTestCase
         $this->assertCount(1, $connections);
     }
 
-    /** @test */
+    #[Test]
     public function different_types_with_same_id_are_separate_connections(): void
     {
         // Create a user with same ID as a post (possible in WP)

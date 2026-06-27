@@ -1,6 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Health Check Tests
@@ -92,41 +93,31 @@ class HealthCheckTest extends TestCase {
 	// Core Pages (@group core)
 	// =========================================================================
 
-	/**
-	 * @group core
-	 */
+	#[Group('core')]
 	public function test_homepage_returns_200(): void {
 		$response = $this->request('/');
 		$this->assertEquals(200, $response['status'], 'Homepage should return 200');
 	}
 
-	/**
-	 * @group core
-	 */
+	#[Group('core')]
 	public function test_admin_redirects_to_login(): void {
 		$response = $this->request('/wp-admin/', 'GET', [], false);
 		$this->assertEquals(302, $response['status'], 'Admin area should redirect (302) when not logged in');
 	}
 
-	/**
-	 * @group core
-	 */
+	#[Group('core')]
 	public function test_login_page_returns_200(): void {
 		$response = $this->request('/wp-login.php');
 		$this->assertEquals(200, $response['status'], 'Login page should return 200');
 	}
 
-	/**
-	 * @group core
-	 */
+	#[Group('core')]
 	public function test_search_page_returns_200(): void {
 		$response = $this->request('/search/test');
 		$this->assertEquals(200, $response['status'], 'Search page should return 200');
 	}
 
-	/**
-	 * @group core
-	 */
+	#[Group('core')]
 	public function test_404_page_returns_404(): void {
 		$response = $this->request('/this-page-does-not-exist-' . time() . '/');
 		$this->assertEquals(404, $response['status'], 'Non-existent page should return 404');
@@ -136,17 +127,13 @@ class HealthCheckTest extends TestCase {
 	// REST API (@group core)
 	// =========================================================================
 
-	/**
-	 * @group core
-	 */
+	#[Group('core')]
 	public function test_rest_api_returns_200(): void {
 		$response = $this->request('/wp-json/');
 		$this->assertEquals(200, $response['status'], 'REST API root should return 200');
 	}
 
-	/**
-	 * @group core
-	 */
+	#[Group('core')]
 	public function test_rest_api_returns_json(): void {
 		$response = $this->request('/wp-json/');
 
@@ -158,9 +145,7 @@ class HealthCheckTest extends TestCase {
 		$this->assertArrayHasKey('name', $json, 'REST API response should include site name');
 	}
 
-	/**
-	 * @group core
-	 */
+	#[Group('core')]
 	public function test_user_export_api_requires_auth(): void {
 		$response = $this->request('/wp-json/custom/v1/export-user-data');
 		$this->assertEquals(401, $response['status'], 'User export API should require authentication (401)');
@@ -170,9 +155,7 @@ class HealthCheckTest extends TestCase {
 	// Search XHR (@group feature)
 	// =========================================================================
 
-	/**
-	 * @group feature
-	 */
+	#[Group('feature')]
 	public function test_search_xhr_returns_json(): void {
 		$response = $this->request('/search/test', 'GET', [
 			'X-Requested-With: XMLHttpRequest',
@@ -189,17 +172,13 @@ class HealthCheckTest extends TestCase {
 	// iCal Feed (@group feature)
 	// =========================================================================
 
-	/**
-	 * @group feature
-	 */
+	#[Group('feature')]
 	public function test_ical_feed_returns_200(): void {
 		$response = $this->request('/featured-events.ics');
 		$this->assertEquals(200, $response['status'], 'iCal feed should return 200');
 	}
 
-	/**
-	 * @group feature
-	 */
+	#[Group('feature')]
 	public function test_ical_feed_has_correct_content_type(): void {
 		$response = $this->request('/featured-events.ics');
 
@@ -207,9 +186,7 @@ class HealthCheckTest extends TestCase {
 		$this->assertStringContainsString('text/calendar', $content_type, 'iCal feed should have text/calendar content-type');
 	}
 
-	/**
-	 * @group feature
-	 */
+	#[Group('feature')]
 	public function test_ical_feed_has_valid_format(): void {
 		$response = $this->request('/featured-events.ics');
 
@@ -221,9 +198,7 @@ class HealthCheckTest extends TestCase {
 	// Map Page (@group feature)
 	// =========================================================================
 
-	/**
-	 * @group feature
-	 */
+	#[Group('feature')]
 	public function test_map_page_returns_200(): void {
 		$response = $this->request('/kart/');
 		$this->assertEquals(200, $response['status'], 'Map page should return 200');
@@ -233,17 +208,13 @@ class HealthCheckTest extends TestCase {
 	// Kartpunkt REST API (@group feature)
 	// =========================================================================
 
-	/**
-	 * @group feature
-	 */
+	#[Group('feature')]
 	public function test_kartpunkt_api_returns_200(): void {
 		$response = $this->request('/wp-json/wp/v2/kartpunkt');
 		$this->assertEquals(200, $response['status'], 'Kartpunkt API should return 200');
 	}
 
-	/**
-	 * @group feature
-	 */
+	#[Group('feature')]
 	public function test_kartpunkt_api_returns_json_array(): void {
 		$response = $this->request('/wp-json/wp/v2/kartpunkt');
 
@@ -255,9 +226,7 @@ class HealthCheckTest extends TestCase {
 	// Content Search API (@group feature)
 	// =========================================================================
 
-	/**
-	 * @group feature
-	 */
+	#[Group('feature')]
 	public function test_content_search_api_returns_200(): void {
 		$response = $this->request('/wp-json/bleikoya/v1/search?q=bleikoya');
 		$this->assertEquals(200, $response['status'], 'Content search API should return 200');
@@ -268,9 +237,7 @@ class HealthCheckTest extends TestCase {
 		$this->assertFalse($json['meta']['includes_private'], 'Unauthenticated should not include private');
 	}
 
-	/**
-	 * @group feature
-	 */
+	#[Group('feature')]
 	public function test_events_search_returns_200(): void {
 		$response = $this->request('/wp-json/bleikoya/v1/search?type=events');
 		$this->assertEquals(200, $response['status'], 'Events search should return 200');
@@ -284,9 +251,7 @@ class HealthCheckTest extends TestCase {
 	// Style Guide (@group feature)
 	// =========================================================================
 
-	/**
-	 * @group feature
-	 */
+	#[Group('feature')]
 	public function test_style_guide_returns_200(): void {
 		$response = $this->request('/stilguide/');
 		$this->assertEquals(200, $response['status'], 'Style guide page should return 200');
