@@ -193,10 +193,9 @@ GOOGLE_SHARED_DRIVE_ID=<drive-id-from-url>
 
 Production (`.env`):
 ```
-GOOGLE_APPLICATION_CREDENTIALS=/webroots/www/google-credentials.json
+GOOGLE_APPLICATION_CREDENTIALS=/webroots/www/.secrets/google-credentials.json
 GOOGLE_SHARED_DRIVE_ID=<drive-id-from-url>
 ```
-(Path follows the one.com webroot move to `/webroots/www` — verify the credentials file's actual location on the server.)
 
 **4. Usage:**
 - Go to WordPress Admin → Users
