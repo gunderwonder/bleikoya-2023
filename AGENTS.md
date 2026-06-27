@@ -52,7 +52,7 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 │   ├── mocks/             # Mock functions for unit tests
 │   └── bootstrap.php      # Test bootstrapping
 ├── acf-json/              # ACF field groups (auto-synced JSON)
-├── vendor/                # Composer dependencies (currently committed)
+├── vendor/                # Composer dependencies (gitignored; rebuilt on the server at deploy)
 ├── composer.json          # Composer dependencies
 ├── phpunit.xml            # PHPUnit configuration
 ├── author.php             # Author page template (cabin owner info)
@@ -102,7 +102,7 @@ WordPress theme for Bleikøya Velforening (Bleikøya Residents' Association) web
 - `monolog/monolog` - Logging
 - `guzzlehttp/guzzle` - HTTP client
 - `vlucas/phpdotenv` - Environment configuration
-- `phpunit/phpunit` - Testing framework (dev)
+- `phpunit/phpunit` - Testing framework, v12 (dev). Tests use PHP attributes (`#[Test]`, `#[Group('...')]`) — doc-comment metadata (`@test`, `@group`) is **not** honored by PHPUnit 12
 
 ## Testing
 
@@ -141,15 +141,20 @@ composer test:integration  # Integration tests (requires WP test framework)
 - Content-type headers
 
 ### CI/CD
-PHPUnit tests run automatically via GitHub Actions on push/PR (see `.github/workflows/phpunit.yml`)
+The unit suite runs automatically via GitHub Actions on push/PR (see `.github/workflows/test.yml`, job runs `composer test:unit` on PHP 8.3 with `coverage: none`). A successful Tests run triggers the deploy workflow. Health/integration suites are not run in CI.
 
 ## Deployment
-- **Method**: GitHub Actions workflow (`.github/workflows/deploy.yml`)
+- **Method**: GitHub Actions workflow (`.github/workflows/deploy.yml`), triggered after a successful Tests run
 - **Trigger**: Push to `main` branch
-- **Process**: SSH to server → `git pull` in theme directory
+- **Process**: SSH to server → `git pull` → `composer install --no-dev --optimize-autoloader` in the theme directory (this is why `vendor/` is gitignored — it's rebuilt on the server from `composer.lock`)
 - **Auth**: SSH key stored in GitHub Secrets as `SSH_PRIVATE_KEY`
-- **Server**: bleikoya.net@ssh.bleikoya.net
-- **Path**: `/www/wp-content/themes/bleikoya-2023`
+- **Server**: bleikoya.net@ssh.bleikoya.net (one.com)
+- **Path**: `/webroots/www/wp-content/themes/bleikoya-2023` (the one.com webroot is `/webroots/www`; WordPress root is `/webroots/www`)
+
+### Nightly database backup
+- **Workflow**: `.github/workflows/backup.yml` (cron 02:00 UTC + `workflow_dispatch`)
+- **Process**: SSH to server → runs `scripts/backup.sh`, which `wp db export`s to `$HOME/backups` (gzipped, 30-day retention)
+- **Note**: server paths (`WP_PATH=/webroots/www`, `BACKUP_DIR=$HOME/backups`) are overridable via env vars
 
 ## Local Development
 - **Local URL**: https://bleikoya.test
@@ -188,9 +193,10 @@ GOOGLE_SHARED_DRIVE_ID=<drive-id-from-url>
 
 Production (`.env`):
 ```
-GOOGLE_APPLICATION_CREDENTIALS=/www/google-credentials.json
+GOOGLE_APPLICATION_CREDENTIALS=/webroots/www/google-credentials.json
 GOOGLE_SHARED_DRIVE_ID=<drive-id-from-url>
 ```
+(Path follows the one.com webroot move to `/webroots/www` — verify the credentials file's actual location on the server.)
 
 **4. Usage:**
 - Go to WordPress Admin → Users
