@@ -40,8 +40,8 @@ require 'includes/api/location-coordinates.php';
 require 'includes/api/location-rest-endpoints.php';
 require 'includes/api/content-search.php';
 
-// Fase 0 streaming PoC — TEMPORARY, remove after one.com streaming is verified
-require 'includes/agent/streaming-poc.php';
+// Øyarkivaren — board members' search assistant (streaming chat endpoint)
+require 'includes/agent/agent.php';
 require 'includes/admin/location-meta-boxes.php';
 require 'includes/admin/connected-locations-meta-box.php';
 require 'includes/admin/location-ajax.php';

@@ -16,26 +16,7 @@ if (!current_user_can('read_private_posts')) {
 	wp_die('Du har ikke tilgang til agenten.', 403);
 }
 
-$agent_auth_secret = $_ENV['AGENT_AUTH_SECRET'] ?? $_SERVER['AGENT_AUTH_SECRET'] ?? '';
-$agent_base_url = rtrim($_ENV['AGENT_BASE_URL'] ?? $_SERVER['AGENT_BASE_URL'] ?? '', '/');
 $current_user = wp_get_current_user();
-
-// Generate JWT (HS256) for the current user
-$token = '';
-if ($agent_auth_secret) {
-	$header = base64url_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
-	$payload = base64url_encode(json_encode([
-		'sub' => (string) $current_user->ID,
-		'name' => $current_user->display_name,
-		'iss' => 'bleikoya.net',
-		'iat' => time(),
-		'exp' => time() + 3600,
-	]));
-	$signature = base64url_encode(
-		hash_hmac('sha256', "$header.$payload", $agent_auth_secret, true)
-	);
-	$token = "$header.$payload.$signature";
-}
 
 get_header();
 ?>
@@ -110,9 +91,10 @@ body {
 
 <script src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
 <script>
+	// Same-origin PHP endpoint (chat.js POSTs to baseUrl + '/chat' → /agent/chat).
+	// Auth is the WordPress session — no token needed.
 	window.AGENT_CONFIG = {
-		baseUrl: <?php echo json_encode($agent_base_url); ?>,
-		token: <?php echo json_encode($token); ?>,
+		baseUrl: <?php echo wp_json_encode(home_url('/agent')); ?>,
 	};
 </script>
 <script src="<?php echo get_stylesheet_directory_uri(); ?>/agent/static/chat.js?v=<?php echo bleikoya_asset_version('/agent/static/chat.js'); ?>"></script>
