@@ -39,6 +39,9 @@ require 'includes/api/location-connections.php';
 require 'includes/api/location-coordinates.php';
 require 'includes/api/location-rest-endpoints.php';
 require 'includes/api/content-search.php';
+
+// Fase 0 streaming PoC — TEMPORARY, remove after one.com streaming is verified
+require 'includes/agent/streaming-poc.php';
 require 'includes/admin/location-meta-boxes.php';
 require 'includes/admin/connected-locations-meta-box.php';
 require 'includes/admin/location-ajax.php';
