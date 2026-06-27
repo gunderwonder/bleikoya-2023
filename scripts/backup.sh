@@ -10,8 +10,8 @@ DATE=$(date +%Y%m%d)
 KEEP_DAYS=30
 
 # Konfigurasjon via miljøvariabler (fallback til prod-verdier)
-WP_PATH="${WP_PATH:-/www}"
-BACKUP_DIR="${BACKUP_DIR:-/home/bleikoya.net/backups}"
+WP_PATH="${WP_PATH:-/webroots/www}"
+BACKUP_DIR="${BACKUP_DIR:-$HOME/backups}"
 
 mkdir -p "$BACKUP_DIR"
 
