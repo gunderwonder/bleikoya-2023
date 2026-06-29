@@ -72,6 +72,9 @@
 				<?php $queried_object = get_queried_object() ?>
 				<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'galleri' || (isset($queried_object->taxonomy) && $queried_object->taxonomy === 'gallery')) : ?>b-menu__link--active<?php endif; ?>" href="/galleri/" data-text="Bilder">Bilder</a></li>
 			<?php endif; ?>
+			<?php if (current_user_can('edit_posts')) : ?>
+				<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'agent') : ?>b-menu__link--active<?php endif; ?>" href="/agent/" data-text="Arkivaren">Arkivaren</a></li>
+			<?php endif; ?>
 			<li class="b-menu__item"><a class="b-menu__link <?php if ($post && $post->post_name === 'kontakt') : ?>b-menu__link--active<?php endif; ?>" href="/kontakt/" data-text="Kontakt">Kontakt</a></li>
 		</ul>
 
@@ -97,8 +100,16 @@
 								</a>
 
 							</li>
+							<?php if (current_user_can('edit_posts')) : ?>
 							<li class="b-profile-button__menu-item">
-								<a href="<?php echo $logout_url; ?>" tabindex="2">
+								<a href="<?php echo esc_url(admin_url()); ?>" tabindex="2">
+									<i data-lucide="layout-dashboard"></i> Administrasjon
+								</a>
+
+							</li>
+							<?php endif; ?>
+							<li class="b-profile-button__menu-item">
+								<a href="<?php echo $logout_url; ?>" tabindex="3">
 									<i data-lucide="log-out"></i> Logg ut
 								</a>
 
