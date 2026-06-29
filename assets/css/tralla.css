@@ -1003,7 +1003,7 @@ aside .b-subject-list {
 	font-size: 0.9rem;
 	position: relative;
 	z-index: 100;
-
+	white-space: nowrap;
 }
 
 .b-profile-button__menu-item .lucide {
