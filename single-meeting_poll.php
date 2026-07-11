@@ -32,6 +32,12 @@ get_header(); ?>
 			<p class="meeting-poll__empty">Denne pollen har ingen datoalternativer enda.</p>
 		<?php else: ?>
 
+			<?php if (!is_user_logged_in() && !empty($placeholders)): ?>
+				<p class="meeting-poll__hint">
+					Er du i styret? Klikk navnet ditt i lista for å svare — ellers skriv navnet ditt i «Ditt navn»-raden.
+				</p>
+			<?php endif; ?>
+
 			<div class="meeting-poll__table-wrap">
 				<table class="meeting-poll__table">
 					<thead>
@@ -59,7 +65,56 @@ get_header(); ?>
 					</thead>
 
 					<tbody>
-						<!-- "Du"-rad: skjema for den som stemmer nå -->
+						<!-- Eksisterende svar -->
+						<?php foreach ($responses as $r): ?>
+							<tr
+								class="meeting-poll__row"
+								data-user-id="<?php echo esc_attr($r['user_id'] ?? ''); ?>"
+								data-name="<?php echo esc_attr($r['name'] ?? ''); ?>"
+							>
+								<th scope="row" class="meeting-poll__cell-name"><?php echo esc_html($r['name'] ?? ''); ?></th>
+								<?php foreach ($options as $i => $_opt):
+									$vote = $r['votes'][$i] ?? '';
+								?>
+									<td class="meeting-poll__cell meeting-poll__cell--<?php echo esc_attr($vote ?: 'blank'); ?>"></td>
+								<?php endforeach; ?>
+							</tr>
+						<?php endforeach; ?>
+
+						<!-- Styremedlemmer som ennå ikke har svart — tomme rader så hele styret vises.
+						     Når man ikke er pålogget er raden "claimbar": klikk navnet ditt for å svare i den. -->
+						<?php $claimable = !is_user_logged_in(); ?>
+						<?php foreach ($placeholders as $m): ?>
+							<tr
+								class="meeting-poll__row meeting-poll__row--placeholder<?php echo $claimable ? ' meeting-poll__row--claimable' : ''; ?>"
+								data-user-id="<?php echo (int) $m['user_id']; ?>"
+								data-name="<?php echo esc_attr($m['name']); ?>"
+								data-placeholder="1"
+							>
+								<th scope="row" class="meeting-poll__cell-name">
+									<?php if ($claimable): ?>
+										<button type="button" class="meeting-poll__claim"><?php echo esc_html($m['name']); ?></button>
+									<?php else: ?>
+										<?php echo esc_html($m['name']); ?>
+									<?php endif; ?>
+								</th>
+								<?php foreach ($options as $i => $_opt): ?>
+									<td class="meeting-poll__cell meeting-poll__cell--blank<?php echo $claimable ? ' meeting-poll__cell--self' : ''; ?>">
+										<?php if ($claimable): ?>
+											<button
+												type="button"
+												class="meeting-poll__vote"
+												data-option="<?php echo (int) $i; ?>"
+												data-vote=""
+												aria-label="Endre svar for alternativ <?php echo (int) $i + 1; ?>"
+											></button>
+										<?php endif; ?>
+									</td>
+								<?php endforeach; ?>
+							</tr>
+						<?php endforeach; ?>
+
+						<!-- "Du"-rad nederst: skjema for den som stemmer nå (nytt/eksternt navn) -->
 						<tr class="meeting-poll__row-self" data-self="1">
 							<th scope="row" class="meeting-poll__cell-name">
 								<input
@@ -85,37 +140,6 @@ get_header(); ?>
 								</td>
 							<?php endforeach; ?>
 						</tr>
-
-						<!-- Eksisterende svar -->
-						<?php foreach ($responses as $r): ?>
-							<tr
-								class="meeting-poll__row"
-								data-user-id="<?php echo esc_attr($r['user_id'] ?? ''); ?>"
-								data-name="<?php echo esc_attr($r['name'] ?? ''); ?>"
-							>
-								<th scope="row" class="meeting-poll__cell-name"><?php echo esc_html($r['name'] ?? ''); ?></th>
-								<?php foreach ($options as $i => $_opt):
-									$vote = $r['votes'][$i] ?? '';
-								?>
-									<td class="meeting-poll__cell meeting-poll__cell--<?php echo esc_attr($vote ?: 'blank'); ?>"></td>
-								<?php endforeach; ?>
-							</tr>
-						<?php endforeach; ?>
-
-						<!-- Styremedlemmer som ennå ikke har svart — tomme rader så hele styret vises -->
-						<?php foreach ($placeholders as $m): ?>
-							<tr
-								class="meeting-poll__row meeting-poll__row--placeholder"
-								data-user-id="<?php echo (int) $m['user_id']; ?>"
-								data-name="<?php echo esc_attr($m['name']); ?>"
-								data-placeholder="1"
-							>
-								<th scope="row" class="meeting-poll__cell-name"><?php echo esc_html($m['name']); ?></th>
-								<?php foreach ($options as $i => $_opt): ?>
-									<td class="meeting-poll__cell meeting-poll__cell--blank"></td>
-								<?php endforeach; ?>
-							</tr>
-						<?php endforeach; ?>
 					</tbody>
 				</table>
 			</div>

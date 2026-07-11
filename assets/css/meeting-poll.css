@@ -152,10 +152,47 @@
 	content: "✕";
 }
 
+/* Hint over tabellen — hvordan legge inn svar uten innlogging */
+.meeting-poll__hint {
+	margin: 0 0 1rem;
+	color: var(--b-header-color);
+	font-size: 0.875rem;
+}
+
 /* Plassholderrad — styremedlem som ennå ikke har svart */
 .meeting-poll__row--placeholder .meeting-poll__cell-name {
 	font-weight: 400;
 	color: #999;
+}
+
+/* "Claim"-knapp: navnet i en plassholderrad, klikkbart for å svare i raden */
+.meeting-poll__claim {
+	font: inherit;
+	font-weight: 400;
+	color: #999;
+	background: none;
+	border: 0;
+	padding: 0;
+	cursor: pointer;
+	text-align: left;
+	width: 100%;
+	border-radius: var(--b-radius-box);
+}
+.meeting-poll__claim:hover {
+	color: var(--b-header-color);
+	text-decoration: underline;
+}
+.meeting-poll__claim:focus-visible {
+	outline: 2px solid var(--b-blue-color);
+	outline-offset: 2px;
+}
+
+/* Aktiv rad — den du fyller ut nå */
+.meeting-poll__row--active .meeting-poll__cell-name,
+.meeting-poll__row--active .meeting-poll__claim {
+	color: var(--b-header-color);
+	font-weight: 600;
+	text-decoration: none;
 }
 
 /* "Du"-rad bakgrunn + klikkbar celle */
