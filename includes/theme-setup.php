@@ -183,6 +183,7 @@ function bleikoya_enqueue_meeting_poll_assets() {
 		'nonce'         => wp_create_nonce('wp_rest'),
 		'isLoggedIn'    => is_user_logged_in(),
 		'currentUserId' => get_current_user_id(),
+		'roster'        => meeting_poll_get_styret_roster(),
 		'i18n'          => [
 			'saving'       => 'Lagrer…',
 			'saved'        => 'Lagret!',

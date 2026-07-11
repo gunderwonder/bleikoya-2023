@@ -84,6 +84,8 @@
 
 		if (!ownRow) return;
 
+		var isPlaceholder = ownRow.dataset.placeholder === '1';
+
 		// Speil tilstand fra eksisterende rad inn i Du-radens knapper
 		var cells = ownRow.querySelectorAll('.meeting-poll__cell');
 		cells.forEach(function (cell, idx) {
@@ -100,7 +102,8 @@
 
 		// Skjul den duplikate raden — Du-raden er nå "vår"
 		ownRow.style.display = 'none';
-		deleteBtn.hidden = false;
+		// Bare vis "Slett" hvis vi faktisk har et lagret svar (ikke en tom plassholderrad)
+		deleteBtn.hidden = isPlaceholder;
 	}
 
 	function rerenderResponses(responses, yourRowIndex) {
@@ -136,7 +139,11 @@
 		});
 
 		// Legg til svarrader
+		var answered = {};
+		var answeredNames = {};
 		responses.forEach(function (r, idx) {
+			if (r.user_id) answered[r.user_id] = true;
+			if (r.name) answeredNames[r.name.trim().toLowerCase()] = true;
 			if (idx === yourRowIndex) return; // Du-raden representerer denne
 			var tr = document.createElement('tr');
 			tr.className = 'meeting-poll__row';
@@ -154,6 +161,31 @@
 				var vote = (r.votes && r.votes[i]) || '';
 				td.className = 'meeting-poll__cell meeting-poll__cell--' + (vote || 'blank');
 				tr.appendChild(td);
+			}
+			tbody.appendChild(tr);
+		});
+
+		// Plassholderrader for styremedlemmer som ennå ikke har svart
+		(data.roster || []).forEach(function (m) {
+			if (answered[m.user_id]) return; // har allerede en ekte rad
+			if (m.name && answeredNames[m.name.trim().toLowerCase()]) return; // svart anonymt med samme navn
+			if (data.currentUserId && parseInt(m.user_id, 10) === parseInt(data.currentUserId, 10)) return; // Du-raden representerer meg
+			var tr = document.createElement('tr');
+			tr.className = 'meeting-poll__row meeting-poll__row--placeholder';
+			tr.dataset.userId = m.user_id;
+			tr.dataset.name = m.name || '';
+			tr.dataset.placeholder = '1';
+
+			var th = document.createElement('th');
+			th.scope = 'row';
+			th.className = 'meeting-poll__cell-name';
+			th.textContent = m.name || '';
+			tr.appendChild(th);
+
+			for (var j = 0; j < numOptions; j++) {
+				var cell = document.createElement('td');
+				cell.className = 'meeting-poll__cell meeting-poll__cell--blank';
+				tr.appendChild(cell);
 			}
 			tbody.appendChild(tr);
 		});

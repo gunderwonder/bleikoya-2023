@@ -8,12 +8,14 @@
 
 get_header(); ?>
 
-<div class="b-center">
+<div class="b-center-wide">
 	<main class="meeting-poll">
 		<?php while (have_posts()) : the_post();
 			$post_id   = get_the_ID();
 			$options   = meeting_poll_get_options($post_id);
 			$responses = meeting_poll_get_responses($post_id);
+			$roster    = meeting_poll_get_styret_roster();
+			$placeholders = meeting_poll_get_placeholder_members($responses, $roster);
 			$yes_counts = meeting_poll_count_yes_per_option($post_id, count($options));
 			$max_yes = !empty($yes_counts) ? max($yes_counts) : 0;
 		?>
@@ -37,9 +39,19 @@ get_header(); ?>
 							<th scope="col" class="meeting-poll__th-name">Navn</th>
 							<?php foreach ($options as $i => $opt):
 								$is_leader = ($max_yes > 0 && $yes_counts[$i] === $max_yes);
+								$parts = meeting_poll_format_option_parts($opt);
 							?>
 								<th scope="col" class="meeting-poll__th-option<?php echo $is_leader ? ' meeting-poll__col--leader' : ''; ?>">
-									<span class="meeting-poll__option-label"><?php echo esc_html(meeting_poll_format_option($opt)); ?></span>
+									<?php if ($parts['weekday'] !== ''): ?>
+										<span class="meeting-poll__option-weekday"><?php echo esc_html($parts['weekday']); ?></span>
+									<?php endif; ?>
+									<span class="meeting-poll__option-label"><?php echo esc_html($parts['date']); ?></span>
+									<?php if ($parts['time'] !== ''): ?>
+										<span class="meeting-poll__option-time"><?php echo esc_html($parts['time']); ?></span>
+									<?php endif; ?>
+									<?php if ($parts['note'] !== ''): ?>
+										<span class="meeting-poll__option-note"><?php echo esc_html($parts['note']); ?></span>
+									<?php endif; ?>
 									<span class="meeting-poll__yes-count"><?php echo (int) $yes_counts[$i]; ?> ja</span>
 								</th>
 							<?php endforeach; ?>
@@ -86,6 +98,21 @@ get_header(); ?>
 									$vote = $r['votes'][$i] ?? '';
 								?>
 									<td class="meeting-poll__cell meeting-poll__cell--<?php echo esc_attr($vote ?: 'blank'); ?>"></td>
+								<?php endforeach; ?>
+							</tr>
+						<?php endforeach; ?>
+
+						<!-- Styremedlemmer som ennå ikke har svart — tomme rader så hele styret vises -->
+						<?php foreach ($placeholders as $m): ?>
+							<tr
+								class="meeting-poll__row meeting-poll__row--placeholder"
+								data-user-id="<?php echo (int) $m['user_id']; ?>"
+								data-name="<?php echo esc_attr($m['name']); ?>"
+								data-placeholder="1"
+							>
+								<th scope="row" class="meeting-poll__cell-name"><?php echo esc_html($m['name']); ?></th>
+								<?php foreach ($options as $i => $_opt): ?>
+									<td class="meeting-poll__cell meeting-poll__cell--blank"></td>
 								<?php endforeach; ?>
 							</tr>
 						<?php endforeach; ?>

@@ -197,15 +197,97 @@ function meeting_poll_format_option($option) {
 }
 
 /**
+ * Split a formatted date option into parts for a compact, stacked column
+ * header. Keeping weekday / date / time on separate lines lets the option
+ * columns stay narrow, so more of them fit before the table needs to scroll.
+ *
+ * Returns ['weekday' => 'tir', 'date' => '15. mai', 'time' => 'kl. 19:00', 'note' => '…'].
+ */
+function meeting_poll_format_option_parts($option) {
+	$date = $option['date'] ?? '';
+	$time = $option['time'] ?? '';
+	$note = $option['note'] ?? '';
+
+	$ts = $date !== '' ? strtotime($date) : false;
+	if ($ts === false) {
+		return array('weekday' => '', 'date' => (string) $date, 'time' => '', 'note' => (string) $note);
+	}
+
+	return array(
+		'weekday' => wp_date('D', $ts),
+		'date'    => wp_date('j. M', $ts),
+		'time'    => $time !== '' ? 'kl. ' . $time : '',
+		'note'    => (string) $note,
+	);
+}
+
+/**
  * Resolve display name for the current user (for prefilling the form).
+ * Prefers the first name — the board is small, first names read cleanly and
+ * keep the name column narrow (matches the roster rows from meeting_poll_get_styret_roster()).
  */
 function meeting_poll_default_name() {
 	if (!is_user_logged_in()) {
 		return '';
 	}
 	$user = wp_get_current_user();
+	$first = trim($user->first_name);
+	if ($first !== '') {
+		return $first;
+	}
 	$full = trim($user->first_name . ' ' . $user->last_name);
 	return !empty($full) ? $full : $user->display_name;
+}
+
+/**
+ * All board members (role 'styret') as roster entries, sorted by first name.
+ * Returns [['user_id' => int, 'name' => firstname], ...].
+ *
+ * Used to seed the poll with a row per board member so it is obvious who is
+ * expected to answer, even before anyone has voted.
+ */
+function meeting_poll_get_styret_roster() {
+	$users = get_users(array('role' => 'styret'));
+	$roster = array();
+	foreach ($users as $u) {
+		$first = trim((string) get_user_meta($u->ID, 'first_name', true));
+		$roster[] = array(
+			'user_id' => (int) $u->ID,
+			'name'    => $first !== '' ? $first : $u->display_name,
+		);
+	}
+	usort($roster, function ($a, $b) {
+		return strcasecmp($a['name'], $b['name']);
+	});
+	return $roster;
+}
+
+/**
+ * Board members from the roster who do not yet have a response — rendered as
+ * empty placeholder rows so the whole board shows up in the list from the start.
+ */
+function meeting_poll_get_placeholder_members(array $responses, array $roster) {
+	$answered_ids = array();
+	$answered_names = array();
+	foreach ($responses as $r) {
+		if (!empty($r['user_id'])) {
+			$answered_ids[(int) $r['user_id']] = true;
+		}
+		if (!empty($r['name'])) {
+			$answered_names[mb_strtolower(trim((string) $r['name']))] = true;
+		}
+	}
+	$out = array();
+	foreach ($roster as $m) {
+		if (!empty($answered_ids[$m['user_id']])) {
+			continue;
+		}
+		if (!empty($answered_names[mb_strtolower(trim($m['name']))])) {
+			continue;
+		}
+		$out[] = $m;
+	}
+	return $out;
 }
 
 /* ---------------------------------------------------------------------- */
