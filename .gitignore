@@ -7,10 +7,10 @@ secrets/
 *.credentials.json
 vendor/
 
-# Python agent
-agent/.venv/
-agent/.env
 __pycache__/
+.venv/
+
+.claude/settings.local.json
 
 # PHPUnit
 .phpunit.cache/
