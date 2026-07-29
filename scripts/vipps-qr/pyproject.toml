@@ -1,0 +1,9 @@
+[project]
+name = "vipps-qr"
+version = "0.1.0"
+description = "Generer styliserte Vipps QR-koder med valgfri logo i midten"
+requires-python = ">=3.11"
+dependencies = [
+    "qrcode[pil]>=7.4.2",
+    "Pillow>=10.0.0",
+]
