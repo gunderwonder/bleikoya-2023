@@ -223,14 +223,19 @@ function meeting_poll_format_option_parts($option) {
 
 /**
  * Resolve display name for the current user (for prefilling the form).
- * Prefers the first name — the board is small, first names read cleanly and
- * keep the name column narrow (matches the roster rows from meeting_poll_get_styret_roster()).
+ * Prefers the "Navn i styresammenheng" override if set, then the first
+ * name — the board is small, first names read cleanly and keep the name
+ * column narrow (matches the roster rows from meeting_poll_get_styret_roster()).
  */
 function meeting_poll_default_name() {
 	if (!is_user_logged_in()) {
 		return '';
 	}
 	$user = wp_get_current_user();
+	$override = trim((string) get_user_meta($user->ID, 'styret_name', true));
+	if ($override !== '') {
+		return $override;
+	}
 	$first = trim($user->first_name);
 	if ($first !== '') {
 		return $first;
@@ -250,10 +255,9 @@ function meeting_poll_get_styret_roster() {
 	$users = get_users(array('role' => 'styret'));
 	$roster = array();
 	foreach ($users as $u) {
-		$first = trim((string) get_user_meta($u->ID, 'first_name', true));
 		$roster[] = array(
 			'user_id' => (int) $u->ID,
-			'name'    => $first !== '' ? $first : $u->display_name,
+			'name'    => meeting_poll_user_roster_name($u->ID),
 		);
 	}
 	usort($roster, function ($a, $b) {
@@ -289,6 +293,76 @@ function meeting_poll_get_placeholder_members(array $responses, array $roster) {
 	}
 	return $out;
 }
+
+/* ---------------------------------------------------------------------- */
+/* Styret display name override                                           */
+/* ---------------------------------------------------------------------- */
+
+/**
+ * Resolve the roster display name for a user: the "Navn i styresammenheng"
+ * override (user meta 'styret_name') if set, otherwise first_name,
+ * otherwise display_name.
+ */
+function meeting_poll_user_roster_name($user_id) {
+	$override = trim((string) get_user_meta($user_id, 'styret_name', true));
+	if ($override !== '') {
+		return $override;
+	}
+	$first = trim((string) get_user_meta($user_id, 'first_name', true));
+	if ($first !== '') {
+		return $first;
+	}
+	$user = get_userdata($user_id);
+	return $user ? $user->display_name : '';
+}
+
+/**
+ * Profile field: let a board member's WP account show a different name in
+ * the meeting poll roster (e.g. the account belongs to one household
+ * member, but another represents the cabin on the board).
+ */
+function meeting_poll_render_styret_name_field($user) {
+	if (!in_array('styret', (array) $user->roles, true)) {
+		return;
+	}
+	wp_nonce_field('save_styret_name', 'styret_name_nonce');
+	?>
+	<h2>Styret</h2>
+	<table class="form-table">
+		<tr>
+			<th><label for="styret_name">Navn i styresammenheng</label></th>
+			<td>
+				<input type="text" name="styret_name" id="styret_name" class="regular-text"
+					maxlength="80" value="<?php echo esc_attr(get_user_meta($user->ID, 'styret_name', true)); ?>" />
+				<p class="description">Valgfritt. Brukes i møtepollen (og andre styreoversikter) i stedet for fornavnet — f.eks. når en annen i husstanden representerer hytta i styret. La stå tomt for å bruke fornavnet.</p>
+			</td>
+		</tr>
+	</table>
+	<?php
+}
+add_action('show_user_profile', 'meeting_poll_render_styret_name_field');
+add_action('edit_user_profile', 'meeting_poll_render_styret_name_field');
+
+/**
+ * Save the "Navn i styresammenheng" override. The field is only rendered
+ * for styret users, so a missing nonce just means there is nothing to save.
+ */
+function meeting_poll_save_styret_name_field($user_id) {
+	if (!isset($_POST['styret_name_nonce']) || !wp_verify_nonce($_POST['styret_name_nonce'], 'save_styret_name')) {
+		return;
+	}
+	if (!current_user_can('edit_user', $user_id)) {
+		return;
+	}
+	$name = mb_substr(trim(sanitize_text_field(wp_unslash($_POST['styret_name'] ?? ''))), 0, 80);
+	if ($name === '') {
+		delete_user_meta($user_id, 'styret_name');
+	} else {
+		update_user_meta($user_id, 'styret_name', $name);
+	}
+}
+add_action('personal_options_update', 'meeting_poll_save_styret_name_field');
+add_action('edit_user_profile_update', 'meeting_poll_save_styret_name_field');
 
 /* ---------------------------------------------------------------------- */
 /* Admin: meta boxes and list column                                       */
